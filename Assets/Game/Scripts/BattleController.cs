@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+using System.Linq;
 using System.Collections;
+using System.Collections.Generic;
 
 public class BattleController : MonoBehaviour 
 {
@@ -9,6 +11,9 @@ public class BattleController : MonoBehaviour
 
 	private UnitController selectedPlayer = null;
     private UnitController selectedEnemy = null;
+
+    private List<UnitController> playerUnits = new List<UnitController>();
+    private List<UnitController> enemyUnits = new List<UnitController>();
 
     private bool isAnimating = false;
 
@@ -23,6 +28,7 @@ public class BattleController : MonoBehaviour
 		yield return new WaitForEndOfFrame();
 
 		InitUnits ();
+        yield return StartCoroutine(StartAutoBattle());
 	}
 
 	private void InitUnits()
@@ -32,18 +38,55 @@ public class BattleController : MonoBehaviour
         {
             var tile = mapController.GetTile(Const.Team.Player, playerPosition.Row, playerPosition.Column);
             var prefab = this.GetUnitPrefab(Const.Team.Player);
-            this.CreateUnitOnTile(tile, prefab);
+            this.CreateUnitOnTile(Const.Team.Player, tile, prefab);
         }
 
         foreach(var enemyPosition in layout.enemyPositions)
         {
             var tile = mapController.GetTile(Const.Team.Enemy, enemyPosition.Row, enemyPosition.Column);
             var prefab = this.GetUnitPrefab(Const.Team.Enemy);
-            this.CreateUnitOnTile(tile, prefab);
+            this.CreateUnitOnTile(Const.Team.Enemy, tile, prefab);
         }
 	}
 
-    private void CreateUnitOnTile(MapTile tile, GameObject prefab)
+    private IEnumerator StartAutoBattle()
+    {
+        var allUnits = new List<UnitController>(this.playerUnits);
+        allUnits.AddRange(this.enemyUnits);
+
+        var index = 0;
+        while(true)
+        {
+            var actor = allUnits[index];
+            if(!actor.IsDead)
+            {
+                var targetTile = TargetLogic.GetTargetTile(actor, allUnits);
+                yield return StartCoroutine(actor.AttackOpponentOnTile(targetTile));
+                if(AllOpponentDefeated(actor.Team))
+                {
+                    break;
+                }
+            }
+            index ++;
+            if(index >= allUnits.Count) {
+                index = 0;
+            }
+        }
+        yield return 0;
+    }
+
+    private List<UnitController> GetOpponentList(Const.Team actorTeam)
+    {
+        return actorTeam == Const.Team.Player ? this.enemyUnits : this.playerUnits;
+    }
+
+    private bool AllOpponentDefeated(Const.Team actorTeam)
+    {
+        var list = GetOpponentList(actorTeam);
+        return list.Find( x => !x.IsDead ) == null;
+    }
+
+    private void CreateUnitOnTile(Const.Team team, MapTile tile, GameObject prefab)
     {
         if(tile != null)
         {
@@ -59,7 +102,9 @@ public class BattleController : MonoBehaviour
             unitController.onAnimationStateChange += OnUnitAnimationStateChange;
 
             tile.AssignUnit(unitController);
-            unitController.SetCharacter(character);
+            unitController.Init(team, character);
+            var list = team == Const.Team.Player ? playerUnits : enemyUnits;
+            list.Add(unitController);
         }
     }
 

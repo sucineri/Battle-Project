@@ -10,17 +10,21 @@ public class UnitController : MonoBehaviour {
     [SerializeField] private GameObject damageTextPrefab;
 
     public MapTile CurrentTile { get; private set; }
+    public Const.Team Team { get; private set; }
+    public Character Character { get; private set; }
+
+    public bool IsDead { get { return this.Character.CurrentHp == 0; } }
 
     public event Action<bool> onAnimationStateChange;
 
-    private Character character;
     private float attackDistanceOffset = 1.5f;
     private float sizeDistanceOffset = 1.5f;
 
-    public void SetCharacter(Character character)
+    public void Init(Const.Team team, Character character)
     {
-        this.character = character;
-        this.hpBar.Init(0f, this.character.MaxHp, this.character.CurrentHp);
+        this.Team = team;
+        this.Character = character;
+        this.hpBar.Init(0f, this.Character.MaxHp, this.Character.CurrentHp);
     }
 
     public void AssignToTile(MapTile tile)
@@ -53,9 +57,9 @@ public class UnitController : MonoBehaviour {
 
     private IEnumerator TakeDamage(int damage)
     {
-        var hpRemaining = Mathf.Max(0f, this.character.CurrentHp - damage);
-        this.character.CurrentHp = (int)hpRemaining;
-        var isDead = this.character.CurrentHp == 0;
+        var hpRemaining = Mathf.Max(0f, this.Character.CurrentHp - damage);
+        this.Character.CurrentHp = (int)hpRemaining;
+        var isDead = this.Character.CurrentHp == 0;
 
         ShowDamageText(damage);
         AnimateHpChange(hpRemaining);
@@ -89,7 +93,7 @@ public class UnitController : MonoBehaviour {
         yield return new WaitForSeconds(animationController.GetAttackToDamageDelay());
         if(opponent != null)
         {
-            var damage = DamageLogic.GetNormalAttackDamage(this.character, opponent.character);
+            var damage = DamageLogic.GetNormalAttackDamage(this.Character, opponent.Character);
             yield return StartCoroutine(opponent.TakeDamage(damage));
         }
     }

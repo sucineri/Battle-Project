@@ -10,15 +10,15 @@ public class MapTile : MonoBehaviour {
     [SerializeField] private Color selectedColor;
 
     public UnitController CurrentUnit { get; private set; }
+    public int Row { get; set; }
+    public int Column { get; set; }
 
-	private int row;
-	private int column;
     private event Action<MapTile> onTileClick;
 
 	public void Init(int row, int column, Action<MapTile> onClick)
 	{
-		this.row = row;
-		this.column = column;
+		this.Row = row;
+		this.Column = column;
         this.onTileClick = onClick;
 	}
 
