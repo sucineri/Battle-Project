@@ -1,0 +1,15 @@
+/Users/yye/Development/RPG/Temp/bin/Debug/UnityEngine.dll
+/Users/yye/Development/RPG/Temp/bin/Debug/UnityEditor.dll
+/Users/yye/Development/RPG/Temp/bin/Debug/UnityEngine.UI.dll
+/Users/yye/Development/RPG/Temp/bin/Debug/UnityEngine.Networking.dll
+/Users/yye/Development/RPG/Temp/bin/Debug/UnityEngine.Analytics.dll
+/Users/yye/Development/RPG/Temp/bin/Debug/UnityEditor.iOS.Extensions.Xcode.dll
+/Users/yye/Development/RPG/Temp/bin/Debug/Mono.Cecil.dll
+/Users/yye/Development/RPG/Temp/bin/Debug/Unity.SerializationLogic.dll
+/Users/yye/Development/RPG/Temp/bin/Debug/Unity.DataContract.dll
+/Users/yye/Development/RPG/Temp/bin/Debug/ICSharpCode.NRefactory.dll
+/Users/yye/Development/RPG/Temp/bin/Debug/Unity.UNetWeaver.dll
+/Users/yye/Development/RPG/Temp/bin/Debug/Unity.UNetWeaver.dll.mdb
+/Users/yye/Development/RPG/Temp/bin/Debug/Unity.CecilTools.dll
+/Users/yye/Development/RPG/Temp/bin/Debug/Mono.Cecil.Pdb.dll
+/Users/yye/Development/RPG/Temp/bin/Debug/Mono.Cecil.Mdb.dll
