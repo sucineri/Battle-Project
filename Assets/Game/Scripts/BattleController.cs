@@ -47,6 +47,9 @@ public class BattleController : MonoBehaviour
     {
         if(tile != null)
         {
+            // TODO: should determine prefab base on character
+            var character = Character.Fighter();
+
             var position = tile.transform.position;
             var unit = Instantiate(prefab) as GameObject;
             unit.transform.position = position;
@@ -54,11 +57,9 @@ public class BattleController : MonoBehaviour
 
             var unitController = unit.GetComponent<UnitController>();
             unitController.onAnimationStateChange += OnUnitAnimationStateChange;
-            tile.AssignUnit(unitController);
-            unitController.RegisterDefaultRotation();
 
-            // generate character
-            unitController.SetCharacter(Character.Fighter());
+            tile.AssignUnit(unitController);
+            unitController.SetCharacter(character);
         }
     }
 
@@ -134,7 +135,7 @@ public class BattleController : MonoBehaviour
         {
             if(tileClicked.CurrentUnit != null)
             {
-                StartCoroutine(selectedPlayer.AttackTile(tileClicked));
+                StartCoroutine(selectedPlayer.AttackOpponentOnTile(tileClicked));
                 selectedPlayer.CurrentTile.SetSelected(false);
                 selectedPlayer = null;
             }
