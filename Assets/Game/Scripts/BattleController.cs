@@ -7,8 +7,6 @@ using System.Collections.Generic;
 public class BattleController : MonoBehaviour 
 {
     [SerializeField] private MapController mapController;
-    [SerializeField] private GameObject knightPrefab;
-    [SerializeField] private GameObject slimePrefab;
 
 	private UnitController selectedPlayer = null;
     private UnitController selectedEnemy = null;
@@ -21,6 +19,8 @@ public class BattleController : MonoBehaviour
     private TurnOrderManager turnOrderManager = new TurnOrderManager();
 
     private Action onTileClick = null;
+
+    private Dictionary<string, char> nameDict = new Dictionary<string, char>();
 
     public void Start()
     {
@@ -46,17 +46,35 @@ public class BattleController : MonoBehaviour
         foreach(var playerPosition in layout.playerPositions)
         {
             var tile = mapController.GetTile(Const.Team.Player, playerPosition.Row, playerPosition.Column);
-            var prefab = this.GetUnitPrefab(Const.Team.Player);
-            this.CreateUnitOnTile(Const.Team.Player, tile, prefab);
+            this.CreateUnitOnTile(Const.Team.Player, tile);
         }
 
         foreach(var enemyPosition in layout.enemyPositions)
         {
             var tile = mapController.GetTile(Const.Team.Enemy, enemyPosition.Row, enemyPosition.Column);
-            var prefab = this.GetUnitPrefab(Const.Team.Enemy);
-            this.CreateUnitOnTile(Const.Team.Enemy, tile, prefab);
+            this.CreateUnitOnTile(Const.Team.Enemy, tile);
         }
 	}
+
+    private char GetPostfix(string characterName)
+    {
+        if(this.nameDict.ContainsKey(characterName))
+        {
+            if(this.nameDict[characterName] == 'Z')
+            {
+                this.nameDict[characterName] = 'A';
+            }
+            else
+            {
+                this.nameDict[characterName] ++;
+            }
+        }
+        else
+        {
+            this.nameDict.Add(characterName, 'A');
+        }
+        return this.nameDict[characterName];
+    }
 
     private IEnumerator StartBattle()
     {
@@ -102,31 +120,36 @@ public class BattleController : MonoBehaviour
         return list.Find( x => !x.IsDead ) == null;
     }
 
-    private void CreateUnitOnTile(Const.Team team, MapTile tile, GameObject prefab)
+    private void CreateUnitOnTile(Const.Team team, MapTile tile)
     {
         if(tile != null)
         {
-            // TODO: should determine prefab base on character
-            var character = Character.Fighter();
+            var character = team == Const.Team.Player ? Character.Fighter() : Character.Slime();
+            var prefab = Resources.Load(character.ModelPath) as GameObject;
 
             var position = tile.transform.position;
             var unit = Instantiate(prefab) as GameObject;
+
             unit.transform.position = position;
+            if(team == Const.Team.Enemy)
+            {
+                unit.transform.Rotate(new Vector3(0f, 180f, 0f));
+            }
             unit.transform.SetParent(this.transform);
 
             var unitController = unit.GetComponent<UnitController>();
             unitController.onAnimationStateChange += OnUnitAnimationStateChange;
 
+            var postfix = this.GetPostfix(character.Name);
+
+            unitController.Init(team, character, postfix);
             tile.AssignUnit(unitController);
-            unitController.Init(team, character);
+
+            unitController.gameObject.name = unitController.UnitName;
+
             var list = team == Const.Team.Player ? playerUnits : enemyUnits;
             list.Add(unitController);
         }
-    }
-
-    private GameObject GetUnitPrefab(Const.Team team)
-    {
-        return team == Const.Team.Player ? knightPrefab : slimePrefab;
     }
 
     private void OnUnitAnimationStateChange(bool isAnimating)

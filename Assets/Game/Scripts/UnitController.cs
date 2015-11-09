@@ -16,6 +16,8 @@ public class UnitController : MonoBehaviour {
     public Const.Team Team { get; private set; }
     public Character Character { get; private set; }
     public float TurnOrderWeight { get; private set; }
+    public char Postfix { get; private set; }
+    public string UnitName { get { return this.Character.Name + " " + Postfix; } }
 
     public bool IsDead { get { return this.Character.CurrentHp == 0; } }
 
@@ -23,10 +25,11 @@ public class UnitController : MonoBehaviour {
 
     private float hpBarAnimationDuration = 0.5f;
 
-    public void Init(Const.Team team, Character character)
+    public void Init(Const.Team team, Character character, char postFix)
     {
         this.Team = team;
         this.Character = character;
+        this.Postfix = postFix;
         this.hpBar.Init(0f, this.Character.MaxHp, this.Character.CurrentHp);
         this.TurnOrderWeight = BattleActionWeight.GetDefaultTurnOrderWeight(this);
     }
