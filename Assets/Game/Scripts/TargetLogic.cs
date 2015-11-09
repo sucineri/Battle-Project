@@ -19,18 +19,9 @@ public class TargetLogic
     public static MapTile ColumnFirstTargetLogic (UnitController actor, List<UnitController> targetList)
     {
         targetList.Sort( (a, b) => {
-            var result = (ColumnDistance(actor, a).CompareTo(ColumnDistance(actor, b)));
-            if(result == 0)
-            {
-                result = (RowDistance(actor, a).CompareTo(RowDistance(actor, b)));
-                if(result == 0)
-                {
-                    return a.CurrentTile.Column.CompareTo(b.CurrentTile.Column);
-                }
-            }
-            return result;
-        });
-            
+            var result = a.CurrentTile.Column.CompareTo(b.CurrentTile.Column);
+            return result == 0 ? (RowDistance(actor, a).CompareTo(RowDistance(actor, b))) : result; 
+        });            
         return targetList[0].CurrentTile;
     }
 
@@ -38,22 +29,9 @@ public class TargetLogic
     {
         targetList.Sort( (a, b) => {
             var result = (RowDistance(actor, a).CompareTo(RowDistance(actor, b)));
-            if(result == 0)
-            {
-                result = (ColumnDistance(actor, a).CompareTo(ColumnDistance(actor, b)));
-                if(result == 0)
-                {
-                    return a.CurrentTile.Row.CompareTo(b.CurrentTile.Row);
-                }
-            }
-            return result;
+            return result == 0 ? a.CurrentTile.Column.CompareTo(b.CurrentTile.Column) : result;
         });
         return targetList[0].CurrentTile;
-    }
-
-    private static int ColumnDistance (UnitController a, UnitController b)
-    {
-        return Mathf.Abs(a.CurrentTile.Column - b.CurrentTile.Column);
     }
 
     private static int RowDistance (UnitController a, UnitController b)

@@ -27,7 +27,7 @@ public class Grid : MonoBehaviour {
                 tile.transform.localPosition = Vector3.zero;
 
                 var mapTile = tile.GetComponent<MapTile>();
-                mapTile.Init(i, j, onTileClick);
+                mapTile.Init(i, j, team, onTileClick);
                 tile.name = Const.GetTileKey(i, j);
                 dict.Add(tile.name, mapTile);
             }

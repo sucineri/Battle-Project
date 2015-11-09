@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,6 +18,10 @@ public class BattleController : MonoBehaviour
 
     private bool isAnimating = false;
 
+    private TurnOrderManager turnOrderManager = new TurnOrderManager();
+
+    private Action onTileClick = null;
+
     public void Start()
     {
         StartCoroutine(Init());
@@ -24,11 +29,15 @@ public class BattleController : MonoBehaviour
 
 	private IEnumerator Init()
 	{
-        mapController.Init(this.OnPlayerTileClick, this.OnEnemyTileClick);
+        mapController.Init(this.OnTileClick, this.OnTileClick);
 		yield return new WaitForEndOfFrame();
 
 		InitUnits ();
-        yield return StartCoroutine(StartAutoBattle());
+
+        var allUnits = this.playerUnits.Concat(this.enemyUnits).ToList();
+        turnOrderManager.Init(allUnits);
+
+        StartCoroutine(StartBattle());
 	}
 
 	private void InitUnits()
@@ -49,27 +58,34 @@ public class BattleController : MonoBehaviour
         }
 	}
 
-    private IEnumerator StartAutoBattle()
+    private IEnumerator StartBattle()
     {
-        var allUnits = new List<UnitController>(this.playerUnits);
-        allUnits.AddRange(this.enemyUnits);
+        var allUnits = this.playerUnits.Concat(this.enemyUnits).ToList();
 
         var index = 0;
+
         while(true)
         {
-            var actor = allUnits[index];
-            if(!actor.IsDead)
+            var actor = this.turnOrderManager.GetNextActor();
+            if(actor != null)
             {
-                var targetTile = TargetLogic.GetTargetTile(actor, allUnits);
-                yield return StartCoroutine(actor.AttackOpponentOnTile(targetTile));
+                if(actor.Team == Const.Team.Enemy)
+                {
+                    yield return StartCoroutine(actor.RunAI(allUnits));
+                }
+                else
+                {
+                    yield return StartCoroutine(this.WaitForUserInput(actor));
+                }
+
                 if(AllOpponentDefeated(actor.Team))
                 {
                     break;
                 }
             }
-            index ++;
-            if(index >= allUnits.Count) {
-                index = 0;
+            else
+            {
+                break;
             }
         }
         yield return 0;
@@ -118,13 +134,35 @@ public class BattleController : MonoBehaviour
         this.isAnimating = isAnimating;
     }
 
-    private void OnPlayerTileClick(MapTile tileClicked)
+    private IEnumerator WaitForUserInput(UnitController currentActor)
     {
-        if(isAnimating)
-        {
-            return;
-        }
+        var waitForInput = true;
+        this.onTileClick = () => { waitForInput = false; };
+        this.selectedPlayer = currentActor;
+        this.selectedPlayer.CurrentTile.SetSelected(true);
 
+        while (waitForInput)
+        {
+            yield return 0;
+        }
+        this.onTileClick = null;
+    }
+
+    private void OnTileClick(MapTile tileClicked)
+    {
+        if(isAnimating) return;
+        if(tileClicked.Team == Const.Team.Player)
+        {
+            StartCoroutine(OnPlayerTileClicked(tileClicked, this.onTileClick));
+        }
+        else if(tileClicked.CurrentUnit != null)
+        {
+            StartCoroutine(OnEnemyTileClicked(tileClicked, this.onTileClick));
+        }
+    }
+
+    private IEnumerator OnPlayerTileClicked(MapTile tileClicked, Action onComplete = null)
+    {
         // if a unit has been selectd before
         if(selectedPlayer != null)
         {
@@ -135,7 +173,6 @@ public class BattleController : MonoBehaviour
             if(tileBefore != tileAfter)
             {
                 tileBefore.SetSelected(false);
-                StartCoroutine(selectedPlayer.MoveToTile(tileAfter));
 
                 var unitOnTileClicked = tileAfter.CurrentUnit;
 
@@ -144,15 +181,16 @@ public class BattleController : MonoBehaviour
                 {
                     StartCoroutine(unitOnTileClicked.MoveToTile(tileBefore));
                 }
-                tileBefore.AssignUnit(unitOnTileClicked);
 
-                // assign the unit to the tile clicked and reset selectedPlayer pointer
+                yield return StartCoroutine(selectedPlayer.MoveToTile(tileAfter));
+
+                // swap units assignment
+                tileBefore.AssignUnit(unitOnTileClicked);
                 tileAfter.AssignUnit(selectedPlayer);
             }
             else // the same tile is clicked again
             {
                 tileClicked.SetSelected(false);
-
             }
 
             selectedPlayer = null;
@@ -167,23 +205,28 @@ public class BattleController : MonoBehaviour
                 tileClicked.SetSelected(true);
             }
         }
+        yield return 0;
+        if(onComplete != null)
+        {
+            onComplete();
+        }
     }
 
-    private void OnEnemyTileClick(MapTile tileClicked)
+    private IEnumerator OnEnemyTileClicked(MapTile tileClicked, Action onComplete = null)
     {
-        if(isAnimating)
-        {
-            return;
-        }
-
         if(selectedPlayer != null)
         {
             if(tileClicked.CurrentUnit != null)
             {
-                StartCoroutine(selectedPlayer.AttackOpponentOnTile(tileClicked));
+                yield return StartCoroutine(selectedPlayer.AttackOpponentOnTile(tileClicked));
                 selectedPlayer.CurrentTile.SetSelected(false);
                 selectedPlayer = null;
             }
+        }
+        yield return 0;
+        if(onComplete != null)
+        {
+            onComplete();
         }
     }
 }

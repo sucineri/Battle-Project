@@ -12,13 +12,15 @@ public class MapTile : MonoBehaviour {
     public UnitController CurrentUnit { get; private set; }
     public int Row { get; set; }
     public int Column { get; set; }
+    public Const.Team Team { get; private set; }
 
     private event Action<MapTile> onTileClick;
 
-	public void Init(int row, int column, Action<MapTile> onClick)
+    public void Init(int row, int column, Const.Team team, Action<MapTile> onClick)
 	{
 		this.Row = row;
 		this.Column = column;
+        this.Team = team;
         this.onTileClick = onClick;
 	}
 

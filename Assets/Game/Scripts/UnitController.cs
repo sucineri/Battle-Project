@@ -2,29 +2,33 @@
 using UnityEngine.UI;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class UnitController : MonoBehaviour {
 
     [SerializeField] private UnitAnimationController animationController;
     [SerializeField] private HpBar hpBar;
     [SerializeField] private GameObject damageTextPrefab;
+    [SerializeField] private float attackDistanceOffset = 1.5f;
+    [SerializeField] private float sizeDistanceOffset = 1f;
 
     public MapTile CurrentTile { get; private set; }
     public Const.Team Team { get; private set; }
     public Character Character { get; private set; }
+    public float TurnOrderWeight { get; private set; }
 
     public bool IsDead { get { return this.Character.CurrentHp == 0; } }
 
     public event Action<bool> onAnimationStateChange;
 
-    private float attackDistanceOffset = 1.5f;
-    private float sizeDistanceOffset = 1.5f;
+    private float hpBarAnimationDuration = 0.5f;
 
     public void Init(Const.Team team, Character character)
     {
         this.Team = team;
         this.Character = character;
         this.hpBar.Init(0f, this.Character.MaxHp, this.Character.CurrentHp);
+        this.TurnOrderWeight = BattleActionWeight.GetDefaultTurnOrderWeight(this);
     }
 
     public void AssignToTile(MapTile tile)
@@ -36,6 +40,7 @@ public class UnitController : MonoBehaviour {
     public IEnumerator AttackOpponentOnTile(MapTile opponentTile)
     {
         OnAnimationStateChange(true);
+        this.TurnOrderWeight += BattleActionWeight.GetAttackActionWeight(this);
         var startPosition = this.transform.position;
         var opponent = opponentTile.CurrentUnit;
         var distanceOffset = this.attackDistanceOffset + opponent.sizeDistanceOffset;
@@ -49,26 +54,27 @@ public class UnitController : MonoBehaviour {
     public IEnumerator MoveToTile(MapTile tile)
     {
         OnAnimationStateChange(true);
+        this.TurnOrderWeight += BattleActionWeight.GetMoveActionWeight(this);
         yield return StartCoroutine(animationController.MoveTowards(tile.transform.position));
-        tile.AssignUnit(this);
         animationController.DefaultStance();
         OnAnimationStateChange(false);
+    }
+
+    // default AI attack
+    public IEnumerator RunAI(List<UnitController> allUnits)
+    {
+        var targetTile = TargetLogic.GetTargetTile(this, allUnits);
+        yield return StartCoroutine(this.AttackOpponentOnTile(targetTile));
     }
 
     private IEnumerator TakeDamage(int damage)
     {
         var hpRemaining = Mathf.Max(0f, this.Character.CurrentHp - damage);
         this.Character.CurrentHp = (int)hpRemaining;
-        var isDead = this.Character.CurrentHp == 0;
 
         ShowDamageText(damage);
-        AnimateHpChange(hpRemaining);
-
-        yield return StartCoroutine(animationController.AnimateTakeDamage(isDead));
-        if(isDead)
-        {
-            hpBar.gameObject.SetActive(false);
-        }
+        StartCoroutine(AnimateHpChange(hpRemaining));
+        yield return StartCoroutine(animationController.AnimateTakeDamage(this.IsDead));
     }
 
     private void ShowDamageText(int damage)
@@ -82,9 +88,13 @@ public class UnitController : MonoBehaviour {
         damageText.ShowDamage(damage);
     }
 
-    private void AnimateHpChange(float hpRemaining)
+    private IEnumerator AnimateHpChange(float hpRemaining)
     {
-        StartCoroutine(hpBar.AnimateValueChange(hpRemaining));
+        yield return StartCoroutine(hpBar.AnimateValueChange(hpRemaining, hpBarAnimationDuration));
+        if(this.IsDead)
+        {
+            hpBar.gameObject.SetActive(false);
+        }
     }
         
     private IEnumerator AttackOpponent(UnitController opponent)

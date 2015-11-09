@@ -7,8 +7,6 @@ public class HpBar : MonoBehaviour {
 
     private Slider progressBar;
 
-    private float animationDuration = 0.5f;
-
     void Awake() 
     {
         this.progressBar = this.GetComponent<Slider>();
@@ -21,14 +19,14 @@ public class HpBar : MonoBehaviour {
         progressBar.value = current;
     }
 
-    public IEnumerator AnimateValueChange(float to)
+    public IEnumerator AnimateValueChange(float to, float duration)
     {
         var timeElapsed = 0f;
         var current = progressBar.value;
-        while(timeElapsed < animationDuration)
+        while(timeElapsed < duration)
         {
             timeElapsed += Time.deltaTime;
-            var progress = Mathf.Min(timeElapsed / animationDuration, 1f);
+            var progress = Mathf.Min(timeElapsed / duration, 1f);
             progressBar.value = Mathf.Lerp(current, to, progress);
             yield return 0;
         }
