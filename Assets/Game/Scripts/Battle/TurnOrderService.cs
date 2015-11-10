@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class TurnOrderManager 
+public class TurnOrderService 
 {
     private List<UnitController> allUnits = new List<UnitController>();
 

@@ -54,6 +54,17 @@ public class UnitController : MonoBehaviour {
         OnAnimationStateChange(false);
     }
 
+    private IEnumerator AttackOpponent(UnitController opponent)
+    {
+        StartCoroutine(animationController.AnimateAttack());
+        yield return new WaitForSeconds(animationController.GetAttackToDamageDelay());
+        if(opponent != null)
+        {
+            var damage = DamageLogic.GetNormalAttackDamage(this.Character, opponent.Character);
+            yield return StartCoroutine(opponent.TakeDamage(damage));
+        }
+    }
+
     public IEnumerator MoveToTile(MapTile tile)
     {
         OnAnimationStateChange(true);
@@ -97,17 +108,6 @@ public class UnitController : MonoBehaviour {
         if(this.IsDead)
         {
             hpBar.gameObject.SetActive(false);
-        }
-    }
-        
-    private IEnumerator AttackOpponent(UnitController opponent)
-    {
-        StartCoroutine(animationController.AnimateAttack());
-        yield return new WaitForSeconds(animationController.GetAttackToDamageDelay());
-        if(opponent != null)
-        {
-            var damage = DamageLogic.GetNormalAttackDamage(this.Character, opponent.Character);
-            yield return StartCoroutine(opponent.TakeDamage(damage));
         }
     }
 

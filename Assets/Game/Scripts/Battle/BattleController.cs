@@ -6,22 +6,18 @@ using System.Collections.Generic;
 
 public class BattleController : MonoBehaviour 
 {
-    [SerializeField] private MapController mapController;
-    [SerializeField] private TurnOrderView turnOrderView;
+    [SerializeField] private MapController _mapController;
+    [SerializeField] private TurnOrderView _turnOrderView;
 
-	private UnitController selectedPlayer = null;
-    private UnitController selectedEnemy = null;
+    private bool _isAnimating = false;
+    private bool _playerTurn = false;
+    public bool EnableInput { get { return !this._isAnimating && _playerTurn; } }
 
-    private List<UnitController> playerUnits = new List<UnitController>();
-    private List<UnitController> enemyUnits = new List<UnitController>();
+    private List<UnitController> _playerUnits = new List<UnitController>();
+    private List<UnitController> _enemyUnits = new List<UnitController>();
 
-    private bool isAnimating = false;
-
-    private TurnOrderManager turnOrderManager = new TurnOrderManager();
-
-    private Action onTileClick = null;
-
-    private Dictionary<string, char> nameDict = new Dictionary<string, char>();
+    private TurnOrderService _turnOrderManager = new TurnOrderService();
+    private UnitNameService _unitNameManager = new UnitNameService();
 
     public void Start()
     {
@@ -30,13 +26,13 @@ public class BattleController : MonoBehaviour
 
 	private IEnumerator Init()
 	{
-        mapController.Init(this.OnTileClick, this.OnTileClick);
+        _mapController.Init(this);
 		yield return new WaitForEndOfFrame();
 
 		InitUnits ();
 
-        var allUnits = this.playerUnits.Concat(this.enemyUnits).ToList();
-        turnOrderManager.Init(allUnits, this.UpdateTurnOrderView);
+        var allUnits = this._playerUnits.Concat(this._enemyUnits).ToList();
+        _turnOrderManager.Init(allUnits, this.UpdateTurnOrderView);
 
         StartCoroutine(StartBattle());
 	}
@@ -46,58 +42,40 @@ public class BattleController : MonoBehaviour
         var layout = MapLayout.GetDefaultLayout();
         foreach(var playerPosition in layout.playerPositions)
         {
-            var tile = mapController.GetTile(Const.Team.Player, playerPosition.Row, playerPosition.Column);
+            var tile = _mapController.GetTile(Const.Team.Player, playerPosition.Row, playerPosition.Column);
             this.CreateUnitOnTile(Const.Team.Player, tile);
         }
 
         foreach(var enemyPosition in layout.enemyPositions)
         {
-            var tile = mapController.GetTile(Const.Team.Enemy, enemyPosition.Row, enemyPosition.Column);
+            var tile = _mapController.GetTile(Const.Team.Enemy, enemyPosition.Row, enemyPosition.Column);
             this.CreateUnitOnTile(Const.Team.Enemy, tile);
         }
 	}
 
-    private char GetPostfix(string characterName)
-    {
-        if(this.nameDict.ContainsKey(characterName))
-        {
-            if(this.nameDict[characterName] == 'Z')
-            {
-                this.nameDict[characterName] = 'A';
-            }
-            else
-            {
-                this.nameDict[characterName] ++;
-            }
-        }
-        else
-        {
-            this.nameDict.Add(characterName, 'A');
-        }
-        return this.nameDict[characterName];
-    }
-
     private IEnumerator StartBattle()
     {
-        var allUnits = this.playerUnits.Concat(this.enemyUnits).ToList();
+        var allUnits = this._playerUnits.Concat(this._enemyUnits).ToList();
 
         var index = 0;
 
         while(true)
         {
-            var actor = this.turnOrderManager.GetNextActor();
+            var actor = this._turnOrderManager.GetNextActor();
             if(actor != null)
             {
                 if(actor.Team == Const.Team.Enemy)
                 {
+                    this._playerTurn = false;
                     yield return StartCoroutine(actor.RunAI(allUnits));
                 }
                 else
                 {
-                    yield return StartCoroutine(this.WaitForUserInput(actor));
+                    this._playerTurn = true;
+                    yield return StartCoroutine(this._mapController.WaitForUserInput(actor));
                 }
 
-                if(AllOpponentDefeated(actor.Team))
+                if(AllOpponentsDefeated(actor.Team))
                 {
                     break;
                 }
@@ -112,10 +90,10 @@ public class BattleController : MonoBehaviour
 
     private List<UnitController> GetOpponentList(Const.Team actorTeam)
     {
-        return actorTeam == Const.Team.Player ? this.enemyUnits : this.playerUnits;
+        return actorTeam == Const.Team.Player ? this._enemyUnits : this._playerUnits;
     }
 
-    private bool AllOpponentDefeated(Const.Team actorTeam)
+    private bool AllOpponentsDefeated(Const.Team actorTeam)
     {
         var list = GetOpponentList(actorTeam);
         return list.Find( x => !x.IsDead ) == null;
@@ -141,121 +119,25 @@ public class BattleController : MonoBehaviour
             var unitController = unit.GetComponent<UnitController>();
             unitController.onAnimationStateChange += OnUnitAnimationStateChange;
 
-            var postfix = this.GetPostfix(character.Name);
+            var postfix = this._unitNameManager.GetPostfix(character.Name);
 
             unitController.Init(team, character, postfix);
             tile.AssignUnit(unitController);
 
             unitController.gameObject.name = unitController.UnitName;
 
-            var list = team == Const.Team.Player ? playerUnits : enemyUnits;
+            var list = team == Const.Team.Player ? _playerUnits : _enemyUnits;
             list.Add(unitController);
         }
     }
 
     private void OnUnitAnimationStateChange(bool isAnimating)
     {
-        this.isAnimating = isAnimating;
+        this._isAnimating = isAnimating;
     }
-
-    private IEnumerator WaitForUserInput(UnitController currentActor)
-    {
-        var waitForInput = true;
-        this.onTileClick = () => { waitForInput = false; };
-        this.selectedPlayer = currentActor;
-        this.selectedPlayer.CurrentTile.SetSelected(true);
-
-        while (waitForInput)
-        {
-            yield return 0;
-        }
-        this.onTileClick = null;
-    }
-
-    private void OnTileClick(MapTile tileClicked)
-    {
-        if(isAnimating) return;
-        if(tileClicked.Team == Const.Team.Player)
-        {
-            StartCoroutine(OnPlayerTileClicked(tileClicked, this.onTileClick));
-        }
-        else if(tileClicked.CurrentUnit != null)
-        {
-            StartCoroutine(OnEnemyTileClicked(tileClicked, this.onTileClick));
-        }
-    }
-
-    private IEnumerator OnPlayerTileClicked(MapTile tileClicked, Action onComplete = null)
-    {
-        // if a unit has been selectd before
-        if(selectedPlayer != null)
-        {
-            var tileBefore = selectedPlayer.CurrentTile;
-            var tileAfter = tileClicked;
-
-            // if a different tile is clicked
-            if(tileBefore != tileAfter)
-            {
-                tileBefore.SetSelected(false);
-
-                var unitOnTileClicked = tileAfter.CurrentUnit;
-
-                // if there's another unit on tile clied
-                if(unitOnTileClicked != null)
-                {
-                    StartCoroutine(unitOnTileClicked.MoveToTile(tileBefore));
-                }
-
-                yield return StartCoroutine(selectedPlayer.MoveToTile(tileAfter));
-
-                // swap units assignment
-                tileBefore.AssignUnit(unitOnTileClicked);
-                tileAfter.AssignUnit(selectedPlayer);
-            }
-            else // the same tile is clicked again
-            {
-                tileClicked.SetSelected(false);
-            }
-
-            selectedPlayer = null;
-        }
-        else  // no unit was selected before
-        {
-            // assign selectedPlayer pointer
-            selectedPlayer = tileClicked.CurrentUnit;
-            if(selectedPlayer != null)
-            {
-                // set the state of the tile to be selected
-                tileClicked.SetSelected(true);
-            }
-        }
-        yield return 0;
-        if(onComplete != null)
-        {
-            onComplete();
-        }
-    }
-
-    private IEnumerator OnEnemyTileClicked(MapTile tileClicked, Action onComplete = null)
-    {
-        if(selectedPlayer != null)
-        {
-            if(tileClicked.CurrentUnit != null)
-            {
-                yield return StartCoroutine(selectedPlayer.AttackOpponentOnTile(tileClicked));
-                selectedPlayer.CurrentTile.SetSelected(false);
-                selectedPlayer = null;
-            }
-        }
-        yield return 0;
-        if(onComplete != null)
-        {
-            onComplete();
-        }
-    }
-        
+   
     private void UpdateTurnOrderView(List<UnitController> orderedList)
     {
-        this.turnOrderView.ShowOrder(orderedList);
+        this._turnOrderView.ShowOrder(orderedList);
     }
 }
