@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -6,9 +7,12 @@ public class TurnOrderManager
 {
     private List<UnitController> allUnits = new List<UnitController>();
 
-    public void Init(List<UnitController> units)
+    private event Action<List<UnitController>> onOrderChanged;
+
+    public void Init(List<UnitController> units, Action<List<UnitController>> onOrderChange)
     {
         this.allUnits = units;
+        this.onOrderChanged = onOrderChange;
     }
 
     public UnitController GetNextActor()
@@ -27,5 +31,10 @@ public class TurnOrderManager
         allUnits.Sort( (a, b) => {
             return a.TurnOrderWeight.CompareTo(b.TurnOrderWeight);  
         });
+
+        if(this.onOrderChanged != null)
+        {
+            this.onOrderChanged(allUnits);
+        }
     }
 }

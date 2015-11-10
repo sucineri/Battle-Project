@@ -7,6 +7,7 @@ using System.Collections.Generic;
 public class BattleController : MonoBehaviour 
 {
     [SerializeField] private MapController mapController;
+    [SerializeField] private TurnOrderView turnOrderView;
 
 	private UnitController selectedPlayer = null;
     private UnitController selectedEnemy = null;
@@ -35,7 +36,7 @@ public class BattleController : MonoBehaviour
 		InitUnits ();
 
         var allUnits = this.playerUnits.Concat(this.enemyUnits).ToList();
-        turnOrderManager.Init(allUnits);
+        turnOrderManager.Init(allUnits, this.UpdateTurnOrderView);
 
         StartCoroutine(StartBattle());
 	}
@@ -251,5 +252,10 @@ public class BattleController : MonoBehaviour
         {
             onComplete();
         }
+    }
+        
+    private void UpdateTurnOrderView(List<UnitController> orderedList)
+    {
+        this.turnOrderView.ShowOrder(orderedList);
     }
 }
