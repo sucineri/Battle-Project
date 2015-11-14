@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class TurnOrderView : MonoBehaviour {
 
-    [SerializeField] private VerticalLayoutGroup layout;
+    [SerializeField] private HorizontalLayoutGroup layout;
     [SerializeField] private GameObject cellPrefab;
 
     private List<TurnOrderCell> cells = new List<TurnOrderCell>();
