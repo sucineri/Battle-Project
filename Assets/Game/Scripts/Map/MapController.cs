@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ public class MapController : MonoBehaviour
     private Dictionary<string, MapTile> _playerTiles = new Dictionary<string, MapTile>();
     private Dictionary<string, MapTile> _enemyTiles = new Dictionary<string, MapTile>();
 
-    private UnitController _selectedPlayer;
+    private UnitControllerBase _selectedPlayer;
     private BattleController _battleController;
     private Action _onTileClick = null;
 
@@ -42,7 +42,7 @@ public class MapController : MonoBehaviour
         }
     }
 
-    public IEnumerator WaitForUserInput(UnitController currentActor)
+    public IEnumerator WaitForUserInput(UnitControllerBase currentActor)
     {
         var waitForInput = true;
         this._onTileClick = () => { waitForInput = false; };

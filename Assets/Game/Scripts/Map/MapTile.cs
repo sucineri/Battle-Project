@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections;
@@ -9,7 +9,7 @@ public class MapTile : MonoBehaviour {
     [SerializeField] private Color defaultColor;
     [SerializeField] private Color selectedColor;
 
-    public UnitController CurrentUnit { get; private set; }
+    public UnitControllerBase CurrentUnit { get; private set; }
     public int Row { get; set; }
     public int Column { get; set; }
     public Const.Team Team { get; private set; }
@@ -24,7 +24,7 @@ public class MapTile : MonoBehaviour {
         this.onTileClick = onClick;
 	}
 
-    public void AssignUnit(UnitController unit)
+    public void AssignUnit(UnitControllerBase unit)
     {
         CurrentUnit = unit;
         if(unit != null)

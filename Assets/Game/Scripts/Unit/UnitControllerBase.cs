@@ -4,13 +4,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class UnitController : MonoBehaviour {
+public class UnitControllerBase : MonoBehaviour
+{
 
-    [SerializeField] private UnitAnimationController animationController;
-    [SerializeField] private HpBar hpBar;
-    [SerializeField] private GameObject damageTextPrefab;
-    [SerializeField] private float attackDistanceOffset = 1.5f;
-    [SerializeField] private float sizeDistanceOffset = 1f;
+    [SerializeField]
+    private UnitAnimationControllerBase animationController;
+    [SerializeField]
+    private HpBar hpBar;
+    [SerializeField]
+    private GameObject damageTextPrefab;
 
     public MapTile CurrentTile { get; private set; }
     public Const.Team Team { get; private set; }
@@ -37,35 +39,43 @@ public class UnitController : MonoBehaviour {
     public void AssignToTile(MapTile tile)
     {
         this.CurrentTile = tile;
-        this.animationController.RegisterDefaultRotation();
+        this.animationController.OnInit();
     }
 
-    public IEnumerator AttackOpponentOnTile(MapTile opponentTile)
+    public virtual IEnumerator AttackOpponentOnTile(MapTile opponentTile)
     {
         OnAnimationStateChange(true);
+        
         this.TurnOrderWeight += BattleActionWeight.GetAttackActionWeight(this);
         var startPosition = this.transform.position;
         var opponent = opponentTile.CurrentUnit;
-        var distanceOffset = this.attackDistanceOffset + opponent.sizeDistanceOffset;
+        var distanceOffset = this.Character.AttackDistance + opponent.Character.SizeOffset;
+        
+        // Move to opponent
         yield return StartCoroutine(animationController.MoveTowards(opponentTile.transform.position, distanceOffset));
-        yield return StartCoroutine(this.AttackOpponent(opponent));
+
+        // Attack opponent;
+        yield return StartCoroutine(this.NormalAttackOpponent(opponent));
+        
+        // Move back to position
         yield return StartCoroutine(animationController.MoveTowards(startPosition));
+        
         animationController.DefaultStance();
         OnAnimationStateChange(false);
     }
 
-    private IEnumerator AttackOpponent(UnitController opponent)
+    protected virtual IEnumerator NormalAttackOpponent(UnitControllerBase opponent)
     {
-        StartCoroutine(animationController.AnimateAttack());
-        yield return new WaitForSeconds(animationController.GetAttackToDamageDelay());
-        if(opponent != null)
+        for (int i = 0; i < this.Character.NumberOfAttacks; ++i)
         {
             var damage = DamageLogic.GetNormalAttackDamage(this.Character, opponent.Character);
-            yield return StartCoroutine(opponent.TakeDamage(damage));
+            StartCoroutine(animationController.AnimateAttack());
+            yield return new WaitForSeconds(this.Character.AttackDelay);
+            yield return StartCoroutine(opponent.TakeDamage(damage, i == this.Character.NumberOfAttacks - 1));
         }
     }
 
-    public IEnumerator MoveToTile(MapTile tile)
+    public virtual IEnumerator MoveToTile(MapTile tile)
     {
         OnAnimationStateChange(true);
         this.TurnOrderWeight += BattleActionWeight.GetMoveActionWeight(this);
@@ -75,20 +85,21 @@ public class UnitController : MonoBehaviour {
     }
 
     // default AI attack
-    public IEnumerator RunAI(List<UnitController> allUnits)
+    public IEnumerator RunAI(List<UnitControllerBase> allUnits)
     {
         var targetTile = TargetLogic.GetTargetTile(this, allUnits);
         yield return StartCoroutine(this.AttackOpponentOnTile(targetTile));
     }
 
-    private IEnumerator TakeDamage(int damage)
+    protected virtual IEnumerator TakeDamage(int damage, bool isLastHit)
     {
         var hpRemaining = Mathf.Max(0f, this.Character.CurrentHp - damage);
         this.Character.CurrentHp = (int)hpRemaining;
 
         ShowDamageText(damage);
         StartCoroutine(AnimateHpChange(hpRemaining));
-        yield return StartCoroutine(animationController.AnimateTakeDamage(this.IsDead));
+        var isDead = this.IsDead && isLastHit;
+        yield return StartCoroutine(animationController.AnimateTakeDamage(isDead));
     }
 
     private void ShowDamageText(int damage)
@@ -105,7 +116,7 @@ public class UnitController : MonoBehaviour {
     private IEnumerator AnimateHpChange(float hpRemaining)
     {
         yield return StartCoroutine(hpBar.AnimateValueChange(hpRemaining, hpBarAnimationDuration));
-        if(this.IsDead)
+        if (this.IsDead)
         {
             hpBar.gameObject.SetActive(false);
         }
@@ -113,7 +124,7 @@ public class UnitController : MonoBehaviour {
 
     private void OnAnimationStateChange(bool isAnimating)
     {
-        if(this.onAnimationStateChange != null)
+        if (this.onAnimationStateChange != null)
         {
             this.onAnimationStateChange(isAnimating);
         }

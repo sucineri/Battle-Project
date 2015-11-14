@@ -1,21 +1,21 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
 public class TurnOrderService 
 {
-    private List<UnitController> allUnits = new List<UnitController>();
+    private List<UnitControllerBase> allUnits = new List<UnitControllerBase>();
 
-    private event Action<List<UnitController>> onOrderChanged;
+    private event Action<List<UnitControllerBase>> onOrderChanged;
 
-    public void Init(List<UnitController> units, Action<List<UnitController>> onOrderChange)
+    public void Init(List<UnitControllerBase> units, Action<List<UnitControllerBase>> onOrderChange)
     {
         this.allUnits = units;
         this.onOrderChanged = onOrderChange;
     }
 
-    public UnitController GetNextActor()
+    public UnitControllerBase GetNextActor()
     {
         allUnits = allUnits.FindAll( x => !x.IsDead );
         if(allUnits.Count > 0)
