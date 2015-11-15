@@ -6,136 +6,127 @@ using System.Collections.Generic;
 
 public class BattleController : MonoBehaviour
 {
-    [SerializeField]
-    private MapController _mapController;
-    [SerializeField]
-    private TurnOrderView _turnOrderView;
+	[SerializeField]
+	private MapController _mapController;
+	[SerializeField]
+	private TurnOrderView _turnOrderView;
 
-    private bool _isAnimating = false;
-    private bool _playerTurn = false;
-    public bool EnableInput { get { return !this._isAnimating && _playerTurn; } }
+	private bool _isAnimating = false;
+	private bool _playerTurn = false;
 
-    private List<UnitControllerBase> _playerUnits = new List<UnitControllerBase>();
-    private List<UnitControllerBase> _enemyUnits = new List<UnitControllerBase>();
+	public bool EnableInput { get { return !this._isAnimating && _playerTurn; } }
 
-    private TurnOrderService _turnOrderManager = new TurnOrderService();
-    private UnitNameService _unitNameManager = new UnitNameService();
+	private List<UnitControllerBase> _playerUnits = new List<UnitControllerBase> ();
+	private List<UnitControllerBase> _enemyUnits = new List<UnitControllerBase> ();
 
-    public void Start()
-    {
-        StartCoroutine(Init());
-    }
+	private TurnOrderService _turnOrderManager = new TurnOrderService ();
+	private UnitNameService _unitNameManager = new UnitNameService ();
 
-    private IEnumerator Init()
-    {
-        _mapController.Init(this);
-        yield return new WaitForEndOfFrame();
+	public void Start ()
+	{
+		StartCoroutine (Init ());
+	}
 
-        InitUnits();
+	private IEnumerator Init ()
+	{
+		_mapController.Init (this);
+		yield return new WaitForEndOfFrame ();
 
-        var allUnits = this._playerUnits.Concat(this._enemyUnits).ToList();
-        _turnOrderManager.Init(allUnits, this.UpdateTurnOrderView);
+		InitUnits ();
 
-        StartCoroutine(StartBattle());
-    }
+		var allUnits = this._playerUnits.Concat (this._enemyUnits).ToList ();
+		_turnOrderManager.Init (allUnits, this.UpdateTurnOrderView);
 
-    private void InitUnits()
-    {
-        var layout = MapLayout.GetDefaultLayout();
-        foreach (var playerPosition in layout.playerPositions)
-        {
-            var tile = _mapController.GetTile(Const.Team.Player, playerPosition.Row, playerPosition.Column);
-            this.CreateUnitOnTile(Const.Team.Player, tile);
-        }
+		StartCoroutine (StartBattle ());
+	}
 
-        foreach (var enemyPosition in layout.enemyPositions)
-        {
-            var tile = _mapController.GetTile(Const.Team.Enemy, enemyPosition.Row, enemyPosition.Column);
-            this.CreateUnitOnTile(Const.Team.Enemy, tile);
-        }
-    }
+	private void InitUnits ()
+	{
+		var layout = MapLayout.GetDefaultLayout ();
+		foreach (var playerPosition in layout.playerPositions) {
+			var tile = _mapController.GetTile (Const.Team.Player, playerPosition.X, playerPosition.Y);
+			this.CreateUnitOnTile (Const.Team.Player, tile);
+		}
 
-    private IEnumerator StartBattle()
-    {
-        var allUnits = this._playerUnits.Concat(this._enemyUnits).ToList();
+		foreach (var enemyPosition in layout.enemyPositions) {
+			var tile = _mapController.GetTile (Const.Team.Enemy, enemyPosition.X, enemyPosition.Y);
+			this.CreateUnitOnTile (Const.Team.Enemy, tile);
+		}
+	}
 
-        while (true)
-        {
-            var actor = this._turnOrderManager.GetNextActor();
-            if (actor != null)
-            {
-                if (actor.Team == Const.Team.Enemy)
-                {
-                    this._playerTurn = false;
-                    yield return StartCoroutine(actor.RunAI(allUnits));
-                } else
-                {
-                    this._playerTurn = true;
-                    yield return StartCoroutine(this._mapController.WaitForUserInput(actor));
-                }
+	private IEnumerator StartBattle ()
+	{
+		var allUnits = this._playerUnits.Concat (this._enemyUnits).ToList ();
 
-                if (AllOpponentsDefeated(actor.Team))
-                {
-                    break;
-                }
-            } else
-            {
-                break;
-            }
-        }
-        yield return 0;
-    }
+		while (true) {
+			var actor = this._turnOrderManager.GetNextActor ();
+			if (actor != null) {
+				if (actor.Team == Const.Team.Enemy) {
+					this._playerTurn = false;
+					yield return StartCoroutine (actor.RunAI (allUnits));
+				} else {
+					this._playerTurn = true;
+					yield return StartCoroutine (this._mapController.WaitForUserInput (actor));
+				}
 
-    private List<UnitControllerBase> GetOpponentList(Const.Team actorTeam)
-    {
-        return actorTeam == Const.Team.Player ? this._enemyUnits : this._playerUnits;
-    }
+				if (AllOpponentsDefeated (actor.Team)) {
+					break;
+				}
+			} else {
+				break;
+			}
+		}
+		yield return 0;
+	}
 
-    private bool AllOpponentsDefeated(Const.Team actorTeam)
-    {
-        var list = GetOpponentList(actorTeam);
-        return list.Find(x => !x.IsDead) == null;
-    }
+	private List<UnitControllerBase> GetOpponentList (Const.Team actorTeam)
+	{
+		return actorTeam == Const.Team.Player ? this._enemyUnits : this._playerUnits;
+	}
 
-    private void CreateUnitOnTile(Const.Team team, MapTile tile)
-    {
-        if (tile != null)
-        {
-            var character = team == Const.Team.Player ? Character.Fighter() : Character.Slime();
-            var prefab = Resources.Load(character.ModelPath) as GameObject;
+	private bool AllOpponentsDefeated (Const.Team actorTeam)
+	{
+		var list = GetOpponentList (actorTeam);
+		return list.Find (x => !x.IsDead) == null;
+	}
 
-            var position = tile.transform.position;
-            var unit = Instantiate(prefab) as GameObject;
+	private void CreateUnitOnTile (Const.Team team, MapTile tile)
+	{
+		if (tile != null) {
+			var character = team == Const.Team.Player ? Character.Fighter () : Character.Slime ();
+			var prefab = Resources.Load (character.ModelPath) as GameObject;
 
-            unit.transform.position = position;
-            if (team == Const.Team.Enemy)
-            {
-                unit.transform.Rotate(new Vector3(0f, 180f, 0f));
-            }
-            unit.transform.SetParent(this.transform);
+			var position = tile.transform.position;
+			var unit = Instantiate (prefab) as GameObject;
 
-            var unitController = unit.GetComponent<UnitControllerBase>();
-            unitController.onAnimationStateChange += OnUnitAnimationStateChange;
+			unit.transform.position = position;
+			if (team == Const.Team.Enemy) {
+				unit.transform.Rotate (new Vector3 (0f, 180f, 0f));
+			}
+			unit.transform.SetParent (this.transform);
 
-            var postfix = this._unitNameManager.GetPostfix(character.Name);
+			var unitController = unit.GetComponent<UnitControllerBase> ();
+			unitController.onAnimationStateChange += OnUnitAnimationStateChange;
 
-            unitController.Init(team, character, postfix);
-            tile.AssignUnit(unitController);
+			var postfix = this._unitNameManager.GetPostfix (character.Name);
 
-            unitController.gameObject.name = unitController.UnitName;
+			unitController.Init (team, character, postfix);
+			tile.AssignUnit (unitController);
 
-            var list = team == Const.Team.Player ? _playerUnits : _enemyUnits;
-            list.Add(unitController);
-        }
-    }
+			unitController.gameObject.name = unitController.UnitName;
 
-    private void OnUnitAnimationStateChange(bool isAnimating)
-    {
-        this._isAnimating = isAnimating;
-    }
-   
-    private void UpdateTurnOrderView(List<UnitControllerBase> orderedList)
-    {
-        this._turnOrderView.ShowOrder(orderedList);
-    }
+			var list = team == Const.Team.Player ? _playerUnits : _enemyUnits;
+			list.Add (unitController);
+		}
+	}
+
+	private void OnUnitAnimationStateChange (bool isAnimating)
+	{
+		this._isAnimating = isAnimating;
+	}
+
+	private void UpdateTurnOrderView (List<UnitControllerBase> orderedList)
+	{
+		this._turnOrderView.ShowOrder (orderedList);
+	}
 }

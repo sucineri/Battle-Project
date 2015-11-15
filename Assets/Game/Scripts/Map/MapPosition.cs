@@ -3,12 +3,12 @@ using System.Collections;
 
 public struct MapPosition
 {
-    public int Row { get; set; }
-    public int Column { get; set; }
+	public int X { get; set; }
+    public int Y { get; set; }
 
-    public MapPosition(int row, int column)
+    public MapPosition(int x, int y)
     {
-        this.Row = row;
-        this.Column = column;
+		this.X = x;
+        this.Y = y;
     }
 }
