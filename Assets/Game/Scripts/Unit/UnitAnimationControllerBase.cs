@@ -33,7 +33,7 @@ public class UnitAnimationControllerBase : MonoBehaviour
         yield return StartCoroutine(AnimationService.MoveToPosition(this, this.transform, destination, moveDuration, completion));
     }
 
-    public virtual IEnumerator AnimateAttack()
+    public virtual IEnumerator PlayAttackAnimation()
     {
         characterAnimator.CrossFade(attackStateHash, 0);
         yield return new WaitForEndOfFrame();
@@ -41,7 +41,7 @@ public class UnitAnimationControllerBase : MonoBehaviour
         characterAnimator.CrossFade(waitStateHash, 0);
     }
 
-    public virtual IEnumerator AnimateTakeDamage(bool isDead)
+    public virtual IEnumerator PlayDamagedAnimation(bool isDead)
     {
         characterAnimator.SetBool("dead", isDead);
         characterAnimator.CrossFade(damageStateHash, 0);

@@ -9,6 +9,20 @@ public class Const
 		Enemy = 1
 	}
 
+	public enum SkillTargetGroup
+	{
+		None,
+		Ally,
+		Opponent,
+		Self
+	}
+
+	public enum SkillTargetType
+	{
+		Unit,
+		Tile
+	}
+
 	public const string TileKey = "Tile";
 
 	public static string GetTileKey (int x, int y)

@@ -19,13 +19,13 @@ public class TargetLogic
     public static MapTile DefaultTargetLogic (UnitControllerBase actor, List<UnitControllerBase> targetList)
     {
         targetList.Sort( (a, b) => {
-            var result = (RowDistance(actor, a).CompareTo(RowDistance(actor, b)));
+            var result = (YDistance(actor, a).CompareTo(YDistance(actor, b)));
             return result == 0 ? a.CurrentTile.X.CompareTo(b.CurrentTile.X) : result;
         });
         return targetList[0].CurrentTile;
     }
 
-    private static int RowDistance (UnitControllerBase a, UnitControllerBase b)
+    private static int YDistance (UnitControllerBase a, UnitControllerBase b)
     {
         return Mathf.Abs(a.CurrentTile.Y - b.CurrentTile.Y);
     }
