@@ -3,8 +3,10 @@ using System.Collections;
 
 public class DamageLogic  
 {
-    public static int GetNormalAttackDamage(Character attacker, Character defender)
+	public static double GetNormalAttackDamage(CharacterStats attacker, CharacterStats defender, SkillEffect effect)
     {
-        return attacker.Attack - defender.Defense;
+		var attack = attacker.Attack * effect.StatsModifiers.GetStats (Const.BasicStats.Attack);
+
+		return System.Math.Floor (attack - defender.Defense);
     }
 }

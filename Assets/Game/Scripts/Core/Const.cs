@@ -23,6 +23,16 @@ public class Const
 		Tile
 	}
 
+	public enum BasicStats
+	{
+		MaxHp,
+		MaxMp,
+		Attack,
+		Defense,
+		Agility,
+		Wisdom
+	}
+
 	public const string TileKey = "Tile";
 
 	public static string GetTileKey (int x, int y)

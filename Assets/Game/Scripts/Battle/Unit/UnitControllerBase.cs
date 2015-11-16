@@ -18,26 +18,24 @@ public class UnitControllerBase : MonoBehaviour
 
     public Const.Team Team { get; private set; }
 
-    public Character Character { get; private set; }
+    public CharacterStats Character { get; private set; }
 
-    public float TurnOrderWeight { get; private set; }
+    public double TurnOrderWeight { get; set; }
 
     public char Postfix { get; private set; }
 
     public string UnitName { get { return this.Character.Name + " " + Postfix; } }
 
-    public bool IsDead { get { return this.Character.CurrentHp == 0; } }
-
-    public event Action<bool> onAnimationStateChange;
+    public bool IsDead { get { return this.Character.CurrentHp <= 0d; } }
 
     private float hpBarAnimationDuration = 0.5f;
 
-    public void Init(Const.Team team, Character character, char postFix)
+    public void Init(Const.Team team, CharacterStats character, char postFix)
     {
         this.Team = team;
         this.Character = character;
         this.Postfix = postFix;
-        this._hpBar.Init(0f, this.Character.MaxHp, this.Character.CurrentHp);
+		this._hpBar.Init (this.Character.HpPercentage);
         this.TurnOrderWeight = BattleActionWeight.GetDefaultTurnOrderWeight(this);
     }
 
@@ -64,11 +62,9 @@ public class UnitControllerBase : MonoBehaviour
 
     public virtual IEnumerator MoveToTile(MapTile tile)
     {
-        OnAnimationStateChange(true);
         this.TurnOrderWeight += BattleActionWeight.GetMoveActionWeight(this);
         yield return StartCoroutine(_animationController.MoveTowards(tile.transform.position));
         _animationController.DefaultStance();
-        OnAnimationStateChange(false);
     }
 
     public virtual IEnumerator ReturnToBaseTile()
@@ -78,24 +74,28 @@ public class UnitControllerBase : MonoBehaviour
         this._animationController.DefaultStance();
     }
 
-    public virtual IEnumerator TakeDamage(int damage, bool isLastHit)
+    public virtual IEnumerator TakeDamage(double damage, bool isLastHit)
     {
-        var hpRemaining = Mathf.Max(0f, this.Character.CurrentHp - damage);
-        this.Character.CurrentHp = (int)hpRemaining;
+		this.ShowDamageText(damage);
 
-        this.ShowDamageText(damage);
-        StartCoroutine(this.AnimateHpChange(hpRemaining));
-        var isDead = this.IsDead && isLastHit;
+		var hpRemaining = System.Math.Max (0d, this.Character.CurrentHp - damage);
+        this.Character.CurrentHp = hpRemaining;
+		var hpPercentage = this.Character.HpPercentage;
+		StartCoroutine(this.AnimateHpChange(hpPercentage));
+        
+		var isDead = this.IsDead && isLastHit;
         yield return StartCoroutine(this._animationController.PlayDamagedAnimation(isDead));
     }
 
     public SkillComponentBase GetSelectedSkill()
     {
         // TODO: refactor these shit
-        var prefab = Resources.Load("Skills/MeleeAttack");
-        var go = Instantiate(prefab) as GameObject;
-        var skillComp = go.GetComponent<SkillComponentBase>();
-        return skillComp;
+		var skill = this.Character.Skills[0];
+		var prefab = Resources.Load (skill.PrefabPath);
+		var go = Instantiate (prefab) as GameObject;
+		var skillComp = go.GetComponent<SkillComponentBase> ();
+		skillComp.InitWithSkill (skill);
+		return skillComp;
     }
 
     // default AI attack
@@ -105,7 +105,7 @@ public class UnitControllerBase : MonoBehaviour
         yield return StartCoroutine(this.GetSelectedSkill().PlaySkillSequence(this, targetTile));
     }
 
-    private void ShowDamageText(int damage)
+    private void ShowDamageText(double damage)
     {
         var go = Instantiate(this._damageTextPrefab) as GameObject;
         var damageText = go.GetComponent<DamageText>();
@@ -116,20 +116,12 @@ public class UnitControllerBase : MonoBehaviour
         damageText.ShowDamage(damage);
     }
 
-    private IEnumerator AnimateHpChange(float hpRemaining)
+    private IEnumerator AnimateHpChange(float hpPercentage)
     {
-        yield return StartCoroutine(_hpBar.AnimateValueChange(hpRemaining, hpBarAnimationDuration));
+		yield return StartCoroutine(_hpBar.AnimateValueChange(hpPercentage, hpBarAnimationDuration));
         if (this.IsDead)
         {
             _hpBar.gameObject.SetActive(false);
-        }
-    }
-
-    private void OnAnimationStateChange(bool isAnimating)
-    {
-        if (this.onAnimationStateChange != null)
-        {
-            this.onAnimationStateChange(isAnimating);
         }
     }
 }

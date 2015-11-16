@@ -11,8 +11,6 @@ public class BattleController : MonoBehaviour
     [SerializeField]
     private TurnOrderView _turnOrderView;
 
-    public bool IsAnimating { get; private set; }
-
     protected IEnumerator Start()
     {
         this._mapController.Init();
@@ -79,7 +77,7 @@ public class BattleController : MonoBehaviour
     {
         if (tile != null)
         {
-            var character = team == Const.Team.Player ? Character.Fighter() : Character.Slime();
+            var character = team == Const.Team.Player ? CharacterStats.Fighter() : CharacterStats.Slime();
             var prefab = Resources.Load(character.ModelPath) as GameObject;
 
             var position = tile.transform.position;
@@ -93,7 +91,6 @@ public class BattleController : MonoBehaviour
             unit.transform.SetParent(this.transform);
 
             var unitController = unit.GetComponent<UnitControllerBase>();
-            unitController.onAnimationStateChange += OnUnitAnimationStateChange;
 
             var postfix = BattleManager.Instance.GetUnitPostfix(character.Name);
 
@@ -104,10 +101,5 @@ public class BattleController : MonoBehaviour
 
             BattleManager.Instance.AddUnit(team, unitController);
         }
-    }
-
-    private void OnUnitAnimationStateChange(bool isAnimating)
-    {
-        this.IsAnimating = isAnimating;
     }
 }

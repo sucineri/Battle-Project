@@ -8,6 +8,8 @@ public class MapController : MonoBehaviour
     [SerializeField] private Grid _playerGrid;
     [SerializeField] private Grid _enemyGrid;
 
+	public event Action<bool> onAnimationStateChange;
+
     private Dictionary<string, MapTile> _playerTiles = new Dictionary<string, MapTile>();
     private Dictionary<string, MapTile> _enemyTiles = new Dictionary<string, MapTile>();
 
@@ -73,6 +75,7 @@ public class MapController : MonoBehaviour
 
     private IEnumerator OnPlayerTileClicked(MapTile tileClicked, Action onComplete = null)
     {
+		this.OnAnimationStateChange (true);
         // if a unit has been selectd before
         if (_selectedPlayer != null)
         {
@@ -120,10 +123,12 @@ public class MapController : MonoBehaviour
         {
             onComplete();
         }
+		this.OnAnimationStateChange (false);
     }
 
     private IEnumerator OnEnemyTileClicked(MapTile tileClicked, Action onComplete = null)
     {
+		this.OnAnimationStateChange (true);
         if (_selectedPlayer != null)
         {
             if (tileClicked.CurrentUnit != null)
@@ -138,6 +143,7 @@ public class MapController : MonoBehaviour
         {
             onComplete();
         }
+		this.OnAnimationStateChange (false);
     }
 
     private MapTile GetTile(Dictionary<string, MapTile> dict, int x, int y)
@@ -146,4 +152,12 @@ public class MapController : MonoBehaviour
         dict.TryGetValue(Const.GetTileKey(x, y), out tile);
         return tile;
     }
+
+	private void OnAnimationStateChange(bool isAnimating)
+	{
+		if (this.onAnimationStateChange != null)
+		{
+			this.onAnimationStateChange(isAnimating);
+		}
+	}
 }

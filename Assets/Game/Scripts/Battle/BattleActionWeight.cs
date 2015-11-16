@@ -3,19 +3,19 @@ using System.Collections;
 
 public class BattleActionWeight  
 {
-    public static float GetDefaultTurnOrderWeight(UnitControllerBase unit)
+    public static double GetDefaultTurnOrderWeight(UnitControllerBase unit)
     {
-        return 1f /unit.Character.Agility;
+        return 1.0d / unit.Character.Agility;
     }
 
-    public static float GetAttackActionWeight(UnitControllerBase unit)
+	public static double GetAttackActionWeight(UnitControllerBase unit)
     {
-        return 1f / unit.Character.Agility;
+        return 1.0d / unit.Character.Agility;
     }
 
-    public static float GetMoveActionWeight(UnitControllerBase unit)
+	public static double GetMoveActionWeight(UnitControllerBase unit)
     {
-        return 0.5f / unit.Character.Agility;
+        return 0.5d / unit.Character.Agility;
     }
 
 }

@@ -15,9 +15,9 @@ public class DamageText : MonoBehaviour
         label = this.GetComponent<Text>();
     }
 
-    public void ShowDamage(int damage)
+    public void ShowDamage(double damage)
     {
-        label.text = damage.ToString();
+		label.text = damage.ToString("F0");
         StartCoroutine(this.AnimateText());
     }
 

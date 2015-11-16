@@ -19,6 +19,7 @@ public class BattleManager
         Instance = new BattleManager();
         Instance._battleController = battleController;
         Instance._mapController = mapController;
+		Instance._mapController.onAnimationStateChange += Instance.OnAnimationStateChange;
     }
 
     public static void FinishBattle()
@@ -36,7 +37,8 @@ public class BattleManager
     private List<UnitControllerBase> _enemyUnits = new List<UnitControllerBase>();
 
     public bool IsPlayerTurn { get; private set; }
-    public bool EnableInput { get { return !this._battleController.IsAnimating && this.IsPlayerTurn; } }
+	public bool IsAnimating { get; private set; }
+    public bool EnableInput { get { return !this.IsAnimating && this.IsPlayerTurn; } }
 
     public List<UnitControllerBase> AllUnits
     {
@@ -88,4 +90,24 @@ public class BattleManager
     {
         return this._unitNameService.GetPostfix(characterName);
     }
+
+	public List<MapTile> GetAffectedTiles(MapTile targetTile, List<Cordinate> pattern)
+	{
+		var list = new List<MapTile>();
+		foreach (var offset in pattern)
+		{
+			var tileCord = new Cordinate(targetTile.X + offset.X, targetTile.Y + offset.Y);
+			var tile = this.GetTile(targetTile.Team, tileCord.X, tileCord.Y);
+			if (tile != null)
+			{
+				list.Add(tile);
+			}
+		}
+		return list;
+	}
+
+	private void OnAnimationStateChange(bool isAnimating)
+	{
+		this.IsAnimating = isAnimating;
+	}
 }

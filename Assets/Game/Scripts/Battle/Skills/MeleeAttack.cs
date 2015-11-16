@@ -1,39 +1,41 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MeleeAttack : SkillComponentBase {
-
-    void Awake()
-    {
-        this.SkillTarget = Targetting.SingleOpponentTarget ();
-    }
+public class MeleeAttack : SkillComponentBase
+{
 
 	public override IEnumerator PlaySkillSequence (UnitControllerBase actor, MapTile targetTile)
 	{
-        var affectedTiles = this.GetAffectedTiles(targetTile);
-        var affectedUnit = affectedTiles[0].CurrentUnit;
-        if (affectedUnit == null)
-        {
-            yield break;
-        }
+		if (this._skill == null) {
+			yield break;	
+		}
 
-        yield return StartCoroutine(actor.MoveToPosition(affectedUnit.transform.position, actor.GetAttackPositionOffset(affectedUnit)));
+		var affectedTiles = BattleManager.Instance.GetAffectedTiles (targetTile, this._skill.SkillTarget.Pattern);
+		var affectedUnit = affectedTiles [0].CurrentUnit;
+		if (affectedUnit == null || this._skill == null) {
+			yield break;
+		}
 
-        StartCoroutine(actor.AnimateAttack());
-        yield return StartCoroutine(this.PlaySkillEffects(actor, targetTile, affectedTiles));
+		actor.TurnOrderWeight += BattleActionWeight.GetAttackActionWeight(actor);
 
-        yield return StartCoroutine(actor.ReturnToBaseTile());
-    }
+		yield return StartCoroutine (actor.MoveToPosition (affectedUnit.transform.position, actor.GetAttackPositionOffset (affectedUnit)));
 
-    protected override IEnumerator PlaySkillEffectOnTiles(UnitControllerBase actor, int effectindex, MapTile targetTile, System.Collections.Generic.List<MapTile> affectedTiles)
-    {
-        var affectedUnit = targetTile.CurrentUnit;
-        if (affectedUnit != null)
-        {
-            var damage = DamageLogic.GetNormalAttackDamage(actor.Character, affectedUnit.Character);
-            yield return StartCoroutine(affectedUnit.TakeDamage(damage, true));
-        }
-    }
+		StartCoroutine (actor.AnimateAttack ());
+		yield return StartCoroutine (this.PlaySkillEffects (actor, targetTile, affectedTiles));
+
+		yield return StartCoroutine (actor.ReturnToBaseTile ());
+
+		Destroy (this.gameObject);
+	}
+
+	protected override IEnumerator PlaySkillEffectOnTiles (UnitControllerBase actor, SkillEffect effect, MapTile targetTile, System.Collections.Generic.List<MapTile> affectedTiles)
+	{
+		var affectedUnit = targetTile.CurrentUnit;
+		if (affectedUnit != null) {
+			var damage = DamageLogic.GetNormalAttackDamage (actor.Character, affectedUnit.Character, effect);
+			yield return StartCoroutine (affectedUnit.TakeDamage (damage, true));
+		}
+	}
 
 	
 }
