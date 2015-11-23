@@ -7,21 +7,24 @@ public class ActionMenu : MonoBehaviour {
 
 	[SerializeField] private GameObject _menuPrefab;
 	[SerializeField] private VerticalLayoutGroup _layout;
+	[SerializeField] private GameObject _cancelButton;
 
 	private Action<UnitControllerBase> _onMoveSelect;
 	private Action<UnitControllerBase, Skill> _onSkillSelect;
+	private Action _onCancel;
 	private UnitControllerBase _unit;
 
-	public void Init(Action<UnitControllerBase> onMoveSelect, Action<UnitControllerBase, Skill> onSkillSelect)
+	public void Init(Action<UnitControllerBase> onMoveSelect, Action<UnitControllerBase, Skill> onSkillSelect, Action onCancel)
 	{
 		this._onMoveSelect = onMoveSelect;
 		this._onSkillSelect = onSkillSelect;
+		this._onCancel = onCancel;
 	}
 
-
-	public void Show(UnitControllerBase unit)
+	public void CreateMenu(UnitControllerBase unit)
 	{
-		this.gameObject.SetActive (true);
+		this.ShowMenu (true);
+		this.ShowCancel (false);
 		this._unit = unit;
 		foreach (Transform child in _layout.transform) {
 			Destroy (child.gameObject);
@@ -29,6 +32,24 @@ public class ActionMenu : MonoBehaviour {
 
 		CreateMoveButton ();
 		CreateSkillButtons (unit);
+	}
+
+	public void ShowMenu(bool show)
+	{
+		this._layout.gameObject.SetActive (show);
+	}
+
+	public void ShowCancel(bool show)
+	{
+		this._cancelButton.SetActive (show);
+	}
+
+	public void OnCancel()
+	{
+		if(this._onCancel != null)
+		{
+			this._onCancel ();
+		}
 	}
 
 	private void CreateMoveButton()

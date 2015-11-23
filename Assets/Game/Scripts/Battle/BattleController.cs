@@ -16,7 +16,7 @@ public class BattleController : MonoBehaviour
     protected IEnumerator Start()
     {
         this._mapController.Init();
-		this._actionMenu.Init (this.OnMoveSelect, this.OnSkillSelect);
+		this._actionMenu.Init (this.OnMoveSelect, this.OnSkillSelect, this.OnSelectionCancel);
         yield return new WaitForEndOfFrame();
 		BattleManager.CreateBattleInstance(this, this._mapController);
         this.InitUnits();
@@ -62,7 +62,7 @@ public class BattleController : MonoBehaviour
                 else
                 {
 					BattleManager.Instance.Phrase = BattleManager.BattlePhrase.ActionSelect;
-					this._actionMenu.Show (actor);
+					this._actionMenu.CreateMenu (actor);
                     yield return StartCoroutine(this._mapController.WaitForUserInput(actor));
 					actor.SelectedSkill = null;
                 }
@@ -83,15 +83,23 @@ public class BattleController : MonoBehaviour
 	private void OnMoveSelect(UnitControllerBase actor)
 	{
 		BattleManager.Instance.Phrase = BattleManager.BattlePhrase.MovementSelect;
-		this._actionMenu.gameObject.SetActive (false);
+		this._actionMenu.ShowMenu (false);
+		this._actionMenu.ShowCancel (true);
 	}
 
 	private void OnSkillSelect(UnitControllerBase actor, Skill selectedSkill)
 	{
 		BattleManager.Instance.Phrase = BattleManager.BattlePhrase.TargetSelect;
 		actor.SelectedSkill = selectedSkill;
-		Debug.LogWarning (selectedSkill.Name);
-		this._actionMenu.gameObject.SetActive (false);
+		this._actionMenu.ShowMenu (false);
+		this._actionMenu.ShowCancel (true);
+	}
+
+	private void OnSelectionCancel()
+	{
+		BattleManager.Instance.Phrase = BattleManager.BattlePhrase.ActionSelect;
+		this._actionMenu.ShowMenu (true);
+		this._actionMenu.ShowCancel (false);
 	}
 
     private void CreateUnitOnTile(Const.Team team, MapTile tile)

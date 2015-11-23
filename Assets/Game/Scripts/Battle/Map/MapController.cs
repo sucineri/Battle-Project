@@ -164,6 +164,11 @@ public class MapController : MonoBehaviour
 		}
 	}
 
+	private IEnumerator ShowConfirmation(Action onOk, Action onCancel)
+	{
+		yield return StartCoroutine (PopupManager.OkCancel (onOk, onCancel));
+	}
+
 	private IEnumerator MoveUnitToTile(UnitControllerBase unit, MapTile targetTile)
 	{
 		var tileBefore = unit.CurrentTile;
