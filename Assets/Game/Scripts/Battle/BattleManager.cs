@@ -5,6 +5,15 @@ using System.Collections.Generic;
 
 public class BattleManager
 {
+	public enum BattlePhrase
+	{
+		ActionSelect,
+		MovementSelect,
+		TargetSelect,
+		Animation,
+		Result
+	}
+
     #region static instance stuff
 
     public static BattleManager Instance { get; private set; }
@@ -14,12 +23,11 @@ public class BattleManager
         // no public default constructor 
     }
 
-    public static void CreateBattleInstance(BattleController battleController, MapController mapController)
+	public static void CreateBattleInstance(BattleController battleController, MapController mapController)
     {
         Instance = new BattleManager();
         Instance._battleController = battleController;
         Instance._mapController = mapController;
-		Instance._mapController.onAnimationStateChange += Instance.OnAnimationStateChange;
     }
 
     public static void FinishBattle()
@@ -36,9 +44,10 @@ public class BattleManager
     private List<UnitControllerBase> _playerUnits = new List<UnitControllerBase>();
     private List<UnitControllerBase> _enemyUnits = new List<UnitControllerBase>();
 
+	public BattlePhrase Phrase { get; set; }
     public bool IsPlayerTurn { get; private set; }
 	public bool IsAnimating { get; private set; }
-    public bool EnableInput { get { return !this.IsAnimating && this.IsPlayerTurn; } }
+	public bool EnableTileTouch { get { return this.Phrase == BattlePhrase.TargetSelect || this.Phrase == BattlePhrase.MovementSelect; } }
 
     public List<UnitControllerBase> AllUnits
     {
@@ -104,10 +113,5 @@ public class BattleManager
 			}
 		}
 		return list;
-	}
-
-	private void OnAnimationStateChange(bool isAnimating)
-	{
-		this.IsAnimating = isAnimating;
 	}
 }

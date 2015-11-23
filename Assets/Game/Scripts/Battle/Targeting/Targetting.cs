@@ -25,4 +25,19 @@ public class Targetting
 		pattern.Pattern.Add (new Cordinate (0, 0));
 		return pattern;
 	}
+
+	public static Targetting CrossOpponentTarget ()
+	{
+		var pattern = new Targetting ();
+		pattern.TargetGroup = Const.SkillTargetGroup.Opponent;
+		pattern.TargetType = Const.SkillTargetType.Unit;
+
+		pattern.Pattern = new List<Cordinate> ();
+		pattern.Pattern.Add (new Cordinate (0, 0));
+		pattern.Pattern.Add (new Cordinate (1, 0));
+		pattern.Pattern.Add (new Cordinate (-1, 0));
+		pattern.Pattern.Add (new Cordinate (0, 1));
+		pattern.Pattern.Add (new Cordinate (0, -1));
+		return pattern;
+	}
 }

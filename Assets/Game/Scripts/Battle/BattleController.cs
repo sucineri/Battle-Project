@@ -10,12 +10,15 @@ public class BattleController : MonoBehaviour
     private MapController _mapController;
     [SerializeField]
     private TurnOrderView _turnOrderView;
+	[SerializeField]
+	private ActionMenu _actionMenu;
 
     protected IEnumerator Start()
     {
         this._mapController.Init();
+		this._actionMenu.Init (this.OnMoveSelect, this.OnSkillSelect);
         yield return new WaitForEndOfFrame();
-        BattleManager.CreateBattleInstance(this, this._mapController);
+		BattleManager.CreateBattleInstance(this, this._mapController);
         this.InitUnits();
         BattleManager.Instance.InitTurnOrder();
         StartCoroutine(StartBattle());
@@ -53,11 +56,15 @@ public class BattleController : MonoBehaviour
             {
                 if (actor.Team == Const.Team.Enemy)
                 {
+					BattleManager.Instance.Phrase = BattleManager.BattlePhrase.Animation;
                     yield return StartCoroutine(actor.RunAI(allUnits));
                 }
                 else
                 {
+					BattleManager.Instance.Phrase = BattleManager.BattlePhrase.ActionSelect;
+					this._actionMenu.Show (actor);
                     yield return StartCoroutine(this._mapController.WaitForUserInput(actor));
+					actor.SelectedSkill = null;
                 }
 
                 if (BattleManager.Instance.AllOpponentsDefeated(actor.Team))
@@ -72,6 +79,20 @@ public class BattleController : MonoBehaviour
         }
         yield return 0;
     }
+
+	private void OnMoveSelect(UnitControllerBase actor)
+	{
+		BattleManager.Instance.Phrase = BattleManager.BattlePhrase.MovementSelect;
+		this._actionMenu.gameObject.SetActive (false);
+	}
+
+	private void OnSkillSelect(UnitControllerBase actor, Skill selectedSkill)
+	{
+		BattleManager.Instance.Phrase = BattleManager.BattlePhrase.TargetSelect;
+		actor.SelectedSkill = selectedSkill;
+		Debug.LogWarning (selectedSkill.Name);
+		this._actionMenu.gameObject.SetActive (false);
+	}
 
     private void CreateUnitOnTile(Const.Team team, MapTile tile)
     {

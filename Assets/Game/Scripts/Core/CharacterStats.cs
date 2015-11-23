@@ -49,6 +49,7 @@ public class CharacterStats
         character.AttackDistance = 1.5f;
         character.SizeOffset = 1.5f;
 		character.Skills.Add (Skill.MeleeAttack ());
+		character.Skills.Add (Skill.CrossSlash ());
         return character;
     }
 

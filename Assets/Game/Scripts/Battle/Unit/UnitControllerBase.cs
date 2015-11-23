@@ -22,6 +22,8 @@ public class UnitControllerBase : MonoBehaviour
 
     public double TurnOrderWeight { get; set; }
 
+	public Skill SelectedSkill { get; set; }
+
     public char Postfix { get; private set; }
 
     public string UnitName { get { return this.Character.Name + " " + Postfix; } }
@@ -89,8 +91,12 @@ public class UnitControllerBase : MonoBehaviour
 
     public SkillComponentBase GetSelectedSkill()
     {
+		var skill = this.Character.Skills [0];
+		if (SelectedSkill != null) {
+			skill = SelectedSkill;
+		}
+
         // TODO: refactor these shit
-		var skill = this.Character.Skills[0];
 		var prefab = Resources.Load (skill.PrefabPath);
 		var go = Instantiate (prefab) as GameObject;
 		var skillComp = go.GetComponent<SkillComponentBase> ();
