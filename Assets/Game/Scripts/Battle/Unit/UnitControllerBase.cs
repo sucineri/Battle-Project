@@ -111,6 +111,16 @@ public class UnitControllerBase : MonoBehaviour
         yield return StartCoroutine(this.GetSelectedSkill().PlaySkillSequence(this, targetTile));
     }
 
+	public void PlayEffect(string path)
+	{
+		var prefab = Resources.Load (path);
+		var go = Instantiate (prefab) as GameObject;
+		go.transform.SetParent (this.transform);
+		go.transform.localScale = Vector3.one;
+		go.transform.localPosition = Vector3.zero;
+		go.SetActive (true);
+	}
+
     private void ShowDamageText(double damage)
     {
         var go = Instantiate(this._damageTextPrefab) as GameObject;

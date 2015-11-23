@@ -32,6 +32,7 @@ public class MeleeAttack : SkillComponentBase
 	{
 		var affectedUnit = targetTile.CurrentUnit;
 		if (affectedUnit != null) {
+			affectedUnit.PlayEffect (effect.AssetPath);
 			var damage = DamageLogic.GetNormalAttackDamage (actor.Character, affectedUnit.Character, effect);
 			yield return StartCoroutine (affectedUnit.TakeDamage (damage, true));
 		}
