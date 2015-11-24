@@ -37,21 +37,49 @@ public class MapController : MonoBehaviour
         {
             return;
         }
-
-		var processes = new Queue<IEnumerator> ();
+			
 		switch (BattleManager.Instance.Phase) {
 
 		case BattleManager.BattlePhase.MovementSelect:
+			var processes = new Queue<IEnumerator> ();
 			processes.Enqueue (this.MoveUnitToTile (this._selectedPlayer, tileClicked));
+			StartCoroutine (this.RunAnimationQueue (processes));
 			break;
 		case BattleManager.BattlePhase.TargetSelect:
-			processes.Enqueue (this._selectedPlayer.GetSelectedSkill ().PlaySkillSequence (this._selectedPlayer, tileClicked));
+			this.ConfirmSkillSelection (this._selectedPlayer.GetSelectedSkill (), tileClicked);
 			break;
 		default:
 			break;
 		}
-		StartCoroutine (this.RunAnimationQueue (processes));
     }
+
+	private void ConfirmSkillSelection(SkillComponentBase skillComponent, MapTile targetTile)
+	{
+		var skill = skillComponent.GetSkill ();
+		var affectedTiles = BattleManager.Instance.GetAffectedTiles (targetTile, skill.SkillTarget.Pattern);
+		this.SetTilesAffected (affectedTiles, true);
+
+		Action onCancel = () => {
+			this.SetTilesAffected(affectedTiles, false);
+		};
+
+		Action onOk = () => {
+			var processes = new Queue<IEnumerator> ();
+			processes.Enqueue (skillComponent.PlaySkillSequence (this._selectedPlayer, targetTile));
+			this.SetTilesAffected(affectedTiles, false);
+			StartCoroutine(this.RunAnimationQueue(processes));
+		};
+
+		PopupManager.OkCancel (onOk, onCancel);
+	}
+
+	private void SetTilesAffected(List<MapTile> tiles, bool affected)
+	{
+		// TODO: show affected color
+		foreach (var tile in tiles) {
+			tile.SetSelected (affected);
+		}
+	}
 
 	private void OnTileSelect(MapTile tileClicked, Action onComplete = null)
 	{
@@ -97,11 +125,6 @@ public class MapController : MonoBehaviour
 
 		_selectedPlayer = null;
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.NextRound;
-	}
-
-	private IEnumerator ShowConfirmation(Action onOk, Action onCancel)
-	{
-		yield return StartCoroutine (PopupManager.OkCancel (onOk, onCancel));
 	}
 
 	private IEnumerator MoveUnitToTile(UnitControllerBase unit, MapTile targetTile)

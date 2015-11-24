@@ -4,11 +4,12 @@ using System.Collections;
 
 public class PopupManager  
 {
-	public static IEnumerator OkCancel(Action okAction, Action cancelAction)
+	public static void OkCancel(Action okAction, Action cancelAction)
 	{
-		var prefab = Resources.Load ("Popup/StandardPopup");
+		var prefab = Resources.Load ("Popups/StandardPopup");
 		var go = GameObject.Instantiate (prefab) as GameObject;
+		go.SetActive (true);
 		var controller = go.GetComponent<PopupController> ();
-		return controller.ShowCoroutine ("OK", "Cancel", okAction, cancelAction);
+		controller.Show ("OK", "Cancel", okAction, cancelAction);
 	}
 }

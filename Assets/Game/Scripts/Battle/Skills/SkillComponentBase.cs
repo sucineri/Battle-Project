@@ -18,6 +18,11 @@ public abstract class SkillComponentBase: MonoBehaviour
 		this._skill = skill;
 	}
 
+	public Skill GetSkill()
+	{
+		return this._skill;
+	}
+
 	protected IEnumerator PlaySkillEffects (UnitControllerBase actor, MapTile targetTile, List<MapTile> affectedTiles)
 	{
 		if (this._skill == null) {
