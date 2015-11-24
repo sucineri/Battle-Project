@@ -1,17 +1,19 @@
 ﻿using UnityEngine;
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
 public class BattleManager
 {
-	public enum BattlePhrase
+	public enum BattlePhase
 	{
 		ActionSelect,
 		MovementSelect,
 		TargetSelect,
 		Animation,
-		Result
+		Result,
+		NextRound
 	}
 
     #region static instance stuff
@@ -44,10 +46,28 @@ public class BattleManager
     private List<UnitControllerBase> _playerUnits = new List<UnitControllerBase>();
     private List<UnitControllerBase> _enemyUnits = new List<UnitControllerBase>();
 
-	public BattlePhrase Phrase { get; set; }
+	public event Action<BattlePhase> onBattlePhaseChange;
+
+	private BattlePhase _phase;
+	public BattlePhase Phase 
+	{ 
+		get 
+		{
+			return this._phase;
+		}
+
+		set 
+		{
+			this._phase = value;
+			if (this.onBattlePhaseChange != null) {
+				this.onBattlePhaseChange (this._phase);
+			}
+		}
+	}
+
     public bool IsPlayerTurn { get; private set; }
 	public bool IsAnimating { get; private set; }
-	public bool EnableTileTouch { get { return this.Phrase == BattlePhrase.TargetSelect || this.Phrase == BattlePhrase.MovementSelect; } }
+	public bool EnableTileTouch { get { return this.Phase == BattlePhase.TargetSelect || this.Phase == BattlePhase.MovementSelect; } }
 
     public List<UnitControllerBase> AllUnits
     {

@@ -21,7 +21,8 @@ public class BattleController : MonoBehaviour
 		BattleManager.CreateBattleInstance(this, this._mapController);
         this.InitUnits();
         BattleManager.Instance.InitTurnOrder();
-        StartCoroutine(StartBattle());
+		BattleManager.Instance.onBattlePhaseChange += this.OnBattlePhaseChange;
+		this.NextRound ();
     }
         
     public void UpdateTurnOrderView(List<UnitControllerBase> orderedList)
@@ -45,51 +46,50 @@ public class BattleController : MonoBehaviour
         }
     }
 
-    private IEnumerator StartBattle()
-    {
-        var allUnits = BattleManager.Instance.AllUnits;
+	private void OnBattlePhaseChange(BattleManager.BattlePhase battlePhase)
+	{
+		if (battlePhase == BattleManager.BattlePhase.NextRound) {
+			this.NextRound ();
+		}
+	}
 
-        while (true)
-        {
-            var actor = BattleManager.Instance.GetNextActor();
-            if (actor != null)
-            {
-                if (actor.Team == Const.Team.Enemy)
-                {
-					BattleManager.Instance.Phrase = BattleManager.BattlePhrase.Animation;
-                    yield return StartCoroutine(actor.RunAI(allUnits));
-                }
-                else
-                {
-					BattleManager.Instance.Phrase = BattleManager.BattlePhrase.ActionSelect;
-					this._actionMenu.CreateMenu (actor);
-                    yield return StartCoroutine(this._mapController.WaitForUserInput(actor));
-					actor.SelectedSkill = null;
-                }
+	private void NextRound()
+	{
+		var actor = BattleManager.Instance.GetNextActor();
+		if (BattleManager.Instance.AllOpponentsDefeated (actor.Team)) {
+			// end battle
+		}
+		else if (actor.Team == Const.Team.Enemy) {
+			this.ProcessEnemyTurn (actor);
+		}
+		else 
+		{
+			this.ProcessPlayerTurn (actor);
+		}
+	}
 
-                if (BattleManager.Instance.AllOpponentsDefeated(actor.Team))
-                {
-                    break;
-                }
-            }
-            else
-            {
-                break;
-            }
-        }
-        yield return 0;
-    }
+	private void ProcessEnemyTurn(UnitControllerBase actor)
+	{
+		this._mapController.RunAI (actor);
+	}
+
+	private void ProcessPlayerTurn(UnitControllerBase actor)
+	{
+		BattleManager.Instance.Phase = BattleManager.BattlePhase.ActionSelect;
+		this._actionMenu.CreateMenu (actor);
+		this._mapController.SetActor (actor);
+	}
 
 	private void OnMoveSelect(UnitControllerBase actor)
 	{
-		BattleManager.Instance.Phrase = BattleManager.BattlePhrase.MovementSelect;
+		BattleManager.Instance.Phase = BattleManager.BattlePhase.MovementSelect;
 		this._actionMenu.ShowMenu (false);
 		this._actionMenu.ShowCancel (true);
 	}
 
 	private void OnSkillSelect(UnitControllerBase actor, Skill selectedSkill)
 	{
-		BattleManager.Instance.Phrase = BattleManager.BattlePhrase.TargetSelect;
+		BattleManager.Instance.Phase = BattleManager.BattlePhase.TargetSelect;
 		actor.SelectedSkill = selectedSkill;
 		this._actionMenu.ShowMenu (false);
 		this._actionMenu.ShowCancel (true);
@@ -97,7 +97,7 @@ public class BattleController : MonoBehaviour
 
 	private void OnSelectionCancel()
 	{
-		BattleManager.Instance.Phrase = BattleManager.BattlePhrase.ActionSelect;
+		BattleManager.Instance.Phase = BattleManager.BattlePhase.ActionSelect;
 		this._actionMenu.ShowMenu (true);
 		this._actionMenu.ShowCancel (false);
 	}

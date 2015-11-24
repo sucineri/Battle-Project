@@ -105,8 +105,9 @@ public class UnitControllerBase : MonoBehaviour
     }
 
     // default AI attack
-    public IEnumerator RunAI(List<UnitControllerBase> allUnits)
+    public IEnumerator RunAI()
     {
+		var allUnits = BattleManager.Instance.AllUnits;
         var targetTile = TargetLogic.GetTargetTile(this, allUnits);
         yield return StartCoroutine(this.GetSelectedSkill().PlaySkillSequence(this, targetTile));
     }

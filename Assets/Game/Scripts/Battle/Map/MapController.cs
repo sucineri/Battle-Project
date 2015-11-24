@@ -12,7 +12,6 @@ public class MapController : MonoBehaviour
     private Dictionary<string, MapTile> _enemyTiles = new Dictionary<string, MapTile>();
 
     private UnitControllerBase _selectedPlayer;
-    private Action _onTileClick = null;
 
     public void Init()
     {
@@ -32,136 +31,72 @@ public class MapController : MonoBehaviour
         }
     }
 
-    public IEnumerator WaitForUserInput(UnitControllerBase currentActor)
-    {
-        var waitForInput = true;
-        this._onTileClick = () =>
-        {
-            waitForInput = false;
-        };
-        this._selectedPlayer = currentActor;
-        this._selectedPlayer.CurrentTile.SetSelected(true);
-
-        while (waitForInput)
-        {
-            yield return 0;
-        }
-        this._onTileClick = null;
-    }
-
     private void OnTileClick(MapTile tileClicked)
     {
         if (!BattleManager.Instance.EnableTileTouch)
         {
             return;
         }
-		StartCoroutine (this.OnTileClicked (tileClicked, this._onTileClick));
-//
-//        if (tileClicked.Team == Const.Team.Player)
-//        {
-//            StartCoroutine(OnPlayerTileClicked(tileClicked, this._onTileClick));
-//        }
-//        else if (tileClicked.CurrentUnit != null)
-//        {
-//            StartCoroutine(OnEnemyTileClicked(tileClicked, this._onTileClick));
-//        }
+
+		var processes = new Queue<IEnumerator> ();
+		switch (BattleManager.Instance.Phase) {
+
+		case BattleManager.BattlePhase.MovementSelect:
+			processes.Enqueue (this.MoveUnitToTile (this._selectedPlayer, tileClicked));
+			break;
+		case BattleManager.BattlePhase.TargetSelect:
+			processes.Enqueue (this._selectedPlayer.GetSelectedSkill ().PlaySkillSequence (this._selectedPlayer, tileClicked));
+			break;
+		default:
+			break;
+		}
+		StartCoroutine (this.RunAnimationQueue (processes));
     }
 
-//    private IEnumerator OnPlayerTileClicked(MapTile tileClicked, Action onComplete = null)
-//    {
-//		this.OnAnimationStateChange (true);
-//        // if a unit has been selectd before
-//        if (_selectedPlayer != null)
-//        {
-//            var tileBefore = _selectedPlayer.CurrentTile;
-//            var tileAfter = tileClicked;
-//
-//            // if a different tile is clicked
-//            if (tileBefore != tileAfter)
-//            {
-//                tileBefore.SetSelected(false);
-//
-//                var unitOnTileClicked = tileAfter.CurrentUnit;
-//
-//                // if there's another unit on tile clied
-//                if (unitOnTileClicked != null)
-//                {
-//                    StartCoroutine(unitOnTileClicked.MoveToTile(tileBefore));
-//                }
-//
-//                yield return StartCoroutine(_selectedPlayer.MoveToTile(tileAfter));
-//
-//                // swap units assignment
-//                tileBefore.AssignUnit(unitOnTileClicked);
-//                tileAfter.AssignUnit(_selectedPlayer);
-//            }
-//            else
-//            { // the same tile is clicked again
-//                tileClicked.SetSelected(false);
-//            }
-//
-//            _selectedPlayer = null;
-//        }
-//        else
-//        {  // no unit was selected before
-//            // assign selectedPlayer pointer
-//            _selectedPlayer = tileClicked.CurrentUnit;
-//            if (_selectedPlayer != null)
-//            {
-//                // set the state of the tile to be selected
-//                tileClicked.SetSelected(true);
-//            }
-//        }
-//        yield return 0;
-//        if (onComplete != null)
-//        {
-//            onComplete();
-//        }
-//		this.OnAnimationStateChange (false);
-//    }
-//
-//    private IEnumerator OnEnemyTileClicked(MapTile tileClicked, Action onComplete = null)
-//    {
-//		this.OnAnimationStateChange (true);
-//        if (_selectedPlayer != null)
-//        {
-//            if (tileClicked.CurrentUnit != null)
-//            {
-//                yield return StartCoroutine(_selectedPlayer.GetSelectedSkill().PlaySkillSequence(_selectedPlayer, tileClicked));
-//                _selectedPlayer.CurrentTile.SetSelected(false);
-//                _selectedPlayer = null;
-//            }
-//        }
-//        yield return 0;
-//        if (onComplete != null)
-//        {
-//            onComplete();
-//        }
-//		this.OnAnimationStateChange (false);
-//    }
-
-	private IEnumerator OnTileClicked(MapTile tileClicked, Action onComplete = null)
+	private void OnTileSelect(MapTile tileClicked, Action onComplete = null)
 	{
-		if (BattleManager.Instance.Phrase == BattleManager.BattlePhrase.MovementSelect) {
-			if (tileClicked.Team == this._selectedPlayer.Team) {
-				BattleManager.Instance.Phrase = BattleManager.BattlePhrase.Animation;
-				yield return StartCoroutine(this.MoveUnitToTile(this._selectedPlayer, tileClicked));
-			}
-		} 
-		else if (BattleManager.Instance.Phrase == BattleManager.BattlePhrase.TargetSelect) {
-			if (tileClicked.CurrentUnit != null)
-			{
-				BattleManager.Instance.Phrase = BattleManager.BattlePhrase.Animation;
-				yield return StartCoroutine(_selectedPlayer.GetSelectedSkill().PlaySkillSequence(_selectedPlayer, tileClicked));
-				_selectedPlayer.CurrentTile.SetSelected(false);
-				_selectedPlayer = null;
-			}
+		var processes = new Queue<IEnumerator> ();
+		switch (BattleManager.Instance.Phase) {
+
+		case BattleManager.BattlePhase.MovementSelect:
+			processes.Enqueue (this.MoveUnitToTile (this._selectedPlayer, tileClicked));
+			break;
+		case BattleManager.BattlePhase.TargetSelect:
+			processes.Enqueue (this._selectedPlayer.GetSelectedSkill ().PlaySkillSequence (this._selectedPlayer, tileClicked));
+			break;
+		default:
+			break;
+		}
+		StartCoroutine (this.RunAnimationQueue (processes));
+	}
+
+	public void SetActor(UnitControllerBase actor)
+	{
+		this._selectedPlayer = actor;
+		this._selectedPlayer.CurrentTile.SetSelected(true);
+	}
+
+	public void RunAI(UnitControllerBase unit)
+	{
+		var processes = new Queue<IEnumerator> ();
+		processes.Enqueue (unit.RunAI ());
+		StartCoroutine (this.RunAnimationQueue (processes));
+	}
+
+	private IEnumerator RunAnimationQueue(Queue<IEnumerator> queue)
+	{
+		BattleManager.Instance.Phase = BattleManager.BattlePhase.Animation;
+		while (queue.Count > 0) {
+			var process = queue.Dequeue ();
+			yield return StartCoroutine (process);
 		}
 
-		if (onComplete != null)
-		{
-			onComplete();
+		if (this._selectedPlayer != null) {
+			_selectedPlayer.CurrentTile.SetSelected(false);
 		}
+
+		_selectedPlayer = null;
+		BattleManager.Instance.Phase = BattleManager.BattlePhase.NextRound;
 	}
 
 	private IEnumerator ShowConfirmation(Action onOk, Action onCancel)
