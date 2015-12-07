@@ -35,8 +35,8 @@ public class Const
 
 	public const string TileKey = "Tile";
 
-	public static string GetTileKey (int x, int y)
+	public static string GetTileKey (Const.Team team, int x, int y)
 	{
-		return string.Format ("{0}_{1}_{2}", Const.TileKey, x, y);
+		return string.Format ("{0}_{1}_{2}_{3}", team, Const.TileKey, x, y);
 	}
 }

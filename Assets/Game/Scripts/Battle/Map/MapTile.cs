@@ -6,9 +6,9 @@ using System.Collections;
 public class MapTile : MonoBehaviour
 {
 
-	[SerializeField] private Image tileSprite;
-	[SerializeField] private Color defaultColor;
-	[SerializeField] private Color selectedColor;
+	[SerializeField] private Image _tileSprite;
+	[SerializeField] private Color _defaultColor;
+	[SerializeField] private Color _selectedColor;
 
 	public UnitControllerBase CurrentUnit { get; private set; }
 
@@ -18,14 +18,14 @@ public class MapTile : MonoBehaviour
 
 	public Const.Team Team { get; private set; }
 
-	private event Action<MapTile> onTileClick;
+	private event Action<MapTile> _onTileClick;
 
 	public void Init (int x, int y, Const.Team team, Action<MapTile> onClick)
 	{
 		this.X = x;
 		this.Y = y;
 		this.Team = team;
-		this.onTileClick = onClick;
+		this._onTileClick = onClick;
 	}
 
 	public void AssignUnit (UnitControllerBase unit)
@@ -38,13 +38,13 @@ public class MapTile : MonoBehaviour
 
 	public void SetSelected (bool selected)
 	{
-		tileSprite.color = selected ? selectedColor : defaultColor;
+		_tileSprite.color = selected ? _selectedColor : _defaultColor;
 	}
 
 	public void OnClick ()
 	{
-		if (this.onTileClick != null) {
-			this.onTileClick (this);
+		if (this._onTileClick != null) {
+			this._onTileClick (this);
 		}
 	}
 }

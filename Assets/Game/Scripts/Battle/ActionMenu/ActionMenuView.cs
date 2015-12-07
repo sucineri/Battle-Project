@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System;
 using System.Collections;
 
-public class ActionMenu : MonoBehaviour {
+public class ActionMenuView : MonoBehaviour {
 
 	[SerializeField] private GameObject _menuPrefab;
 	[SerializeField] private VerticalLayoutGroup _layout;

@@ -15,22 +15,22 @@ public class MapController : MonoBehaviour
 
     public void Init()
     {
-        _playerTiles = _playerGrid.Init(this.OnTileClick);
-        _enemyTiles = _enemyGrid.Init(this.OnTileClick);
+        _playerTiles = _playerGrid.InitTiles(this.OnTileClick);
+        _enemyTiles = _enemyGrid.InitTiles(this.OnTileClick);
     }
 
-    public MapTile GetTile(Const.Team team, int x, int y)
-    {
-        if (team == Const.Team.Player)
-        {
-            return GetTile(_playerTiles, x, y);
-        }
-        else
-        {
-            return GetTile(_enemyTiles, x, y);
-        }
-    }
-
+//    public MapTile GetTile(Const.Team team, int x, int y)
+//    {
+//        if (team == Const.Team.Player)
+//        {
+//            return GetTile(_playerTiles, x, y);
+//        }
+//        else
+//        {
+//            return GetTile(_enemyTiles, x, y);
+//        }
+//    }
+//
     private void OnTileClick(MapTile tileClicked)
     {
         if (!BattleManager.Instance.EnableTileTouch)
@@ -136,10 +136,10 @@ public class MapController : MonoBehaviour
 		targetTile.AssignUnit (unit);
 	}
 
-    private MapTile GetTile(Dictionary<string, MapTile> dict, int x, int y)
-    {
-        MapTile tile = null;
-        dict.TryGetValue(Const.GetTileKey(x, y), out tile);
-        return tile;
-    }
+//    private MapTile GetTile(Dictionary<string, MapTile> dict, int x, int y)
+//    {
+//        MapTile tile = null;
+//        dict.TryGetValue(Const.GetTileKey(x, y), out tile);
+//        return tile;
+//    }
 }

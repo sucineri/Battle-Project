@@ -11,18 +11,18 @@ public class BattleController : MonoBehaviour
     [SerializeField]
     private TurnOrderView _turnOrderView;
 	[SerializeField]
-	private ActionMenu _actionMenu;
+	private ActionMenuView _actionMenu;
 
     protected IEnumerator Start()
     {
         this._mapController.Init();
 		this._actionMenu.Init (this.OnMoveSelect, this.OnSkillSelect, this.OnSelectionCancel);
         yield return new WaitForEndOfFrame();
-		BattleManager.CreateBattleInstance(this, this._mapController);
-        this.InitUnits();
-        BattleManager.Instance.InitTurnOrder();
+//		BattleManager.CreateBattleInstance(this, this._mapController);
+//        this.InitUnits();
+//        BattleManager.Instance.InitTurnOrder();
 		BattleManager.Instance.onBattlePhaseChange += this.OnBattlePhaseChange;
-		this.NextRound ();
+//		this.NextRound ();
     }
         
     public void UpdateTurnOrderView(List<UnitControllerBase> orderedList)
@@ -30,43 +30,43 @@ public class BattleController : MonoBehaviour
         this._turnOrderView.ShowOrder(orderedList);
     }
 
-    private void InitUnits()
-    {
-        var layout = MapLayout.GetDefaultLayout();
-        foreach (var playerPosition in layout.playerPositions)
-        {
-            var tile = _mapController.GetTile(Const.Team.Player, playerPosition.X, playerPosition.Y);
-            this.CreateUnitOnTile(Const.Team.Player, tile);
-        }
-
-        foreach (var enemyPosition in layout.enemyPositions)
-        {
-            var tile = _mapController.GetTile(Const.Team.Enemy, enemyPosition.X, enemyPosition.Y);
-            this.CreateUnitOnTile(Const.Team.Enemy, tile);
-        }
-    }
+//    private void InitUnits()
+//    {
+//        var layout = MapLayout.GetDefaultLayout();
+//        foreach (var playerPosition in layout.playerPositions)
+//        {
+//            var tile = _mapController.GetTile(Const.Team.Player, playerPosition.X, playerPosition.Y);
+//            this.CreateUnitOnTile(Const.Team.Player, tile);
+//        }
+//
+//        foreach (var enemyPosition in layout.enemyPositions)
+//        {
+//            var tile = _mapController.GetTile(Const.Team.Enemy, enemyPosition.X, enemyPosition.Y);
+//            this.CreateUnitOnTile(Const.Team.Enemy, tile);
+//        }
+//    }
 
 	private void OnBattlePhaseChange(BattleManager.BattlePhase battlePhase)
 	{
 		if (battlePhase == BattleManager.BattlePhase.NextRound) {
-			this.NextRound ();
+//			this.NextRound ();
 		}
 	}
 
-	private void NextRound()
-	{
-		var actor = BattleManager.Instance.GetNextActor();
-		if (BattleManager.Instance.AllOpponentsDefeated (actor.Team)) {
-			// end battle
-		}
-		else if (actor.Team == Const.Team.Enemy) {
-			this.ProcessEnemyTurn (actor);
-		}
-		else 
-		{
-			this.ProcessPlayerTurn (actor);
-		}
-	}
+//	private void NextRound()
+//	{
+//		var actor = BattleManager.Instance.GetNextActor();
+//		if (BattleManager.Instance.AllOpponentsDefeated (actor.Team)) {
+//			// end battle
+//		}
+//		else if (actor.Team == Const.Team.Enemy) {
+//			this.ProcessEnemyTurn (actor);
+//		}
+//		else 
+//		{
+//			this.ProcessPlayerTurn (actor);
+//		}
+//	}
 
 	private void ProcessEnemyTurn(UnitControllerBase actor)
 	{
@@ -121,14 +121,14 @@ public class BattleController : MonoBehaviour
 
             var unitController = unit.GetComponent<UnitControllerBase>();
 
-            var postfix = BattleManager.Instance.GetUnitPostfix(character.Name);
+//            var postfix = BattleManager.Instance.GetUnitPostfix(character.Name);
 
-            unitController.Init(team, character, postfix);
+            unitController.Init(team, character, 'A');
             tile.AssignUnit(unitController);
 
             unitController.gameObject.name = unitController.UnitName;
 
-            BattleManager.Instance.AddUnit(team, unitController);
+//            BattleManager.Instance.AssignTileToUnit(team, unitController);
         }
     }
 }

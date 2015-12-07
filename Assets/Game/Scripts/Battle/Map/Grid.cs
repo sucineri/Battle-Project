@@ -12,7 +12,7 @@ public class Grid : MonoBehaviour
 	[SerializeField] private int numberOfColumns;
 	[SerializeField] private Const.Team team;
 
-	public Dictionary<string, MapTile> Init (System.Action<MapTile> onTileClick)
+	public Dictionary<string, MapTile> InitTiles (System.Action<MapTile> onTileClick)
 	{
 		Dictionary<string, MapTile> dict = new Dictionary<string, MapTile> ();
 		layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
@@ -27,7 +27,7 @@ public class Grid : MonoBehaviour
 
 				var mapTile = tile.GetComponent<MapTile> ();
 				mapTile.Init (j, i, team, onTileClick);
-				tile.name = Const.GetTileKey (j, i);
+				tile.name = Const.GetTileKey (team, j, i);
 				dict.Add (tile.name, mapTile);
 			}
 		}
