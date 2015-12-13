@@ -28,8 +28,6 @@ public class BattleManager
 	public static void CreateBattleInstance()
     {
         Instance = new BattleManager();
-//        Instance._battleController = battleController;
-//        Instance._mapController = mapController;
     }
 
     public static void FinishBattle()
@@ -39,12 +37,7 @@ public class BattleManager
 
     #endregion
 
-//    private BattleController _battleController;
-//    private MapController _mapController;
     private TurnOrderService _turnOrderService = new TurnOrderService ();
-//    private UnitNameService _unitNameService = new UnitNameService();
-    private List<UnitControllerBase> _playerUnits = new List<UnitControllerBase>();
-    private List<UnitControllerBase> _enemyUnits = new List<UnitControllerBase>();
 
 	private Dictionary<string, MapTile> _allTiles = new Dictionary<string, MapTile>();
 	private Dictionary<UnitControllerBase, MapTile> _unitsAndTilesDictionary = new Dictionary<UnitControllerBase, MapTile>();
@@ -71,6 +64,7 @@ public class BattleManager
 
     public bool IsPlayerTurn { get; private set; }
 	public bool IsAnimating { get; private set; }
+	public UnitControllerBase CurrentActor { get; private set; }
 	public bool EnableTileTouch { get { return this.Phase == BattlePhase.TargetSelect || this.Phase == BattlePhase.MovementSelect; } }
 
     public List<UnitControllerBase> AllUnits
@@ -93,47 +87,25 @@ public class BattleManager
 		return tile;
     }
 
-    public void AssignTileToUnit(Const.Team team, UnitControllerBase unit)
-    {
-        var list = team == Const.Team.Player ? _playerUnits : _enemyUnits;
-        list.Add(unit);
-    }
-
     public UnitControllerBase GetNextActor()
     {
-		var orderList = this._turnOrderService.GetActionOrder (this.AllUnits);
-		if (this.onTurnOrderChanged != null) {
-			this.onTurnOrderChanged (orderList);
-		}
-		if (orderList != null && orderList.Count > 0) {
-			var nextActor = orderList [0];
-			this.IsPlayerTurn = nextActor.Team == Const.Team.Player;
-			return nextActor;
-		}
+//		var orderList = this._turnOrderService.GetActionOrder (this.AllUnits);
+//		if (this.onTurnOrderChanged != null) {
+//			this.onTurnOrderChanged (orderList);
+//		}
+//		if (orderList != null && orderList.Count > 0) {
+//			var nextActor = orderList [0];
+//			this.IsPlayerTurn = nextActor.Team == Const.Team.Player;
+//			return nextActor;
+//		}
 		return null;
     }
-
-//    public List<UnitControllerBase> GetOpponentList(Const.Team actorTeam)
-//    {
-//        return actorTeam == Const.Team.Player ? this._enemyUnits : this._playerUnits;
-//    }
-
-//    public bool AllOpponentsDefeated(Const.Team actorTeam)
-//    {
-//        var list = GetOpponentList(actorTeam);
-//        return list.Find(x => !x.IsDead) == null;
-//    }
 
 	public bool AllUnitsDefeated(Const.Team team)
 	{
 		return this.AllUnits.Find (x => x.Team == team && !x.IsDead) == null;
 	}
 
-//    public char GetUnitPostfix(string characterName)
-//    {
-//        return this._unitNameService.GetPostfix(characterName);
-//    }
-//
 	public List<MapTile> GetAffectedTiles(MapTile targetTile, List<Cordinate> pattern)
 	{
 		var list = new List<MapTile>();
@@ -168,5 +140,37 @@ public class BattleManager
 			}
 		}
 		return null;
+	}
+
+
+	private void NextRound()
+	{
+		if (this.AllUnitsDefeated (Const.Team.Enemy)) {
+			// player wins
+			return;
+		}
+		else if (this.AllUnitsDefeated (Const.Team.Player)) {
+			// enemy wins
+			return;
+		}
+
+		this.CurrentActor = this.GetNextActor();
+
+		if (this.CurrentActor.Team == Const.Team.Enemy) {
+//			this.RunAI (this.CurrentActor);
+		}
+		else 
+		{
+//			this.ProcessPlayerTurn (this.CurrentActor);
+		}
+	}
+
+	// default AI attack
+	public void RunAI(CharacterStats character)
+	{
+//		var allUnits = BattleManager.Instance.AllUnits;
+//		var targetTile = TargetLogic.GetTargetTile(this, this.AllUnits);
+//		var skill = actor.GetSelectedSkill ();
+//		yield return StartCoroutine(this.GetSelectedSkill().PlaySkillSequence(this, targetTile));
 	}
 }

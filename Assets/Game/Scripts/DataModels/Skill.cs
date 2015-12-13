@@ -8,7 +8,7 @@ public class Skill
 
 	public List<SkillEffect> Effects = new List<SkillEffect> ();
 
-	public int NumberOfAttacks { get; set; }
+	public int NumberOfTriggers { get; set; }
 
 	public Targetting SkillTarget { get; set; }
 
@@ -18,15 +18,13 @@ public class Skill
 	{
 		// no public default constructor
 	}
-
-
-
+		
 	public static Skill MeleeAttack ()
 	{
 		var skill = new Skill ();
 		skill.Name = "Attack";
 		skill.Effects.Add (SkillEffect.MeleeAttackEffect ());
-		skill.NumberOfAttacks = 1;
+		skill.NumberOfTriggers = 1;
 		skill.PrefabPath = "Skills/MeleeAttack";
 		skill.SkillTarget = Targetting.SingleOpponentTarget ();
 		return skill;
@@ -37,7 +35,7 @@ public class Skill
 		var skill = new Skill ();
 		skill.Name = "Cross Slash";
 		skill.Effects.Add (SkillEffect.CrossSlashEffect ());
-		skill.NumberOfAttacks = 1;
+		skill.NumberOfTriggers = 1;
 		skill.PrefabPath = "Skills/CrossSlash";
 		skill.SkillTarget = Targetting.CrossOpponentTarget ();
 		return skill;

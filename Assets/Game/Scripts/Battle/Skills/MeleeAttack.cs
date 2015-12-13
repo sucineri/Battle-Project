@@ -31,11 +31,12 @@ public class MeleeAttack : SkillComponentBase
 	protected override IEnumerator PlaySkillEffectOnTiles (UnitControllerBase actor, SkillEffect effect, MapTile targetTile, System.Collections.Generic.List<MapTile> affectedTiles)
 	{
 		var affectedUnit = targetTile.CurrentUnit;
-		if (affectedUnit != null) {
-			affectedUnit.PlayEffect (effect.AssetPath);
-			var damage = DamageLogic.GetNormalAttackDamage (actor.Character, affectedUnit.Character, effect);
-			yield return StartCoroutine (affectedUnit.TakeDamage (damage, true));
-		}
+//		if (affectedUnit != null) {
+//			affectedUnit.PlayEffect (effect.AssetPath);
+//			var damage = DamageLogic.GetNormalAttackDamage (actor.Character, affectedUnit.Character, effect);
+//			yield return StartCoroutine (affectedUnit.TakeDamage (damage, true));
+//		}
+		yield return null;
 	}
 
 	

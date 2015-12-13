@@ -8,7 +8,7 @@ public class BattlePresenter : MonoBehaviour {
 	[SerializeField] private MapView _mapView;
 	[SerializeField] private BattleUnitsView _unitView;
 	[SerializeField] private TurnOrderView _turnOrderView;
-	[SerializeField] private ActionMenuView _actionMenuView;
+	[SerializeField] private ActionMenu _actionMenu;
 
 	private UnitControllerBase _currentActor;
 
@@ -21,9 +21,10 @@ public class BattlePresenter : MonoBehaviour {
 	{
 		BattleManager.CreateBattleInstance ();
 		BattleManager.Instance.onTurnOrderChanged += this.OnTurnOrderChanged;
+		BattleManager.Instance.onBattlePhaseChange += this._actionMenu.OnBattlePhaseChange;
 		BattleManager.Instance.onBattlePhaseChange += this.OnBattlePhaseChange;
 
-		this._actionMenuView.Init (this.OnMoveSelect, this.OnSkillSelect, this.OnSelectionCancel);
+//		this._actionMenu.Init (this.OnMoveSelect, this.OnSkillSelect, this.OnSelectionCancel);
 		yield return 0;
 
 		var allTiles = this._mapView.InitTiles (this.OnMapTileClick);
@@ -102,7 +103,7 @@ public class BattlePresenter : MonoBehaviour {
 	{
 		this._currentActor = actor;
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.ActionSelect;
-		this._actionMenuView.CreateMenu (actor);
+		this._actionMenu.CreateMenu (actor);
 
 		// TODO: light up movable areas
 		var tile = BattleManager.Instance.GetUnitOccupiedTile (this._currentActor);
@@ -133,18 +134,18 @@ public class BattlePresenter : MonoBehaviour {
 		var affectedTiles = BattleManager.Instance.GetAffectedTiles (targetTile, skill.SkillTarget.Pattern);
 		this._mapView.SetTilesAffected (affectedTiles, true);
 
-		Action onCancel = () => {
-			this._mapView.SetTilesAffected(affectedTiles, false);
-		};
-
-		Action onOk = () => {
-			var processes = new Queue<IEnumerator> ();
-			processes.Enqueue (skillComponent.PlaySkillSequence (this._currentActor, targetTile));
-			this._mapView.SetTilesAffected(affectedTiles, false);
-			StartCoroutine(this.RunAnimationQueue(processes));
-		};
-
-		PopupManager.OkCancel (onOk, onCancel);
+//		Action onCancel = () => {
+//			this._mapView.SetTilesAffected(affectedTiles, false);
+//		};
+//
+//		Action onOk = () => {
+//			var processes = new Queue<IEnumerator> ();
+//			processes.Enqueue (skillComponent.PlaySkillSequence (this._currentActor, targetTile));
+//			this._mapView.SetTilesAffected(affectedTiles, false);
+//			StartCoroutine(this.RunAnimationQueue(processes));
+//		};
+//
+//		PopupManager.OkCancel (onOk, onCancel);
 	}
 
 	private IEnumerator RunAnimationQueue(Queue<IEnumerator> queue)
@@ -169,43 +170,43 @@ public class BattlePresenter : MonoBehaviour {
 	private void SpawnUnitsOnMap()
 	{
 		// TODO: real character data
-		var layout = MapLayout.GetDefaultLayout();
-		foreach (var playerPosition in layout.playerPositions)
-		{
-			var playerUnit = BattleUnitFactory.CreateBattleUnit (Const.Team.Player, CharacterStats.Fighter ());
-			var playerTile = BattleManager.Instance.GetTile (Const.Team.Player, playerPosition.X, playerPosition.Y);
-			this._unitView.SpawnUnitOnTile (playerUnit, playerTile);
-			BattleManager.Instance.AssignTileToUnit (playerUnit, playerTile);
-		}
-
-		foreach (var enemyPosition in layout.enemyPositions)
-		{
-			var enemyUnit = BattleUnitFactory.CreateBattleUnit (Const.Team.Enemy, CharacterStats.Slime ());
-			var enemyTile = BattleManager.Instance.GetTile (Const.Team.Enemy, enemyPosition.X, enemyPosition.Y);
-			this._unitView.SpawnUnitOnTile (enemyUnit, enemyTile);
-			BattleManager.Instance.AssignTileToUnit (enemyUnit, enemyTile);
-		}
+//		var layout = MapLayout.GetDefaultLayout();
+//		foreach (var playerPosition in layout.playerPositions)
+//		{
+//			var playerUnit = BattleUnitFactory.CreateBattleUnit (Const.Team.Player, CharacterStats.Fighter ());
+//			var playerTile = BattleManager.Instance.GetTile (Const.Team.Player, playerPosition.X, playerPosition.Y);
+//			this._unitView.SpawnUnitOnTile (playerUnit, playerTile);
+//			BattleManager.Instance.AssignTileToUnit (playerUnit, playerTile);
+//		}
+//
+//		foreach (var enemyPosition in layout.enemyPositions)
+//		{
+//			var enemyUnit = BattleUnitFactory.CreateBattleUnit (Const.Team.Enemy, CharacterStats.Slime ());
+//			var enemyTile = BattleManager.Instance.GetTile (Const.Team.Enemy, enemyPosition.X, enemyPosition.Y);
+//			this._unitView.SpawnUnitOnTile (enemyUnit, enemyTile);
+//			BattleManager.Instance.AssignTileToUnit (enemyUnit, enemyTile);
+//		}
 	}
 
 	private void OnMoveSelect(UnitControllerBase actor)
 	{
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.MovementSelect;
-		this._actionMenuView.ShowMenu (false);
-		this._actionMenuView.ShowCancel (true);
+		this._actionMenu.ShowMenu (false);
+		this._actionMenu.ShowCancel (true);
 	}
 
 	private void OnSkillSelect(UnitControllerBase actor, Skill selectedSkill)
 	{
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.TargetSelect;
 		actor.SelectedSkill = selectedSkill;
-		this._actionMenuView.ShowMenu (false);
-		this._actionMenuView.ShowCancel (true);
+		this._actionMenu.ShowMenu (false);
+		this._actionMenu.ShowCancel (true);
 	}
 
 	private void OnSelectionCancel()
 	{
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.ActionSelect;
-		this._actionMenuView.ShowMenu (true);
-		this._actionMenuView.ShowCancel (false);
+		this._actionMenu.ShowMenu (true);
+		this._actionMenu.ShowCancel (false);
 	}
 }

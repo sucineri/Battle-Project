@@ -4,8 +4,7 @@ using System.Collections.Generic;
 
 public class MapLayout
 {
-	public List<Cordinate> playerPositions = new List<Cordinate> ();
-	public List<Cordinate> enemyPositions = new List<Cordinate> ();
+	public List<MapPosition> positions = new List<MapPosition> ();
 
 	protected MapLayout ()
 	{
@@ -14,15 +13,15 @@ public class MapLayout
 	public static MapLayout GetDefaultLayout ()
 	{
 		var layout = new MapLayout ();
-		layout.playerPositions.Add (new Cordinate (1, 0));
-		layout.playerPositions.Add (new Cordinate (1, 1));
-		layout.playerPositions.Add (new Cordinate (1, 2));
-		layout.playerPositions.Add (new Cordinate (1, 3));
+		layout.positions.Add (new MapPosition (1, 0, Const.Team.Player));
+		layout.positions.Add (new MapPosition (1, 1, Const.Team.Player));
+		layout.positions.Add (new MapPosition (1, 2, Const.Team.Player));
+		layout.positions.Add (new MapPosition (1, 3, Const.Team.Player));
 
-		layout.enemyPositions.Add (new Cordinate (1, 0));
-		layout.enemyPositions.Add (new Cordinate (1, 1));
-		layout.enemyPositions.Add (new Cordinate (1, 2));
-		layout.enemyPositions.Add (new Cordinate (1, 3));
+		layout.positions.Add (new MapPosition (1, 0, Const.Team.Enemy));
+		layout.positions.Add (new MapPosition (1, 1, Const.Team.Enemy));
+		layout.positions.Add (new MapPosition (1, 2, Const.Team.Enemy));
+		layout.positions.Add (new MapPosition (1, 3, Const.Team.Enemy));
 		return layout;
 	}
 }

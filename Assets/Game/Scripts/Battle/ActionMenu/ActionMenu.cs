@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System;
 using System.Collections;
 
-public class ActionMenuView : MonoBehaviour {
+public class ActionMenu : MonoBehaviour {
 
 	[SerializeField] private GameObject _menuPrefab;
 	[SerializeField] private VerticalLayoutGroup _layout;
@@ -11,10 +11,15 @@ public class ActionMenuView : MonoBehaviour {
 
 	private Action<UnitControllerBase> _onMoveSelect;
 	private Action<UnitControllerBase, Skill> _onSkillSelect;
-	private Action _onCancel;
+	private BattleAction _onCancel;
 	private UnitControllerBase _unit;
 
-	public void Init(Action<UnitControllerBase> onMoveSelect, Action<UnitControllerBase, Skill> onSkillSelect, Action onCancel)
+	public void OnBattlePhaseChange(BattleManager.BattlePhase battlePhase)
+	{
+		
+	}
+
+	public void Init(Action<UnitControllerBase> onMoveSelect, Action<UnitControllerBase, Skill> onSkillSelect, BattleAction onCancel)
 	{
 		this._onMoveSelect = onMoveSelect;
 		this._onSkillSelect = onSkillSelect;
@@ -48,7 +53,7 @@ public class ActionMenuView : MonoBehaviour {
 	{
 		if(this._onCancel != null)
 		{
-			this._onCancel ();
+//			this._onCancel ();
 		}
 	}
 

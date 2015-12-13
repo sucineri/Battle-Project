@@ -5,8 +5,8 @@ public class Const
 {
 	public enum Team
 	{
-		Player = 0,
-		Enemy = 1
+		Player = 1,
+		Enemy = 2
 	}
 
 	public enum SkillTargetGroup
@@ -32,6 +32,20 @@ public class Const
 		Agility,
 		Wisdom
 	}
+
+	public enum ActionType
+	{
+		Movement,
+		Skill,
+		Item
+	}
+
+	public enum TargetType
+	{
+		Tile,
+		Character
+	}
+
 
 	public const string TileKey = "Tile";
 

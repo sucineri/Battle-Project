@@ -11,18 +11,22 @@ public class BattleController : MonoBehaviour
     [SerializeField]
     private TurnOrderView _turnOrderView;
 	[SerializeField]
-	private ActionMenuView _actionMenu;
+	private ActionMenu _actionMenu;
 
-    protected IEnumerator Start()
+    protected void Start()
     {
-        this._mapController.Init();
-		this._actionMenu.Init (this.OnMoveSelect, this.OnSkillSelect, this.OnSelectionCancel);
-        yield return new WaitForEndOfFrame();
+//        this._mapController.Init();
+//		this._actionMenu.Init (this.OnMoveSelect, this.OnSkillSelect, this.OnSelectionCancel);
+//        yield return new WaitForEndOfFrame();
 //		BattleManager.CreateBattleInstance(this, this._mapController);
 //        this.InitUnits();
 //        BattleManager.Instance.InitTurnOrder();
-		BattleManager.Instance.onBattlePhaseChange += this.OnBattlePhaseChange;
+//		BattleManager.Instance.onBattlePhaseChange += this.OnBattlePhaseChange;
 //		this.NextRound ();
+
+		var battleModel = new BattleModel ();
+		battleModel.StartSimulation (4, 3);
+
     }
         
     public void UpdateTurnOrderView(List<UnitControllerBase> orderedList)

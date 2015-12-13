@@ -38,17 +38,17 @@ public class CrossSlash : SkillComponentBase
 			}
 		}
 
-		for (int i = 0; i < affectedUnits.Count; ++i) {
-			var affectedUnit = affectedUnits [i];
-			var damage = DamageLogic.GetNormalAttackDamage (actor.Character, affectedUnit.Character, effect);
-			affectedUnit.PlayEffect (effect.AssetPath);
-			if (i != affectedUnits.Count - 1) {
-				StartCoroutine (affectedUnit.TakeDamage (damage, true));			
-			} 
-			else {
-				yield return StartCoroutine (affectedUnit.TakeDamage (damage, true));
-			}
-		}
+//		for (int i = 0; i < affectedUnits.Count; ++i) {
+//			var affectedUnit = affectedUnits [i];
+//			var damage = DamageLogic.GetNormalAttackDamage (actor.Character, affectedUnit.Character, effect);
+//			affectedUnit.PlayEffect (Skill.AssetPath);
+//			if (i != affectedUnits.Count - 1) {
+//				StartCoroutine (affectedUnit.TakeDamage (damage, true));			
+//			} 
+//			else {
+//				yield return StartCoroutine (affectedUnit.TakeDamage (damage, true));
+//			}
+//		}
 		yield return null;
 	}
 }

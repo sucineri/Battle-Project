@@ -59,18 +59,18 @@ public class MapController : MonoBehaviour
 		var affectedTiles = BattleManager.Instance.GetAffectedTiles (targetTile, skill.SkillTarget.Pattern);
 		this.SetTilesAffected (affectedTiles, true);
 
-		Action onCancel = () => {
-			this.SetTilesAffected(affectedTiles, false);
-		};
-
-		Action onOk = () => {
-			var processes = new Queue<IEnumerator> ();
-			processes.Enqueue (skillComponent.PlaySkillSequence (this._selectedPlayer, targetTile));
-			this.SetTilesAffected(affectedTiles, false);
-			StartCoroutine(this.RunAnimationQueue(processes));
-		};
-
-		PopupManager.OkCancel (onOk, onCancel);
+//		Action onCancel = () => {
+//			this.SetTilesAffected(affectedTiles, false);
+//		};
+//
+//		Action onOk = () => {
+//			var processes = new Queue<IEnumerator> ();
+//			processes.Enqueue (skillComponent.PlaySkillSequence (this._selectedPlayer, targetTile));
+//			this.SetTilesAffected(affectedTiles, false);
+//			StartCoroutine(this.RunAnimationQueue(processes));
+//		};
+//
+//		PopupManager.OkCancel (onOk, onCancel);
 	}
 
 	private void SetTilesAffected(List<MapTile> tiles, bool affected)
@@ -81,7 +81,7 @@ public class MapController : MonoBehaviour
 		}
 	}
 
-	private void OnTileSelect(MapTile tileClicked, Action onComplete = null)
+	private void OnTileSelect(MapTile tileClicked, BattleAction onComplete = null)
 	{
 		var processes = new Queue<IEnumerator> ();
 		switch (BattleManager.Instance.Phase) {

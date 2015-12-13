@@ -4,7 +4,6 @@ using System.Collections;
 public class SkillEffect 
 {
 	public BasicStats StatsModifiers { get; set; }
-	public string AssetPath { get; set; }
 
 	protected SkillEffect ()
 	{
@@ -15,7 +14,6 @@ public class SkillEffect
 	{
 		var skillEffect = new SkillEffect ();
 		skillEffect.StatsModifiers = new BasicStats (0d, 0d, 1d, 0d, 0d, 0d);
-		skillEffect.AssetPath = "Effects/Explosion";
 		return skillEffect;
 	}
 
@@ -23,7 +21,6 @@ public class SkillEffect
 	{
 		var skillEffect = new SkillEffect ();
 		skillEffect.StatsModifiers = new BasicStats (0d, 0d, 2d, 0d, 0d, 0d);
-		skillEffect.AssetPath = "Effects/Explosion";
 		return skillEffect;
 	}
 }
