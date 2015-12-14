@@ -5,19 +5,19 @@ using System.Collections.Generic;
 
 public class MapController : MonoBehaviour
 {
-    [SerializeField] private Grid _playerGrid;
-    [SerializeField] private Grid _enemyGrid;
+//    [SerializeField] private Grid _playerGrid;
+//    [SerializeField] private Grid _enemyGrid;
 
-    private Dictionary<string, MapTile> _playerTiles = new Dictionary<string, MapTile>();
-    private Dictionary<string, MapTile> _enemyTiles = new Dictionary<string, MapTile>();
+    private Dictionary<string, TileController> _playerTiles = new Dictionary<string, TileController>();
+    private Dictionary<string, TileController> _enemyTiles = new Dictionary<string, TileController>();
 
     private UnitControllerBase _selectedPlayer;
 
-    public void Init()
-    {
-        _playerTiles = _playerGrid.InitTiles(this.OnTileClick);
-        _enemyTiles = _enemyGrid.InitTiles(this.OnTileClick);
-    }
+//    public void Init()
+//    {
+//        _playerTiles = _playerGrid.InitTiles(this.OnTileClick);
+//        _enemyTiles = _enemyGrid.InitTiles(this.OnTileClick);
+//    }
 
 //    public MapTile GetTile(Const.Team team, int x, int y)
 //    {
@@ -31,7 +31,7 @@ public class MapController : MonoBehaviour
 //        }
 //    }
 //
-    private void OnTileClick(MapTile tileClicked)
+    private void OnTileClick(TileController tileClicked)
     {
         if (!BattleManager.Instance.EnableTileTouch)
         {
@@ -53,7 +53,7 @@ public class MapController : MonoBehaviour
 		}
     }
 
-	private void ConfirmSkillSelection(SkillComponentBase skillComponent, MapTile targetTile)
+	private void ConfirmSkillSelection(SkillComponentBase skillComponent, TileController targetTile)
 	{
 		var skill = skillComponent.GetSkill ();
 		var affectedTiles = BattleManager.Instance.GetAffectedTiles (targetTile, skill.SkillTarget.Pattern);
@@ -73,7 +73,7 @@ public class MapController : MonoBehaviour
 //		PopupManager.OkCancel (onOk, onCancel);
 	}
 
-	private void SetTilesAffected(List<MapTile> tiles, bool affected)
+	private void SetTilesAffected(List<TileController> tiles, bool affected)
 	{
 		// TODO: show affected color
 		foreach (var tile in tiles) {
@@ -81,7 +81,7 @@ public class MapController : MonoBehaviour
 		}
 	}
 
-	private void OnTileSelect(MapTile tileClicked, BattleAction onComplete = null)
+	private void OnTileSelect(TileController tileClicked, BattleAction onComplete = null)
 	{
 		var processes = new Queue<IEnumerator> ();
 		switch (BattleManager.Instance.Phase) {
@@ -127,7 +127,7 @@ public class MapController : MonoBehaviour
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.NextRound;
 	}
 
-	private IEnumerator MoveUnitToTile(UnitControllerBase unit, MapTile targetTile)
+	private IEnumerator MoveUnitToTile(UnitControllerBase unit, TileController targetTile)
 	{
 		var tileBefore = unit.CurrentTile;
 		tileBefore.SetSelected(false);

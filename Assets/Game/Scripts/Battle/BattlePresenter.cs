@@ -27,8 +27,8 @@ public class BattlePresenter : MonoBehaviour {
 //		this._actionMenu.Init (this.OnMoveSelect, this.OnSkillSelect, this.OnSelectionCancel);
 		yield return 0;
 
-		var allTiles = this._mapView.InitTiles (this.OnMapTileClick);
-		BattleManager.Instance.SetMapTiles(allTiles);
+//		var allTiles = this._mapView.InitTiles (this.OnMapTileClick);
+//		BattleManager.Instance.SetMapTiles(allTiles);
 		yield return 0;
 
 		this.SpawnUnitsOnMap ();
@@ -44,7 +44,7 @@ public class BattlePresenter : MonoBehaviour {
 		}
 	}
 
-	private void OnMapTileClick(MapTile tileClicked)
+	private void OnMapTileClick(TileController tileClicked)
 	{
 		if (!BattleManager.Instance.EnableTileTouch)
 		{
@@ -120,7 +120,7 @@ public class BattlePresenter : MonoBehaviour {
 		StartCoroutine (this.RunAnimationQueue (processes));
 	}
 
-	private IEnumerator MoveUnitToTile(UnitControllerBase unit, MapTile tile)
+	private IEnumerator MoveUnitToTile(UnitControllerBase unit, TileController tile)
 	{
 		var tileBefore = BattleManager.Instance.GetUnitOccupiedTile (this._currentActor);
 		tileBefore.SetSelected (false);
@@ -128,7 +128,7 @@ public class BattlePresenter : MonoBehaviour {
 		yield return StartCoroutine (this._unitView.MoveUnitToTile (unit, tile));
 	}
 
-	private void ConfirmSkillSelection(SkillComponentBase skillComponent, MapTile targetTile)
+	private void ConfirmSkillSelection(SkillComponentBase skillComponent, TileController targetTile)
 	{
 		var skill = skillComponent.GetSkill ();
 		var affectedTiles = BattleManager.Instance.GetAffectedTiles (targetTile, skill.SkillTarget.Pattern);

@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System;
 using System.Collections;
 
-public class MapTile : MonoBehaviour
+public class TileController : MonoBehaviour
 {
 
 	[SerializeField] private Image _tileSprite;
@@ -18,13 +18,13 @@ public class MapTile : MonoBehaviour
 
 	public Const.Team Team { get; private set; }
 
-	private event Action<MapTile> _onTileClick;
+	private MapPosition _mapPosition;
 
-	public void Init (int x, int y, Const.Team team, Action<MapTile> onClick)
+	private event Action<MapPosition> _onTileClick;
+
+	public void Init(MapPosition position, Action<MapPosition> onClick)
 	{
-		this.X = x;
-		this.Y = y;
-		this.Team = team;
+		this._mapPosition = position;
 		this._onTileClick = onClick;
 	}
 
@@ -36,6 +36,11 @@ public class MapTile : MonoBehaviour
 		}
 	}
 
+	public void OnTileStateChange(Tile.TileState state)
+	{
+		Debug.LogWarning ("State is " + (int)state);
+	}
+
 	public void SetSelected (bool selected)
 	{
 		_tileSprite.color = selected ? _selectedColor : _defaultColor;
@@ -44,7 +49,7 @@ public class MapTile : MonoBehaviour
 	public void OnClick ()
 	{
 		if (this._onTileClick != null) {
-			this._onTileClick (this);
+			this._onTileClick (this._mapPosition);
 		}
 	}
 }

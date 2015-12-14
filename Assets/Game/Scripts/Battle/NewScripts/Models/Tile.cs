@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 
 public class Tile  
@@ -11,12 +12,24 @@ public class Tile
 		MovementHighlight = 4
 	}
 
-	public MapPosition MapPosition { get; set; }
-	public TileState State { get; private set; }
+	private TileState _state;
+	public TileState State 
+	{ 
+		get { 
+			return this._state;
+		} 
+		set {
+			this._state = value;
+			if (this.onStateChange != null) {
+				this.onStateChange (this._state);
+			}
+		}
+	}
 
-	public Tile(MapPosition mapPostion)
+	public event Action<TileState> onStateChange;
+
+	public Tile()
 	{
-		this.MapPosition = mapPostion;
 		this.State = TileState.None;
 	}
 

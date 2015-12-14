@@ -26,7 +26,7 @@ public class BattleModel
 
 	public void StartSimulation(int numberOfRows, int numberOfColumns)
 	{
-		this.CreateBattleMap (numberOfRows, numberOfColumns);
+//		this.CreateBattleMap (numberOfRows, numberOfColumns);
 		this.SpawnUnitsOnMap ();
 		this.NextRound ();
 	}
@@ -134,7 +134,7 @@ public class BattleModel
 		for (int i = 0; i < numberOfRows; i++) {
 			for (int j = 0; j < numberOfColumns; j++) {
 				var mapPosition = new MapPosition (j, i, team);
-				var tile = new Tile (mapPosition);
+				var tile = new Tile ();
 				this._mapTiles.Add (mapPosition, tile);
 				if (this.onTileCreated != null) {
 					this.onTileCreated (mapPosition, tile);

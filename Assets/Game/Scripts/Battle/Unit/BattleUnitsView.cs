@@ -3,13 +3,13 @@ using System.Collections;
 
 public class BattleUnitsView : MonoBehaviour {
 
-	public IEnumerator MoveUnitToTile(UnitControllerBase unit, MapTile targetTile)
+	public IEnumerator MoveUnitToTile(UnitControllerBase unit, TileController targetTile)
 	{
 		// TODO: move the move animation logic here maybe?
 		yield return StartCoroutine(unit.MoveToTile(targetTile));
 	}
 
-	public void SpawnUnitOnTile(UnitControllerBase unitController, MapTile tile)
+	public void SpawnUnitOnTile(UnitControllerBase unitController, TileController tile)
 	{
 		if (tile != null)
 		{

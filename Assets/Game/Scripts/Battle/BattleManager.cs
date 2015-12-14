@@ -39,8 +39,8 @@ public class BattleManager
 
     private TurnOrderService _turnOrderService = new TurnOrderService ();
 
-	private Dictionary<string, MapTile> _allTiles = new Dictionary<string, MapTile>();
-	private Dictionary<UnitControllerBase, MapTile> _unitsAndTilesDictionary = new Dictionary<UnitControllerBase, MapTile>();
+	private Dictionary<string, TileController> _allTiles = new Dictionary<string, TileController>();
+	private Dictionary<UnitControllerBase, TileController> _unitsAndTilesDictionary = new Dictionary<UnitControllerBase, TileController>();
 
 	public event Action<BattlePhase> onBattlePhaseChange;
 	public event Action<List<UnitControllerBase>> onTurnOrderChanged;
@@ -75,14 +75,14 @@ public class BattleManager
         }
     }
 
-	public void SetMapTiles(Dictionary<string, MapTile> tiles)
+	public void SetMapTiles(Dictionary<string, TileController> tiles)
 	{
 		this._allTiles = tiles;
 	}
 
-    public MapTile GetTile(Const.Team team, int x, int y)
+    public TileController GetTile(Const.Team team, int x, int y)
     {
-		MapTile tile = null;
+		TileController tile = null;
 		this._allTiles.TryGetValue(Const.GetTileKey(team, x, y), out tile);
 		return tile;
     }
@@ -106,9 +106,9 @@ public class BattleManager
 		return this.AllUnits.Find (x => x.Team == team && !x.IsDead) == null;
 	}
 
-	public List<MapTile> GetAffectedTiles(MapTile targetTile, List<Cordinate> pattern)
+	public List<TileController> GetAffectedTiles(TileController targetTile, List<Cordinate> pattern)
 	{
-		var list = new List<MapTile>();
+		var list = new List<TileController>();
 		foreach (var offset in pattern)
 		{
 			var tileCord = new Cordinate(targetTile.X + offset.X, targetTile.Y + offset.Y);
@@ -122,7 +122,7 @@ public class BattleManager
 	}
 		
 
-	public void AssignTileToUnit(UnitControllerBase unit, MapTile tile)
+	public void AssignTileToUnit(UnitControllerBase unit, TileController tile)
 	{
 		if (this._unitsAndTilesDictionary.ContainsKey (unit)) {
 			this._unitsAndTilesDictionary [unit] = tile;
@@ -132,7 +132,7 @@ public class BattleManager
 		}
 	}
 
-	public MapTile GetUnitOccupiedTile(UnitControllerBase unit)
+	public TileController GetUnitOccupiedTile(UnitControllerBase unit)
 	{
 		foreach (var kv in this._unitsAndTilesDictionary) {
 			if (kv.Key == unit) {

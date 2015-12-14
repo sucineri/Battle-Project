@@ -13,7 +13,10 @@ public class BattleController : MonoBehaviour
 	[SerializeField]
 	private ActionMenu _actionMenu;
 
-    protected void Start()
+	[SerializeField]
+	private MapView _mapView;
+
+	protected IEnumerator Start()
     {
 //        this._mapController.Init();
 //		this._actionMenu.Init (this.OnMoveSelect, this.OnSkillSelect, this.OnSelectionCancel);
@@ -24,10 +27,21 @@ public class BattleController : MonoBehaviour
 //		BattleManager.Instance.onBattlePhaseChange += this.OnBattlePhaseChange;
 //		this.NextRound ();
 
-		var battleModel = new BattleModel ();
-		battleModel.StartSimulation (4, 3);
+		var numberOfRows = 4;
+		var numberOfColumns = 3;
 
+		this._mapView.InitGrids (numberOfRows, numberOfColumns, OnTileClick);
+		var battleModel = new BattleModel ();
+		battleModel.onTileCreated += this._mapView.AssignTile;
+		battleModel.CreateBattleMap (numberOfRows, numberOfColumns);
+
+		yield return 0;
     }
+
+	private void OnTileClick(MapPosition tilePosition)
+	{
+		Debug.LogWarning (tilePosition.ToString ());
+	}
         
     public void UpdateTurnOrderView(List<UnitControllerBase> orderedList)
     {
@@ -106,7 +120,7 @@ public class BattleController : MonoBehaviour
 		this._actionMenu.ShowCancel (false);
 	}
 
-    private void CreateUnitOnTile(Const.Team team, MapTile tile)
+    private void CreateUnitOnTile(Const.Team team, TileController tile)
     {
         if (tile != null)
         {

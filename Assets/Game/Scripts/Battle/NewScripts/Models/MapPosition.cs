@@ -65,4 +65,9 @@ public class MapPosition
 		result = prime * result + (int)this.Team;
 		return result;
 	}
+
+	public override string ToString ()
+	{
+		return string.Format ("[MapPosition: X={0}, Y={1}, Team={2}]", X, Y, Team.ToString());
+	}
 }

@@ -14,7 +14,7 @@ public class UnitControllerBase : MonoBehaviour
     [SerializeField]
     private GameObject _damageTextPrefab;
 
-    public MapTile CurrentTile { get; private set; }
+    public TileController CurrentTile { get; private set; }
 
     public Const.Team Team { get; private set; }
 
@@ -41,7 +41,7 @@ public class UnitControllerBase : MonoBehaviour
         this.TurnOrderWeight = BattleActionWeight.GetDefaultTurnOrderWeight(this);
     }
 
-    public void AssignToTile(MapTile tile)
+    public void AssignToTile(TileController tile)
     {
         this.CurrentTile = tile;
         this._animationController.OnInit();
@@ -62,7 +62,7 @@ public class UnitControllerBase : MonoBehaviour
         yield return StartCoroutine(this._animationController.PlayAttackAnimation());
     }
 
-    public virtual IEnumerator MoveToTile(MapTile tile)
+    public virtual IEnumerator MoveToTile(TileController tile)
     {
         this.TurnOrderWeight += BattleActionWeight.GetMoveActionWeight(this);
         yield return StartCoroutine(_animationController.MoveTowards(tile.transform.position));

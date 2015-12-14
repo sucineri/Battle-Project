@@ -11,7 +11,7 @@ public class BattleView : MonoBehaviour {
 //		this._mapView.Init (this.OnMapTileClick);
 	}
 
-	private void OnMapTileClick(MapTile tile)
+	private void OnMapTileClick(TileController tile)
 	{
 		
 	}

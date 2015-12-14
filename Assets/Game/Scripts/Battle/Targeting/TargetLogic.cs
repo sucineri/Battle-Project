@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class TargetLogic 
 {
-    public static MapTile GetTargetTile (UnitControllerBase actor, List<UnitControllerBase> list)
+    public static TileController GetTargetTile (UnitControllerBase actor, List<UnitControllerBase> list)
     {
         var validList = list.FindAll( x => !x.IsDead && x.Team != actor.Team );
 
@@ -16,7 +16,7 @@ public class TargetLogic
         return null; 
     }
 
-    public static MapTile DefaultTargetLogic (UnitControllerBase actor, List<UnitControllerBase> targetList)
+    public static TileController DefaultTargetLogic (UnitControllerBase actor, List<UnitControllerBase> targetList)
     {
         targetList.Sort( (a, b) => {
             var result = (YDistance(actor, a).CompareTo(YDistance(actor, b)));
