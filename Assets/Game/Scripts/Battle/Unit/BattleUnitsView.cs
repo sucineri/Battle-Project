@@ -1,29 +1,31 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class BattleUnitsView : MonoBehaviour {
 
-	public IEnumerator MoveUnitToTile(UnitControllerBase unit, TileController targetTile)
+	private Dictionary<BattleCharacter, BattleUnitController> _allUnits = new Dictionary<BattleCharacter, BattleUnitController>();
+
+	public IEnumerator MoveUnitToTile(BattleCharacter character, TileController targetTile)
 	{
 		// TODO: move the move animation logic here maybe?
-		yield return StartCoroutine(unit.MoveToTile(targetTile));
+		var unitController = this._allUnits[character];
+		if (unitController != null) {
+			yield return StartCoroutine(unitController.MoveToTile(targetTile));
+		}
 	}
 
-	public void SpawnUnitOnTile(UnitControllerBase unitController, TileController tile)
+	public void SpawnUnitOnTile(BattleCharacter character, TileController tile)
 	{
-		if (tile != null)
-		{
-			var position = tile.transform.position;
-			unitController.transform.position = position;
-			if (unitController.Team == Const.Team.Enemy)
-			{
-				unitController.transform.Rotate(new Vector3(0f, 180f, 0f));
-			}
-			unitController.transform.SetParent(this.transform);
+		var position = tile.transform.position;
+		var battleUnit = BattleUnitFactory.CreateBattleUnit (character);
+		battleUnit.transform.position = position;
 
-			tile.AssignUnit(unitController);
-
-			unitController.gameObject.name = unitController.UnitName;
+		if (character.Team == Const.Team.Enemy) {
+			battleUnit.transform.Rotate (new Vector3 (0f, 180f, 0f));
 		}
+
+		battleUnit.transform.SetParent(this.transform);
+		this._allUnits.Add (character, battleUnit);
 	}
 }

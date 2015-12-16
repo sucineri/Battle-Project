@@ -10,7 +10,7 @@ public class BattlePresenter : MonoBehaviour {
 	[SerializeField] private TurnOrderView _turnOrderView;
 	[SerializeField] private ActionMenu _actionMenu;
 
-	private UnitControllerBase _currentActor;
+	private BattleUnitController _currentActor;
 
 	void Start()
 	{
@@ -67,9 +67,9 @@ public class BattlePresenter : MonoBehaviour {
 		}
 	}
 
-	private void OnTurnOrderChanged(List<UnitControllerBase> unitActionOrder)
+	private void OnTurnOrderChanged(List<BattleUnitController> unitActionOrder)
 	{
-		this._turnOrderView.ShowOrder (unitActionOrder);
+//		this._turnOrderView.ShowOrder (unitActionOrder);
 	}
 
 	private void NextRound()
@@ -94,12 +94,12 @@ public class BattlePresenter : MonoBehaviour {
 		}
 	}
 
-	private void ProcessEnemyTurn(UnitControllerBase actor)
+	private void ProcessEnemyTurn(BattleUnitController actor)
 	{
 		this.RunAI (actor);
 	}
 
-	private void ProcessPlayerTurn(UnitControllerBase actor)
+	private void ProcessPlayerTurn(BattleUnitController actor)
 	{
 		this._currentActor = actor;
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.ActionSelect;
@@ -112,7 +112,7 @@ public class BattlePresenter : MonoBehaviour {
 		}
 	}
 
-	private void RunAI(UnitControllerBase unit)
+	private void RunAI(BattleUnitController unit)
 	{
 		var processes = new Queue<IEnumerator> ();
 		// TODO: move AI logic somewhere else
@@ -120,12 +120,13 @@ public class BattlePresenter : MonoBehaviour {
 		StartCoroutine (this.RunAnimationQueue (processes));
 	}
 
-	private IEnumerator MoveUnitToTile(UnitControllerBase unit, TileController tile)
+	private IEnumerator MoveUnitToTile(BattleUnitController unit, TileController tile)
 	{
 		var tileBefore = BattleManager.Instance.GetUnitOccupiedTile (this._currentActor);
 		tileBefore.SetSelected (false);
 		BattleManager.Instance.AssignTileToUnit (unit, tile);
-		yield return StartCoroutine (this._unitView.MoveUnitToTile (unit, tile));
+//		yield return StartCoroutine (this._unitView.MoveUnitToTile (unit, tile));
+		yield return null;
 	}
 
 	private void ConfirmSkillSelection(SkillComponentBase skillComponent, TileController targetTile)
@@ -188,14 +189,14 @@ public class BattlePresenter : MonoBehaviour {
 //		}
 	}
 
-	private void OnMoveSelect(UnitControllerBase actor)
+	private void OnMoveSelect(BattleUnitController actor)
 	{
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.MovementSelect;
 		this._actionMenu.ShowMenu (false);
 		this._actionMenu.ShowCancel (true);
 	}
 
-	private void OnSkillSelect(UnitControllerBase actor, Skill selectedSkill)
+	private void OnSkillSelect(BattleUnitController actor, Skill selectedSkill)
 	{
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.TargetSelect;
 		actor.SelectedSkill = selectedSkill;

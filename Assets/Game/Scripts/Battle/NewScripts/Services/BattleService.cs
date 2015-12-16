@@ -5,7 +5,55 @@ using System.Collections.Generic;
 
 public class BattleService
 {
-	public BattleActionOutcome ProcessSkillAction(BattleAction action, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters)
+	public Queue<BattleActionOutcome> ProcessActionQueue(Queue<BattleAction> actionQueue, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters)
+	{
+		var outcomeQueue = new Queue<BattleActionOutcome> ();
+		while (actionQueue.Count > 0) {
+			var action = actionQueue.Dequeue ();
+			var outcome = this.ProcessAction (action, map, characters);
+			if (outcome != null) {
+				outcomeQueue.Enqueue (outcome);
+			}
+		}
+		return outcomeQueue;
+	}
+
+	private BattleActionOutcome ProcessAction(BattleAction action, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters)
+	{
+		switch (action.ActionType) 
+		{
+			case Const.ActionType.Movement:
+				return this.ProcessMovementAction (action, map, characters);
+			case Const.ActionType.Skill:
+				return this.ProcessSkillAction (action, map, characters);
+			default:
+				return null;
+		}
+	}
+
+	private BattleActionOutcome ProcessMovementAction(BattleAction action, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters)
+	{
+		var actor = action.Actor;
+		var moveTo = action.TargetPosition;
+
+		Debug.LogWarning(actor.Name + " moves to " + moveTo.ToString());
+
+		// update character position
+		characters[actor] = moveTo;
+
+		var outcome = new BattleActionOutcome ();
+		outcome.Type = Const.ActionType.Movement;
+
+		var movementOutcome = new BattleActionOutcome.OutcomePerTarget ();
+		movementOutcome.Target = actor;
+		movementOutcome.PositionChangeTo = moveTo;
+
+		outcome.ActorOutcome = movementOutcome;
+
+		return outcome;
+	}
+
+	private BattleActionOutcome ProcessSkillAction(BattleAction action, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters)
 	{
 		Debug.LogWarning(action.Actor.Name + " uses " + action.SelectedSkill.Name);
 
@@ -25,6 +73,9 @@ public class BattleService
 			}
 			outcome.AddTriggerOutcome (triggerOutcome);
 		}
+
+		ServiceFactory.GetTurnOrderService().AddActionTurnOrderWeight (action);
+
 		return outcome;
 	}
 

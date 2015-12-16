@@ -27,6 +27,11 @@ public class MapView : MonoBehaviour {
 		tile.onStateChange += view.OnTileStateChange;
 	}
 
+	public TileController GetTileAtMapPosition(MapPosition mapPosition)
+	{
+		return this._tiles [mapPosition];
+	}
+
 	private void InitGrid(GridLayoutGroup grid, int numberOfRows, int numberOfColumns, Const.Team team, Action<MapPosition> onTileClick)
 	{
 		grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;

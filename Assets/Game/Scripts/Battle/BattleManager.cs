@@ -40,10 +40,10 @@ public class BattleManager
     private TurnOrderService _turnOrderService = new TurnOrderService ();
 
 	private Dictionary<string, TileController> _allTiles = new Dictionary<string, TileController>();
-	private Dictionary<UnitControllerBase, TileController> _unitsAndTilesDictionary = new Dictionary<UnitControllerBase, TileController>();
+	private Dictionary<BattleUnitController, TileController> _unitsAndTilesDictionary = new Dictionary<BattleUnitController, TileController>();
 
 	public event Action<BattlePhase> onBattlePhaseChange;
-	public event Action<List<UnitControllerBase>> onTurnOrderChanged;
+	public event Action<List<BattleUnitController>> onTurnOrderChanged;
 
 	private BattlePhase _phase;
 	public BattlePhase Phase 
@@ -64,10 +64,10 @@ public class BattleManager
 
     public bool IsPlayerTurn { get; private set; }
 	public bool IsAnimating { get; private set; }
-	public UnitControllerBase CurrentActor { get; private set; }
+	public BattleUnitController CurrentActor { get; private set; }
 	public bool EnableTileTouch { get { return this.Phase == BattlePhase.TargetSelect || this.Phase == BattlePhase.MovementSelect; } }
 
-    public List<UnitControllerBase> AllUnits
+    public List<BattleUnitController> AllUnits
     {
         get
         {
@@ -87,7 +87,7 @@ public class BattleManager
 		return tile;
     }
 
-    public UnitControllerBase GetNextActor()
+    public BattleUnitController GetNextActor()
     {
 //		var orderList = this._turnOrderService.GetActionOrder (this.AllUnits);
 //		if (this.onTurnOrderChanged != null) {
@@ -122,7 +122,7 @@ public class BattleManager
 	}
 		
 
-	public void AssignTileToUnit(UnitControllerBase unit, TileController tile)
+	public void AssignTileToUnit(BattleUnitController unit, TileController tile)
 	{
 		if (this._unitsAndTilesDictionary.ContainsKey (unit)) {
 			this._unitsAndTilesDictionary [unit] = tile;
@@ -132,7 +132,7 @@ public class BattleManager
 		}
 	}
 
-	public TileController GetUnitOccupiedTile(UnitControllerBase unit)
+	public TileController GetUnitOccupiedTile(BattleUnitController unit)
 	{
 		foreach (var kv in this._unitsAndTilesDictionary) {
 			if (kv.Key == unit) {

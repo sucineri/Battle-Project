@@ -9,24 +9,24 @@ public class ActionMenu : MonoBehaviour {
 	[SerializeField] private VerticalLayoutGroup _layout;
 	[SerializeField] private GameObject _cancelButton;
 
-	private Action<UnitControllerBase> _onMoveSelect;
-	private Action<UnitControllerBase, Skill> _onSkillSelect;
+	private Action<BattleUnitController> _onMoveSelect;
+	private Action<BattleUnitController, Skill> _onSkillSelect;
 	private BattleAction _onCancel;
-	private UnitControllerBase _unit;
+	private BattleUnitController _unit;
 
 	public void OnBattlePhaseChange(BattleManager.BattlePhase battlePhase)
 	{
 		
 	}
 
-	public void Init(Action<UnitControllerBase> onMoveSelect, Action<UnitControllerBase, Skill> onSkillSelect, BattleAction onCancel)
+	public void Init(Action<BattleUnitController> onMoveSelect, Action<BattleUnitController, Skill> onSkillSelect, BattleAction onCancel)
 	{
 		this._onMoveSelect = onMoveSelect;
 		this._onSkillSelect = onSkillSelect;
 		this._onCancel = onCancel;
 	}
 
-	public void CreateMenu(UnitControllerBase unit)
+	public void CreateMenu(BattleUnitController unit)
 	{
 		this.ShowMenu (true);
 		this.ShowCancel (false);
@@ -63,7 +63,7 @@ public class ActionMenu : MonoBehaviour {
 		menuItem.Init ("Move", 0, MoveSelect);
 	}
 
-	private void CreateSkillButtons(UnitControllerBase unit)
+	private void CreateSkillButtons(BattleUnitController unit)
 	{
 		for (int i = 0; i < unit.Character.Skills.Count; ++i) {
 			var skill = unit.Character.Skills [i];

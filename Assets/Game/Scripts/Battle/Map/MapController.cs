@@ -11,7 +11,7 @@ public class MapController : MonoBehaviour
     private Dictionary<string, TileController> _playerTiles = new Dictionary<string, TileController>();
     private Dictionary<string, TileController> _enemyTiles = new Dictionary<string, TileController>();
 
-    private UnitControllerBase _selectedPlayer;
+    private BattleUnitController _selectedPlayer;
 
 //    public void Init()
 //    {
@@ -98,13 +98,13 @@ public class MapController : MonoBehaviour
 		StartCoroutine (this.RunAnimationQueue (processes));
 	}
 
-	public void SetActor(UnitControllerBase actor)
+	public void SetActor(BattleUnitController actor)
 	{
 		this._selectedPlayer = actor;
 		this._selectedPlayer.CurrentTile.SetSelected(true);
 	}
 
-	public void RunAI(UnitControllerBase unit)
+	public void RunAI(BattleUnitController unit)
 	{
 		var processes = new Queue<IEnumerator> ();
 		processes.Enqueue (unit.RunAI ());
@@ -127,7 +127,7 @@ public class MapController : MonoBehaviour
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.NextRound;
 	}
 
-	private IEnumerator MoveUnitToTile(UnitControllerBase unit, TileController targetTile)
+	private IEnumerator MoveUnitToTile(BattleUnitController unit, TileController targetTile)
 	{
 		var tileBefore = unit.CurrentTile;
 		tileBefore.SetSelected(false);

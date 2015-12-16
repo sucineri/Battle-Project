@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class UnitControllerBase : MonoBehaviour
+public class BattleUnitController : MonoBehaviour
 {
 
     [SerializeField]
@@ -47,7 +47,7 @@ public class UnitControllerBase : MonoBehaviour
         this._animationController.OnInit();
     }
 
-    public float GetAttackPositionOffset(UnitControllerBase opponentUnit)
+    public float GetAttackPositionOffset(BattleUnitController opponentUnit)
     {
         return this.Character.AttackDistance + opponentUnit.Character.SizeOffset;
     }
@@ -64,7 +64,7 @@ public class UnitControllerBase : MonoBehaviour
 
     public virtual IEnumerator MoveToTile(TileController tile)
     {
-        this.TurnOrderWeight += BattleActionWeight.GetMoveActionWeight(this);
+//        this.TurnOrderWeight += BattleActionWeight.GetMoveActionWeight(this);
         yield return StartCoroutine(_animationController.MoveTowards(tile.transform.position));
         _animationController.DefaultStance();
     }

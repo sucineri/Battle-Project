@@ -10,7 +10,7 @@ public class TileController : MonoBehaviour
 	[SerializeField] private Color _defaultColor;
 	[SerializeField] private Color _selectedColor;
 
-	public UnitControllerBase CurrentUnit { get; private set; }
+	public BattleUnitController CurrentUnit { get; private set; }
 
 	public int X { get; set; }
 
@@ -28,7 +28,7 @@ public class TileController : MonoBehaviour
 		this._onTileClick = onClick;
 	}
 
-	public void AssignUnit (UnitControllerBase unit)
+	public void AssignUnit (BattleUnitController unit)
 	{
 		CurrentUnit = unit;
 		if (unit != null) {

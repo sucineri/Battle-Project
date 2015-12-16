@@ -4,7 +4,7 @@ using System.Collections;
 public class MeleeAttack : SkillComponentBase
 {
 
-	public override IEnumerator PlaySkillSequence (UnitControllerBase actor, TileController targetTile)
+	public override IEnumerator PlaySkillSequence (BattleUnitController actor, TileController targetTile)
 	{
 		if (this._skill == null) {
 			yield break;	
@@ -28,7 +28,7 @@ public class MeleeAttack : SkillComponentBase
 		Destroy (this.gameObject);
 	}
 
-	protected override IEnumerator PlaySkillEffectOnTiles (UnitControllerBase actor, SkillEffect effect, TileController targetTile, System.Collections.Generic.List<TileController> affectedTiles)
+	protected override IEnumerator PlaySkillEffectOnTiles (BattleUnitController actor, SkillEffect effect, TileController targetTile, System.Collections.Generic.List<TileController> affectedTiles)
 	{
 		var affectedUnit = targetTile.CurrentUnit;
 //		if (affectedUnit != null) {

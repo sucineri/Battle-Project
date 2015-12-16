@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class CrossSlash : SkillComponentBase
 {
 
-	public override IEnumerator PlaySkillSequence (UnitControllerBase actor, TileController targetTile)
+	public override IEnumerator PlaySkillSequence (BattleUnitController actor, TileController targetTile)
 	{
 		if (this._skill == null) {
 			yield break;	
@@ -29,9 +29,9 @@ public class CrossSlash : SkillComponentBase
 		Destroy (this.gameObject);
 	}
 
-	protected override IEnumerator PlaySkillEffectOnTiles (UnitControllerBase actor, SkillEffect effect, TileController targetTile, List<TileController> affectedTiles)
+	protected override IEnumerator PlaySkillEffectOnTiles (BattleUnitController actor, SkillEffect effect, TileController targetTile, List<TileController> affectedTiles)
 	{
-		var affectedUnits = new List<UnitControllerBase> ();
+		var affectedUnits = new List<BattleUnitController> ();
 		foreach (var tile in affectedTiles) {
 			if (tile.CurrentUnit != null && !tile.CurrentUnit.IsDead) {
 				affectedUnits.Add (tile.CurrentUnit);

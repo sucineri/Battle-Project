@@ -9,9 +9,9 @@ public abstract class SkillComponentBase: MonoBehaviour
 
 	protected Skill _skill;
 
-	public abstract IEnumerator PlaySkillSequence (UnitControllerBase actor, TileController targetTile);
+	public abstract IEnumerator PlaySkillSequence (BattleUnitController actor, TileController targetTile);
 
-	protected abstract IEnumerator PlaySkillEffectOnTiles (UnitControllerBase actor, SkillEffect effect, TileController targetTile, List<TileController> affectedTiles);
+	protected abstract IEnumerator PlaySkillEffectOnTiles (BattleUnitController actor, SkillEffect effect, TileController targetTile, List<TileController> affectedTiles);
 
 	public void InitWithSkill (Skill skill)
 	{
@@ -23,7 +23,7 @@ public abstract class SkillComponentBase: MonoBehaviour
 		return this._skill;
 	}
 
-	protected IEnumerator PlaySkillEffects (UnitControllerBase actor, TileController targetTile, List<TileController> affectedTiles)
+	protected IEnumerator PlaySkillEffects (BattleUnitController actor, TileController targetTile, List<TileController> affectedTiles)
 	{
 		if (this._skill == null) {
 			yield break;

@@ -6,15 +6,13 @@ using System.Collections.Generic;
 
 public class BattleController : MonoBehaviour
 {
-    [SerializeField]
-    private MapController _mapController;
-    [SerializeField]
-    private TurnOrderView _turnOrderView;
+
 	[SerializeField]
 	private ActionMenu _actionMenu;
 
-	[SerializeField]
-	private MapView _mapView;
+	[SerializeField] private MapView _mapView;
+	[SerializeField] private TurnOrderView _turnOrderView;
+	[SerializeField] private BattleUnitsView _battleUnitsView;
 
 	protected IEnumerator Start()
     {
@@ -32,21 +30,72 @@ public class BattleController : MonoBehaviour
 
 		this._mapView.InitGrids (numberOfRows, numberOfColumns, OnTileClick);
 		var battleModel = new BattleModel ();
-		battleModel.onTileCreated += this._mapView.AssignTile;
-		battleModel.CreateBattleMap (numberOfRows, numberOfColumns);
 
+		battleModel.onTileCreated += this._mapView.AssignTile;
+		battleModel.onTurnOrderChanged += this._turnOrderView.UpdateView;
+		battleModel.onBattleCharacterCreated += this.OnCreateBattleUnit;
+		battleModel.onProcessOutcome += this.ProcessOutcomeQueue;
+
+		battleModel.CreateBattleMap (numberOfRows, numberOfColumns);
 		yield return 0;
+
+		battleModel.SpawnCharactersOnMap ();
+		yield return 0;
+
+		battleModel.StartSimulation ();
     }
 
 	private void OnTileClick(MapPosition tilePosition)
 	{
 		Debug.LogWarning (tilePosition.ToString ());
 	}
-        
-    public void UpdateTurnOrderView(List<UnitControllerBase> orderedList)
-    {
-        this._turnOrderView.ShowOrder(orderedList);
-    }
+
+	private void OnCreateBattleUnit(MapPosition mapPosition, BattleCharacter character)
+	{
+		var mapTile = this._mapView.GetTileAtMapPosition (mapPosition);
+
+		this._battleUnitsView.SpawnUnitOnTile (character, mapTile);
+	}
+
+	private void ProcessOutcomeQueue(Queue<BattleActionOutcome> outcomeQueue, Action callback)
+	{
+		StartCoroutine (this.ProcessOutcomeQueueCoroutine(outcomeQueue, callback));
+	}
+
+	private IEnumerator ProcessOutcomeQueueCoroutine(Queue<BattleActionOutcome> outcomeQueue, Action callback)
+	{
+		while (outcomeQueue.Count > 0) {
+			var outcome = outcomeQueue.Dequeue ();
+			if (outcome != null) {
+				yield return StartCoroutine(this.ProcessOutcome(outcome));
+			}
+		}
+		callback ();
+	}
+
+	private IEnumerator ProcessOutcome(BattleActionOutcome outcome)
+	{
+		switch (outcome.Type) {
+
+		case Const.ActionType.Movement:
+			yield return StartCoroutine (this.ProcessMovementOutcome (outcome));
+			break;
+		default:
+			yield return null;
+			break;	
+		}
+	}
+
+	private IEnumerator ProcessMovementOutcome(BattleActionOutcome outcome)
+	{
+		var movementOutcome = outcome.ActorOutcome;
+		var actor = movementOutcome.Target;
+		var tile = this._mapView.GetTileAtMapPosition (movementOutcome.PositionChangeTo);
+		if (tile != null) {
+			yield return StartCoroutine (this._battleUnitsView.MoveUnitToTile (actor, tile));
+		}
+
+	}
 
 //    private void InitUnits()
 //    {
@@ -86,26 +135,26 @@ public class BattleController : MonoBehaviour
 //		}
 //	}
 
-	private void ProcessEnemyTurn(UnitControllerBase actor)
-	{
-		this._mapController.RunAI (actor);
-	}
+//	private void ProcessEnemyTurn(UnitControllerBase actor)
+//	{
+//		this._mapController.RunAI (actor);
+//	}
+//
+//	private void ProcessPlayerTurn(UnitControllerBase actor)
+//	{
+//		BattleManager.Instance.Phase = BattleManager.BattlePhase.ActionSelect;
+//		this._actionMenu.CreateMenu (actor);
+//		this._mapController.SetActor (actor);
+//	}
 
-	private void ProcessPlayerTurn(UnitControllerBase actor)
-	{
-		BattleManager.Instance.Phase = BattleManager.BattlePhase.ActionSelect;
-		this._actionMenu.CreateMenu (actor);
-		this._mapController.SetActor (actor);
-	}
-
-	private void OnMoveSelect(UnitControllerBase actor)
+	private void OnMoveSelect(BattleUnitController actor)
 	{
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.MovementSelect;
 		this._actionMenu.ShowMenu (false);
 		this._actionMenu.ShowCancel (true);
 	}
 
-	private void OnSkillSelect(UnitControllerBase actor, Skill selectedSkill)
+	private void OnSkillSelect(BattleUnitController actor, Skill selectedSkill)
 	{
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.TargetSelect;
 		actor.SelectedSkill = selectedSkill;
@@ -137,7 +186,7 @@ public class BattleController : MonoBehaviour
             }
             unit.transform.SetParent(this.transform);
 
-            var unitController = unit.GetComponent<UnitControllerBase>();
+            var unitController = unit.GetComponent<BattleUnitController>();
 
 //            var postfix = BattleManager.Instance.GetUnitPostfix(character.Name);
 
