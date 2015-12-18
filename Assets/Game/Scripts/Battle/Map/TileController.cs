@@ -32,7 +32,7 @@ public class TileController : MonoBehaviour
 	{
 		CurrentUnit = unit;
 		if (unit != null) {
-			unit.AssignToTile (this);
+//			unit.AssignToTile (this);
 		}
 	}
 

@@ -26,7 +26,7 @@ public class DamageText : MonoBehaviour
         var startPosition = this.transform.position;
         var destination = startPosition + new Vector3(0f, moveDistance, 0f);
 
-        yield return StartCoroutine(AnimationService.MoveToPosition(this, this.transform, destination, animationDuration));
+        yield return StartCoroutine(AnimationService.MoveToPosition(this.transform, destination, animationDuration));
         Destroy(this.gameObject);
     }
 }

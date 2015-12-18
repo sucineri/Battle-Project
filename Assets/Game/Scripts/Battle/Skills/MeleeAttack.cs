@@ -16,14 +16,14 @@ public class MeleeAttack : SkillComponentBase
 			yield break;
 		}
 
-		actor.TurnOrderWeight += BattleActionWeight.GetAttackActionWeight(actor);
+//		actor.TurnOrderWeight += BattleActionWeight.GetAttackActionWeight(actor);
 
 		yield return StartCoroutine (actor.MoveToPosition (affectedUnit.transform.position, actor.GetAttackPositionOffset (affectedUnit)));
 
 		StartCoroutine (actor.AnimateAttack ());
 		yield return StartCoroutine (this.PlaySkillEffects (actor, targetTile, affectedTiles));
 
-		yield return StartCoroutine (actor.ReturnToBaseTile ());
+//		yield return StartCoroutine (actor.ReturnToBaseTile ());
 
 		Destroy (this.gameObject);
 	}

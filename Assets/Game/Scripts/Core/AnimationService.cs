@@ -3,7 +3,7 @@ using System.Collections;
 
 public class AnimationService
 {
-    public static IEnumerator MoveToPosition(MonoBehaviour mb, Transform transformToMove, Vector3 destination, float duration, float completion = 1f)
+    public static IEnumerator MoveToPosition(Transform transformToMove, Vector3 destination, float duration, float completion = 1f)
     {
         var startPosition = transformToMove.position;
         var timeElapsed = 0f;

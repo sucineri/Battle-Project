@@ -65,11 +65,11 @@ public class ActionMenu : MonoBehaviour {
 
 	private void CreateSkillButtons(BattleUnitController unit)
 	{
-		for (int i = 0; i < unit.Character.Skills.Count; ++i) {
-			var skill = unit.Character.Skills [i];
-			var menuItem = this.CreateMenuItem ();
-			menuItem.Init (skill.Name, i, this.SkillTargetSelect);
-		}
+//		for (int i = 0; i < unit.Character.Skills.Count; ++i) {
+//			var skill = unit.Character.Skills [i];
+//			var menuItem = this.CreateMenuItem ();
+//			menuItem.Init (skill.Name, i, this.SkillTargetSelect);
+//		}
 	}
 
 	private void MoveSelect(int index)
@@ -81,12 +81,12 @@ public class ActionMenu : MonoBehaviour {
 
 	private void SkillTargetSelect(int skillIndex)
 	{
-		if (this._unit != null && this._unit.Character.Skills.Count > skillIndex) {
-			var skill = this._unit.Character.Skills [skillIndex];
-			if (this._onSkillSelect != null) {
-				this._onSkillSelect (this._unit, skill);
-			}
-		}
+//		if (this._unit != null && this._unit.Character.Skills.Count > skillIndex) {
+//			var skill = this._unit.Character.Skills [skillIndex];
+//			if (this._onSkillSelect != null) {
+//				this._onSkillSelect (this._unit, skill);
+//			}
+//		}
 	}
 
 	private MenuItem CreateMenuItem()

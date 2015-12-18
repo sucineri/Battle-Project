@@ -17,14 +17,14 @@ public class CrossSlash : SkillComponentBase
 			yield break;
 		}
 
-		actor.TurnOrderWeight += BattleActionWeight.GetAttackActionWeight(actor);
+//		actor.TurnOrderWeight += BattleActionWeight.GetAttackActionWeight(actor);
 
 		yield return StartCoroutine (actor.MoveToPosition (affectedUnit.transform.position, actor.GetAttackPositionOffset (affectedUnit)));
 
 		StartCoroutine (actor.AnimateAttack ());
 		yield return StartCoroutine (this.PlaySkillEffects (actor, targetTile, affectedTiles));
 
-		yield return StartCoroutine (actor.ReturnToBaseTile ());
+//		yield return StartCoroutine (actor.ReturnToBaseTile ());
 
 		Destroy (this.gameObject);
 	}
@@ -33,9 +33,9 @@ public class CrossSlash : SkillComponentBase
 	{
 		var affectedUnits = new List<BattleUnitController> ();
 		foreach (var tile in affectedTiles) {
-			if (tile.CurrentUnit != null && !tile.CurrentUnit.IsDead) {
-				affectedUnits.Add (tile.CurrentUnit);
-			}
+//			if (tile.CurrentUnit != null && !tile.CurrentUnit.IsDead) {
+//				affectedUnits.Add (tile.CurrentUnit);
+//			}
 		}
 
 //		for (int i = 0; i < affectedUnits.Count; ++i) {

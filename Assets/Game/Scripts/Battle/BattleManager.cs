@@ -103,7 +103,8 @@ public class BattleManager
 
 	public bool AllUnitsDefeated(Const.Team team)
 	{
-		return this.AllUnits.Find (x => x.Team == team && !x.IsDead) == null;
+//		return this.AllUnits.Find (x => x.Team == team && !x.IsDead) == null;
+		return false;
 	}
 
 	public List<TileController> GetAffectedTiles(TileController targetTile, List<Cordinate> pattern)
@@ -156,13 +157,13 @@ public class BattleManager
 
 		this.CurrentActor = this.GetNextActor();
 
-		if (this.CurrentActor.Team == Const.Team.Enemy) {
-//			this.RunAI (this.CurrentActor);
-		}
-		else 
-		{
-//			this.ProcessPlayerTurn (this.CurrentActor);
-		}
+//		if (this.CurrentActor.Team == Const.Team.Enemy) {
+////			this.RunAI (this.CurrentActor);
+//		}
+//		else 
+//		{
+////			this.ProcessPlayerTurn (this.CurrentActor);
+//		}
 	}
 
 	// default AI attack

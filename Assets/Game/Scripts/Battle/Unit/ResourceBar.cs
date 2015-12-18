@@ -3,14 +3,10 @@ using UnityEngine.UI;
 using System.Collections;
 
 [RequireComponent (typeof (Slider))]
-public class HpBar : MonoBehaviour {
+public class ResourceBar : MonoBehaviour {
 
-	private Slider _progressBar;
-
-    void Awake() 
-    {
-        this._progressBar = this.GetComponent<Slider>();
-    }
+	[SerializeField] private float _hpBarAnimationDuration = 0.5f;
+	[SerializeField] private Slider _progressBar;
 
 	public void Init(float currentHpPercentage)
     {
@@ -19,14 +15,14 @@ public class HpBar : MonoBehaviour {
 		_progressBar.value = currentHpPercentage;
     }
 
-    public IEnumerator AnimateValueChange(float toPercentage, float duration)
+    public IEnumerator AnimateValueChange(float toPercentage)
     {
         var timeElapsed = 0f;
         var current = _progressBar.value;
-        while(timeElapsed < duration)
+		while(timeElapsed < this._hpBarAnimationDuration)
         {
             timeElapsed += Time.deltaTime;
-            var progress = Mathf.Min(timeElapsed / duration, 1f);
+			var progress = Mathf.Min(timeElapsed / this._hpBarAnimationDuration, 1f);
 			_progressBar.value = Mathf.Lerp(current, toPercentage, progress);
             yield return 0;
         }

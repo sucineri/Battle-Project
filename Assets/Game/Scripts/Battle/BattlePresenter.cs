@@ -60,7 +60,7 @@ public class BattlePresenter : MonoBehaviour {
 			break;
 		case BattleManager.BattlePhase.TargetSelect:
 			// TODO: selected skill info should be stored somewhere else
-			this.ConfirmSkillSelection (this._currentActor.GetSelectedSkill(), tileClicked);
+//			this.ConfirmSkillSelection (this._currentActor.GetSelectedSkill(), tileClicked);
 			break;
 		default:
 			break;
@@ -85,13 +85,13 @@ public class BattlePresenter : MonoBehaviour {
 			
 		this._currentActor = BattleManager.Instance.GetNextActor();
 
-		if (this._currentActor.Team == Const.Team.Enemy) {
-			this.ProcessEnemyTurn (this._currentActor);
-		}
-		else 
-		{
-			this.ProcessPlayerTurn (this._currentActor);
-		}
+//		if (this._currentActor.Team == Const.Team.Enemy) {
+//			this.ProcessEnemyTurn (this._currentActor);
+//		}
+//		else 
+//		{
+//			this.ProcessPlayerTurn (this._currentActor);
+//		}
 	}
 
 	private void ProcessEnemyTurn(BattleUnitController actor)
@@ -116,7 +116,7 @@ public class BattlePresenter : MonoBehaviour {
 	{
 		var processes = new Queue<IEnumerator> ();
 		// TODO: move AI logic somewhere else
-		processes.Enqueue (unit.RunAI ());
+//		processes.Enqueue (unit.RunAI ());
 		StartCoroutine (this.RunAnimationQueue (processes));
 	}
 
@@ -199,7 +199,7 @@ public class BattlePresenter : MonoBehaviour {
 	private void OnSkillSelect(BattleUnitController actor, Skill selectedSkill)
 	{
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.TargetSelect;
-		actor.SelectedSkill = selectedSkill;
+//		actor.SelectedSkill = selectedSkill;
 		this._actionMenu.ShowMenu (false);
 		this._actionMenu.ShowCancel (true);
 	}

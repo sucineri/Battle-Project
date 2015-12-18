@@ -157,7 +157,7 @@ public class BattleController : MonoBehaviour
 	private void OnSkillSelect(BattleUnitController actor, Skill selectedSkill)
 	{
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.TargetSelect;
-		actor.SelectedSkill = selectedSkill;
+//		actor.SelectedSkill = selectedSkill;
 		this._actionMenu.ShowMenu (false);
 		this._actionMenu.ShowCancel (true);
 	}
@@ -190,10 +190,12 @@ public class BattleController : MonoBehaviour
 
 //            var postfix = BattleManager.Instance.GetUnitPostfix(character.Name);
 
-            unitController.Init(team, character, 'A');
+//            unitController.Init(team, character, 'A');
             tile.AssignUnit(unitController);
 
-            unitController.gameObject.name = unitController.UnitName;
+			unitController.gameObject.name = character.Name;
+
+//            unitController.gameObject.name = unitController.UnitName;
 
 //            BattleManager.Instance.AssignTileToUnit(team, unitController);
         }

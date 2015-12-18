@@ -46,7 +46,7 @@ public class MapController : MonoBehaviour
 			StartCoroutine (this.RunAnimationQueue (processes));
 			break;
 		case BattleManager.BattlePhase.TargetSelect:
-			this.ConfirmSkillSelection (this._selectedPlayer.GetSelectedSkill (), tileClicked);
+//			this.ConfirmSkillSelection (this._selectedPlayer.GetSelectedSkill (), tileClicked);
 			break;
 		default:
 			break;
@@ -90,7 +90,7 @@ public class MapController : MonoBehaviour
 			processes.Enqueue (this.MoveUnitToTile (this._selectedPlayer, tileClicked));
 			break;
 		case BattleManager.BattlePhase.TargetSelect:
-			processes.Enqueue (this._selectedPlayer.GetSelectedSkill ().PlaySkillSequence (this._selectedPlayer, tileClicked));
+//			processes.Enqueue (this._selectedPlayer.GetSelectedSkill ().PlaySkillSequence (this._selectedPlayer, tileClicked));
 			break;
 		default:
 			break;
@@ -101,13 +101,13 @@ public class MapController : MonoBehaviour
 	public void SetActor(BattleUnitController actor)
 	{
 		this._selectedPlayer = actor;
-		this._selectedPlayer.CurrentTile.SetSelected(true);
+//		this._selectedPlayer.CurrentTile.SetSelected(true);
 	}
 
 	public void RunAI(BattleUnitController unit)
 	{
 		var processes = new Queue<IEnumerator> ();
-		processes.Enqueue (unit.RunAI ());
+//		processes.Enqueue (unit.RunAI ());
 		StartCoroutine (this.RunAnimationQueue (processes));
 	}
 
@@ -120,7 +120,7 @@ public class MapController : MonoBehaviour
 		}
 
 		if (this._selectedPlayer != null) {
-			_selectedPlayer.CurrentTile.SetSelected(false);
+//			_selectedPlayer.CurrentTile.SetSelected(false);
 		}
 
 		_selectedPlayer = null;
@@ -129,10 +129,10 @@ public class MapController : MonoBehaviour
 
 	private IEnumerator MoveUnitToTile(BattleUnitController unit, TileController targetTile)
 	{
-		var tileBefore = unit.CurrentTile;
-		tileBefore.SetSelected(false);
+//		var tileBefore = unit.CurrentTile;
+//		tileBefore.SetSelected(false);
 		yield return StartCoroutine(unit.MoveToTile(targetTile));
-		tileBefore.AssignUnit (null);
+//		tileBefore.AssignUnit (null);
 		targetTile.AssignUnit (unit);
 	}
 

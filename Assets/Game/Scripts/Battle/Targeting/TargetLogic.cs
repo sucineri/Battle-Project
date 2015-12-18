@@ -6,27 +6,29 @@ public class TargetLogic
 {
     public static TileController GetTargetTile (BattleUnitController actor, List<BattleUnitController> list)
     {
-        var validList = list.FindAll( x => !x.IsDead && x.Team != actor.Team );
+//        var validList = list.FindAll( x => !x.IsDead && x.Team != actor.Team );
 
         // TODO: more logics
-        if(validList.Count > 0)
-        {
-            return DefaultTargetLogic(actor, validList);
-        }
+//        if(validList.Count > 0)
+//        {
+//            return DefaultTargetLogic(actor, validList);
+//        }
         return null; 
     }
 
     public static TileController DefaultTargetLogic (BattleUnitController actor, List<BattleUnitController> targetList)
     {
-        targetList.Sort( (a, b) => {
-            var result = (YDistance(actor, a).CompareTo(YDistance(actor, b)));
-            return result == 0 ? a.CurrentTile.X.CompareTo(b.CurrentTile.X) : result;
-        });
-        return targetList[0].CurrentTile;
+//        targetList.Sort( (a, b) => {
+//            var result = (YDistance(actor, a).CompareTo(YDistance(actor, b)));
+//            return result == 0 ? a.CurrentTile.X.CompareTo(b.CurrentTile.X) : result;
+//        });
+//        return targetList[0].CurrentTile;
+		return null;
     }
 
     private static int YDistance (BattleUnitController a, BattleUnitController b)
     {
-        return Mathf.Abs(a.CurrentTile.Y - b.CurrentTile.Y);
+//        return Mathf.Abs(a.CurrentTile.Y - b.CurrentTile.Y);
+		return 0;
     }
 }

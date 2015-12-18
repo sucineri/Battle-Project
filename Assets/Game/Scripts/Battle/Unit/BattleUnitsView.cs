@@ -26,6 +26,7 @@ public class BattleUnitsView : MonoBehaviour {
 		}
 
 		battleUnit.transform.SetParent(this.transform);
+		battleUnit.Init (character);
 		this._allUnits.Add (character, battleUnit);
 	}
 }
