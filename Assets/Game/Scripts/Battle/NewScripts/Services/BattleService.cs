@@ -5,6 +5,20 @@ using System.Collections.Generic;
 
 public class BattleService
 {
+
+	public List<BattleCharacter> GetAffectdCharacters(Dictionary<BattleCharacter, MapPosition> characters, List<MapPosition> affectedPositions)
+	{
+		List<BattleCharacter> affectedCharacters = new List<BattleCharacter> ();
+		foreach (var position in affectedPositions) {
+			foreach (var kv in characters) {
+				if (kv.Value.Equals (position)) {
+					affectedCharacters.Add (kv.Key);
+				}
+			}
+		}
+		return affectedCharacters;
+	}
+
 	public Queue<BattleActionOutcome> ProcessActionQueue(Queue<BattleAction> actionQueue, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters)
 	{
 		var outcomeQueue = new Queue<BattleActionOutcome> ();
@@ -77,19 +91,6 @@ public class BattleService
 		ServiceFactory.GetTurnOrderService().AddActionTurnOrderWeight (action);
 
 		return outcome;
-	}
-
-	private List<BattleCharacter> GetAffectdCharacters(Dictionary<BattleCharacter, MapPosition> characters, List<MapPosition> affectedPositions)
-	{
-		List<BattleCharacter> affectedCharacters = new List<BattleCharacter> ();
-		foreach (var position in affectedPositions) {
-			foreach (var kv in characters) {
-				if (kv.Value.Equals (position)) {
-					affectedCharacters.Add (kv.Key);
-				}
-			}
-		}
-		return affectedCharacters;
 	}
 
 	private BattleActionOutcome.OutcomePerTarget ApplyEffects(BattleCharacter actor, BattleCharacter target, List<SkillEffect> effects)

@@ -6,6 +6,15 @@ using System.Linq;
 
 public class BattleModel 
 {
+	public enum BattlePhase
+	{
+		ActionSelect,
+		TargetSelect,
+		Animation,
+		Result,
+		NextRound
+	}
+
 	private Dictionary<MapPosition, Tile> _mapTiles = new Dictionary<MapPosition, Tile>();
 	private Dictionary<BattleCharacter, MapPosition> _battleCharactersPositions = new Dictionary<BattleCharacter, MapPosition>();
 
@@ -14,8 +23,13 @@ public class BattleModel
 	public event Action<List<BattleCharacter>> onTurnOrderChanged;
 	public event Action<BattleCharacter> onActorSelected;
 	public event Action<Queue<BattleActionOutcome>, Action> onProcessOutcome;
+	public event Action<BattlePhase> onBattlePhaseChange;
+	public event Action<int> onSkillSelected;
 
 	public BattleCharacter CurrentActor { get; private set; }
+	public List<MapPosition> CurrentMovablePositions { get; private set; }
+	public Skill CurrentSelectedSkill { get; private set; }
+	public BattlePhase CurrentPhase { get; private set; }
 
 	public List<BattleCharacter> AllBattleCharacters
 	{
@@ -25,17 +39,34 @@ public class BattleModel
 		}
 	}
 
-	public void StartSimulation()
+	public BattleModel()
 	{
-		this.NextRound ();
+		this.CurrentMovablePositions = new List<MapPosition> ();
 	}
 
+	public void ChangePhase(BattlePhase newPhase)
+	{
+		this.CurrentPhase = newPhase;
+
+		if (this.onBattlePhaseChange != null) {
+			this.onBattlePhaseChange (newPhase);
+		}
+
+		switch (this.CurrentPhase) {
+		case BattlePhase.NextRound:
+			this.NextRound ();
+			break;
+		default: 
+			break;
+		}
+	}
+		
 	public void CreateBattleMap(int numberOfRows, int numberOfColumns)
 	{
 		this.CreateBattleGrid (numberOfRows, numberOfColumns, Const.Team.Player);
 		this.CreateBattleGrid (numberOfRows, numberOfColumns, Const.Team.Enemy);
 	}
-		
+
 	public void SpawnCharactersOnMap()
 	{
 		// TODO: real character data
@@ -62,64 +93,95 @@ public class BattleModel
 				this.onBattleCharacterCreated (position, battleCharacter);
 			}
 		}
-		Debug.LogWarning (playerCount + " VS " + enemyCount);
 	}
 
-	public bool AllCharactersDefeated(Const.Team team)
+	public void SelecteSkill(int skillIndex)
+	{
+		if (this.CurrentActor != null) {
+			var skills = this.CurrentActor.BaseCharacter.Skills;
+			CurrentSelectedSkill = skills.ElementAt (skillIndex);
+			if (CurrentSelectedSkill != null) {
+				this.ChangePhase (BattlePhase.TargetSelect);
+			}
+		}
+	}
+
+	public void CancelLastSelection()
+	{
+		if (this.CurrentSelectedSkill != null) {
+			this.CurrentSelectedSkill = null;
+			this.ChangePhase (BattlePhase.ActionSelect);
+		}
+	}
+
+	public void CurrentCharacterMoveAction(MapPosition targetPosition)
+	{
+		if (this.CurrentActor != null && this.CurrentMovablePositions != null) {
+			if (this.CurrentMovablePositions.Contains (targetPosition)) {
+				var action = new BattleAction (this.CurrentActor, Const.ActionType.Movement, Const.TargetType.Tile, targetPosition, null);
+				var actionQueue = new Queue<BattleAction> ();
+				actionQueue.Enqueue (action);
+				var outcomeQueue = ServiceFactory.GetBattleService ().ProcessActionQueue (actionQueue, this._mapTiles, this._battleCharactersPositions);
+				this.ProcessOutcome (outcomeQueue, BattlePhase.ActionSelect);
+			}
+		}
+	}
+
+	public void CurrentCharacterSkillAction(MapPosition targetPosition)
+	{
+		if (this.CurrentSelectedSkill != null) {
+			var affectedPositions = ServiceFactory.GetMapService ().GeAffectedMapPositions (this.CurrentSelectedSkill.SkillTarget.Pattern, 
+				this._mapTiles, targetPosition);
+
+			var affectedCharacters = ServiceFactory.GetBattleService ().GetAffectdCharacters (this._battleCharactersPositions, affectedPositions);
+
+			if (affectedCharacters.Count > 0) {
+				this.SetTileStateAtPositions (affectedPositions, Tile.TileState.SkillHighlight, true);
+
+				var action = new BattleAction (this.CurrentActor, Const.ActionType.Skill, Const.TargetType.Tile, targetPosition, this.CurrentSelectedSkill);
+				var actionQueue = new Queue<BattleAction> ();
+				actionQueue.Enqueue (action);
+				var outcomeQueue = ServiceFactory.GetBattleService ().ProcessActionQueue (actionQueue, this._mapTiles, this._battleCharactersPositions);
+				this.ProcessOutcome (outcomeQueue, BattlePhase.NextRound, () => {
+					this.SetTileStateAtPositions (affectedPositions, Tile.TileState.SkillHighlight, false);
+				});
+			}
+		}
+	}
+
+	private bool AllCharactersDefeated(Const.Team team)
 	{
 		return this.AllBattleCharacters.Find (x => x.Team == team && !x.IsDead) == null;
 	}
 
 	private void NextRound()
 	{
+		this.SetTileStateAtPositions (this.CurrentMovablePositions, Tile.TileState.MovementHighlight, false);
+
 		if (this.AllCharactersDefeated (Const.Team.Enemy)) {
-			// player wins
 			Debug.LogWarning("Player Wins");
 			return;
 		}
 		else if (this.AllCharactersDefeated (Const.Team.Player)) {
-			// enemy wins
 			Debug.LogWarning("Enemy Wins");
 			return;
 		}
 
 		this.CurrentActor = this.GetNextActor();
+		this.CurrentMovablePositions = ServiceFactory.GetMapService ().GetMovablePositions (this.CurrentActor, this._battleCharactersPositions, this._mapTiles);
 
 		if (this.onActorSelected != null) {
 			this.onActorSelected (this.CurrentActor);
 		}
-			
-		var movablePositions = ServiceFactory.GetMapService ().GetMoveablePositions (this.CurrentActor, this._battleCharactersPositions, this._mapTiles);
 
-		this.SetTileStateAtPositions (movablePositions, Tile.TileState.MovementHighlight, true);
+		this.SetTileStateAtPositions (this.CurrentMovablePositions, Tile.TileState.MovementHighlight, true);
 
 		if (this.CurrentActor.Team == Const.Team.Enemy) {
 			this.RunAI (this.CurrentActor);
 		}
 		else 
 		{
-			this.RunAI (this.CurrentActor);
-		}
-	}
-
-	private void RunAI(BattleCharacter actor)
-	{
-		var actionQueue = ServiceFactory.GetAIService ().RunAI (actor, this._mapTiles, this._battleCharactersPositions);
-		var outcomeQueue = ServiceFactory.GetBattleService ().ProcessActionQueue (actionQueue, this._mapTiles, this._battleCharactersPositions);
-
-		if (this.onProcessOutcome != null) {
-			this.onProcessOutcome (outcomeQueue, this.NextRound);
-		} 
-		else {
-			this.NextRound ();
-		}
-	}
-
-	private void SetTileStateAtPositions(List<MapPosition> positions, Tile.TileState state, bool flag)
-	{
-		foreach (var position in positions) {
-			var tile = this._mapTiles [position];
-			tile.AddOrRemoveState (state, flag);
+			this.ChangePhase (BattlePhase.ActionSelect);
 		}
 	}
 
@@ -147,5 +209,40 @@ public class BattleModel
 				}
 			}
 		}
+	}
+
+	private void ProcessOutcome(Queue<BattleActionOutcome> outcomeQueue, BattlePhase nextPhase, Action callback = null)
+	{
+		Action onComplete = () => {
+			this.ChangePhase (nextPhase);
+			if(callback != null)
+			{
+				callback();
+			}
+		};
+
+		if (this.onProcessOutcome != null) {
+			this.ChangePhase (BattlePhase.Animation);
+			this.onProcessOutcome (outcomeQueue, onComplete);
+		} 
+		else {
+			onComplete ();
+		}
+	}
+
+	private void SetTileStateAtPositions(List<MapPosition> positions, Tile.TileState state, bool flag)
+	{
+		foreach (var position in positions) {
+			var tile = this._mapTiles [position];
+			tile.AddOrRemoveState (state, flag);
+		}
+	}
+		
+	private void RunAI(BattleCharacter actor)
+	{
+		var actionQueue = ServiceFactory.GetAIService ().RunAI (actor, this._mapTiles, this._battleCharactersPositions);
+		var outcomeQueue = ServiceFactory.GetBattleService ().ProcessActionQueue (actionQueue, this._mapTiles, this._battleCharactersPositions);
+
+		this.ProcessOutcome (outcomeQueue, BattlePhase.NextRound);
 	}
 }

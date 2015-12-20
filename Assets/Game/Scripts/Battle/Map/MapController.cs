@@ -77,7 +77,7 @@ public class MapController : MonoBehaviour
 	{
 		// TODO: show affected color
 		foreach (var tile in tiles) {
-			tile.SetSelected (affected);
+//			tile.SetSelected (affected);
 		}
 	}
 
@@ -133,7 +133,7 @@ public class MapController : MonoBehaviour
 //		tileBefore.SetSelected(false);
 		yield return StartCoroutine(unit.MoveToTile(targetTile));
 //		tileBefore.AssignUnit (null);
-		targetTile.AssignUnit (unit);
+//		targetTile.AssignUnit (unit);
 	}
 
 //    private MapTile GetTile(Dictionary<string, MapTile> dict, int x, int y)

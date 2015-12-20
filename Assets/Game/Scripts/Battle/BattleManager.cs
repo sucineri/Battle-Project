@@ -110,15 +110,15 @@ public class BattleManager
 	public List<TileController> GetAffectedTiles(TileController targetTile, List<Cordinate> pattern)
 	{
 		var list = new List<TileController>();
-		foreach (var offset in pattern)
-		{
-			var tileCord = new Cordinate(targetTile.X + offset.X, targetTile.Y + offset.Y);
-			var tile = this.GetTile(targetTile.Team, tileCord.X, tileCord.Y);
-			if (tile != null)
-			{
-				list.Add(tile);
-			}
-		}
+//		foreach (var offset in pattern)
+//		{
+//			var tileCord = new Cordinate(targetTile.X + offset.X, targetTile.Y + offset.Y);
+//			var tile = this.GetTile(targetTile.Team, tileCord.X, tileCord.Y);
+//			if (tile != null)
+//			{
+//				list.Add(tile);
+//			}
+//		}
 		return list;
 	}
 		

@@ -15,7 +15,7 @@ public class AIService
 
 	private BattleAction RandomMovement(BattleCharacter actor, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> allCharacters)
 	{
-		var movablePosition = ServiceFactory.GetMapService ().GetMoveablePositions (actor, allCharacters, map);
+		var movablePosition = ServiceFactory.GetMapService ().GetMovablePositions (actor, allCharacters, map);
 
 		if (movablePosition.Count <= 0) {
 			return null;

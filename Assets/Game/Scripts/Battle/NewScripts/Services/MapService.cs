@@ -5,11 +5,12 @@ using System.Linq;
 
 public class MapService
 {
-	public List<MapPosition> GetMoveablePositions(BattleCharacter actor, Dictionary<BattleCharacter, MapPosition> allCharacters, Dictionary<MapPosition, Tile> map)
+	public List<MapPosition> GetMovablePositions(BattleCharacter actor, Dictionary<BattleCharacter, MapPosition> allCharacters, Dictionary<MapPosition, Tile> map)
 	{
 		var actorPosition = allCharacters [actor];
 		var movement = actor.BaseCharacter.Movement;
-		var occupiedPositions = allCharacters.Values.ToList ();
+		var occupiedPositions = allCharacters.Values.ToList ().FindAll( x => x != actorPosition );
+
 		var list = map.Keys.ToList ().FindAll (x => x.Team == actor.Team && x.GetDistance (actorPosition) <= movement && !occupiedPositions.Contains(x) );
 		return list;
 	}

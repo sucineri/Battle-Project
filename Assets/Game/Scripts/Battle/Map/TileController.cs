@@ -9,14 +9,8 @@ public class TileController : MonoBehaviour
 	[SerializeField] private Image _tileSprite;
 	[SerializeField] private Color _defaultColor;
 	[SerializeField] private Color _selectedColor;
-
-	public BattleUnitController CurrentUnit { get; private set; }
-
-	public int X { get; set; }
-
-	public int Y { get; set; }
-
-	public Const.Team Team { get; private set; }
+	[SerializeField] private Color _movementColor;
+	[SerializeField] private Color _skillHighlightColor;
 
 	private MapPosition _mapPosition;
 
@@ -28,22 +22,20 @@ public class TileController : MonoBehaviour
 		this._onTileClick = onClick;
 	}
 
-	public void AssignUnit (BattleUnitController unit)
-	{
-		CurrentUnit = unit;
-		if (unit != null) {
-//			unit.AssignToTile (this);
-		}
-	}
-
 	public void OnTileStateChange(Tile.TileState state)
 	{
-		Debug.LogWarning ("State is " + (int)state);
-	}
-
-	public void SetSelected (bool selected)
-	{
-		_tileSprite.color = selected ? _selectedColor : _defaultColor;
+		if ((state & Tile.TileState.Selected) == Tile.TileState.Selected) {
+			this._tileSprite.color = _selectedColor;
+		} 
+		else if ((state & Tile.TileState.MovementHighlight) == Tile.TileState.MovementHighlight) {
+			this._tileSprite.color = _movementColor;
+		} 
+		else if ((state & Tile.TileState.SkillHighlight) == Tile.TileState.SkillHighlight) {
+			this._tileSprite.color = _skillHighlightColor;
+		} 
+		else {
+			this._tileSprite.color = _defaultColor;
+		}
 	}
 
 	public void OnClick ()

@@ -7,47 +7,51 @@ using System.Collections.Generic;
 public class BattleController : MonoBehaviour
 {
 
-	[SerializeField]
-	private ActionMenu _actionMenu;
-
+	[SerializeField] private BattleActionMenu _battleActionMenu;
 	[SerializeField] private MapView _mapView;
 	[SerializeField] private TurnOrderView _turnOrderView;
 	[SerializeField] private BattleUnitsView _battleUnitsView;
 
-	protected IEnumerator Start()
-    {
-//        this._mapController.Init();
-//		this._actionMenu.Init (this.OnMoveSelect, this.OnSkillSelect, this.OnSelectionCancel);
-//        yield return new WaitForEndOfFrame();
-//		BattleManager.CreateBattleInstance(this, this._mapController);
-//        this.InitUnits();
-//        BattleManager.Instance.InitTurnOrder();
-//		BattleManager.Instance.onBattlePhaseChange += this.OnBattlePhaseChange;
-//		this.NextRound ();
+	private BattleModel _battleModel;
 
+	private IEnumerator Start()
+    {
 		var numberOfRows = 4;
 		var numberOfColumns = 3;
 
 		this._mapView.InitGrids (numberOfRows, numberOfColumns, OnTileClick);
-		var battleModel = new BattleModel ();
 
-		battleModel.onTileCreated += this._mapView.AssignTile;
-		battleModel.onTurnOrderChanged += this._turnOrderView.UpdateView;
-		battleModel.onBattleCharacterCreated += this.OnCreateBattleUnit;
-		battleModel.onProcessOutcome += this.ProcessOutcomeQueue;
+		this._battleModel = new BattleModel ();
 
-		battleModel.CreateBattleMap (numberOfRows, numberOfColumns);
+		this._battleModel.onTileCreated += this._mapView.AssignTile;
+		this._battleModel.onTurnOrderChanged += this._turnOrderView.UpdateView;
+		this._battleModel.onBattleCharacterCreated += this.OnCreateBattleUnit;
+		this._battleModel.onProcessOutcome += this.ProcessOutcomeQueue;
+		this._battleModel.onBattlePhaseChange += this.OnBattlePhaseChange;
+
+		this._battleModel.CreateBattleMap (numberOfRows, numberOfColumns);
 		yield return 0;
 
-		battleModel.SpawnCharactersOnMap ();
+		this._battleModel.SpawnCharactersOnMap ();
 		yield return 0;
 
-		battleModel.StartSimulation ();
+		this._battleActionMenu.Init (this._battleModel);
+
+		this._battleModel.ChangePhase(BattleModel.BattlePhase.NextRound);
     }
 
 	private void OnTileClick(MapPosition tilePosition)
 	{
-		Debug.LogWarning (tilePosition.ToString ());
+		switch (this._battleModel.CurrentPhase) {
+		case BattleModel.BattlePhase.ActionSelect:
+			this._battleModel.CurrentCharacterMoveAction (tilePosition);
+			break;
+		case BattleModel.BattlePhase.TargetSelect:
+			this._battleModel.CurrentCharacterSkillAction (tilePosition);
+			break;
+		default:
+			break;
+		}
 	}
 
 	private void OnCreateBattleUnit(MapPosition mapPosition, BattleCharacter character)
@@ -113,10 +117,11 @@ public class BattleController : MonoBehaviour
 //        }
 //    }
 
-	private void OnBattlePhaseChange(BattleManager.BattlePhase battlePhase)
+	private void OnBattlePhaseChange(BattleModel.BattlePhase battlePhase)
 	{
-		if (battlePhase == BattleManager.BattlePhase.NextRound) {
-//			this.NextRound ();
+		switch (battlePhase) {
+		default:
+			break;
 		}
 	}
 
@@ -150,23 +155,23 @@ public class BattleController : MonoBehaviour
 	private void OnMoveSelect(BattleUnitController actor)
 	{
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.MovementSelect;
-		this._actionMenu.ShowMenu (false);
-		this._actionMenu.ShowCancel (true);
+		this._battleActionMenu.ShowMenu (false);
+		this._battleActionMenu.ShowCancel (true);
 	}
 
 	private void OnSkillSelect(BattleUnitController actor, Skill selectedSkill)
 	{
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.TargetSelect;
 //		actor.SelectedSkill = selectedSkill;
-		this._actionMenu.ShowMenu (false);
-		this._actionMenu.ShowCancel (true);
+		this._battleActionMenu.ShowMenu (false);
+		this._battleActionMenu.ShowCancel (true);
 	}
 
 	private void OnSelectionCancel()
 	{
 		BattleManager.Instance.Phase = BattleManager.BattlePhase.ActionSelect;
-		this._actionMenu.ShowMenu (true);
-		this._actionMenu.ShowCancel (false);
+		this._battleActionMenu.ShowMenu (true);
+		this._battleActionMenu.ShowCancel (false);
 	}
 
     private void CreateUnitOnTile(Const.Team team, TileController tile)
@@ -191,7 +196,7 @@ public class BattleController : MonoBehaviour
 //            var postfix = BattleManager.Instance.GetUnitPostfix(character.Name);
 
 //            unitController.Init(team, character, 'A');
-            tile.AssignUnit(unitController);
+//            tile.AssignUnit(unitController);
 
 			unitController.gameObject.name = character.Name;
 
@@ -200,4 +205,13 @@ public class BattleController : MonoBehaviour
 //            BattleManager.Instance.AssignTileToUnit(team, unitController);
         }
     }
+
+	void OnDestroy()
+	{
+		this._battleModel.onTileCreated -= this._mapView.AssignTile;
+		this._battleModel.onTurnOrderChanged -= this._turnOrderView.UpdateView;
+		this._battleModel.onBattleCharacterCreated -= this.OnCreateBattleUnit;
+		this._battleModel.onProcessOutcome -= this.ProcessOutcomeQueue;
+		this._battleModel.onBattlePhaseChange -= this.OnBattlePhaseChange;
+	}
 }

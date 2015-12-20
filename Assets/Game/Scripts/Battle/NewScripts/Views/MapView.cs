@@ -96,7 +96,7 @@ public class MapView : MonoBehaviour {
 	{
 		// TODO: show affected color
 		foreach (var tile in tiles) {
-			tile.SetSelected (affected);
+//			tile.SetSelected (affected);
 		}
 	}
 }

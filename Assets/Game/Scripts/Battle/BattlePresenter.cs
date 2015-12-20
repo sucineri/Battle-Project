@@ -8,7 +8,7 @@ public class BattlePresenter : MonoBehaviour {
 	[SerializeField] private MapView _mapView;
 	[SerializeField] private BattleUnitsView _unitView;
 	[SerializeField] private TurnOrderView _turnOrderView;
-	[SerializeField] private ActionMenu _actionMenu;
+	[SerializeField] private BattleActionMenu _actionMenu;
 
 	private BattleUnitController _currentActor;
 
@@ -21,7 +21,7 @@ public class BattlePresenter : MonoBehaviour {
 	{
 		BattleManager.CreateBattleInstance ();
 		BattleManager.Instance.onTurnOrderChanged += this.OnTurnOrderChanged;
-		BattleManager.Instance.onBattlePhaseChange += this._actionMenu.OnBattlePhaseChange;
+//		BattleManager.Instance.onBattlePhaseChange += this._actionMenu.OnBattlePhaseChange;
 		BattleManager.Instance.onBattlePhaseChange += this.OnBattlePhaseChange;
 
 //		this._actionMenu.Init (this.OnMoveSelect, this.OnSkillSelect, this.OnSelectionCancel);
@@ -94,23 +94,23 @@ public class BattlePresenter : MonoBehaviour {
 //		}
 	}
 
-	private void ProcessEnemyTurn(BattleUnitController actor)
-	{
-		this.RunAI (actor);
-	}
-
-	private void ProcessPlayerTurn(BattleUnitController actor)
-	{
-		this._currentActor = actor;
-		BattleManager.Instance.Phase = BattleManager.BattlePhase.ActionSelect;
-		this._actionMenu.CreateMenu (actor);
-
-		// TODO: light up movable areas
-		var tile = BattleManager.Instance.GetUnitOccupiedTile (this._currentActor);
-		if (tile != null) {
-			tile.SetSelected (true);
-		}
-	}
+//	private void ProcessEnemyTurn(BattleUnitController actor)
+//	{
+//		this.RunAI (actor);
+//	}
+//
+//	private void ProcessPlayerTurn(BattleUnitController actor)
+//	{
+//		this._currentActor = actor;
+//		BattleManager.Instance.Phase = BattleManager.BattlePhase.ActionSelect;
+//		this._actionMenu.CreateMenu (actor);
+//
+//		// TODO: light up movable areas
+//		var tile = BattleManager.Instance.GetUnitOccupiedTile (this._currentActor);
+//		if (tile != null) {
+//			tile.SetSelected (true);
+//		}
+//	}
 
 	private void RunAI(BattleUnitController unit)
 	{
@@ -123,7 +123,7 @@ public class BattlePresenter : MonoBehaviour {
 	private IEnumerator MoveUnitToTile(BattleUnitController unit, TileController tile)
 	{
 		var tileBefore = BattleManager.Instance.GetUnitOccupiedTile (this._currentActor);
-		tileBefore.SetSelected (false);
+//		tileBefore.SetSelected (false);
 		BattleManager.Instance.AssignTileToUnit (unit, tile);
 //		yield return StartCoroutine (this._unitView.MoveUnitToTile (unit, tile));
 		yield return null;
@@ -160,7 +160,7 @@ public class BattlePresenter : MonoBehaviour {
 		if (this._currentActor != null) {
 			var tile = BattleManager.Instance.GetUnitOccupiedTile (this._currentActor);
 			if (tile != null) {
-				tile.SetSelected (true);
+//				tile.SetSelected (true);
 			}
 		}
 
