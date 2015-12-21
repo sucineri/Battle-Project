@@ -84,6 +84,9 @@ public class BattleController : MonoBehaviour
 		case Const.ActionType.Movement:
 			yield return StartCoroutine (this.ProcessMovementOutcome (outcome));
 			break;
+		case Const.ActionType.Skill:
+			yield return StartCoroutine (this.ProcessSkillOutcome (outcome));
+			break;
 		default:
 			yield return null;
 			break;	
@@ -98,24 +101,12 @@ public class BattleController : MonoBehaviour
 		if (tile != null) {
 			yield return StartCoroutine (this._battleUnitsView.MoveUnitToTile (actor, tile));
 		}
-
 	}
 
-//    private void InitUnits()
-//    {
-//        var layout = MapLayout.GetDefaultLayout();
-//        foreach (var playerPosition in layout.playerPositions)
-//        {
-//            var tile = _mapController.GetTile(Const.Team.Player, playerPosition.X, playerPosition.Y);
-//            this.CreateUnitOnTile(Const.Team.Player, tile);
-//        }
-//
-//        foreach (var enemyPosition in layout.enemyPositions)
-//        {
-//            var tile = _mapController.GetTile(Const.Team.Enemy, enemyPosition.X, enemyPosition.Y);
-//            this.CreateUnitOnTile(Const.Team.Enemy, tile);
-//        }
-//    }
+	private IEnumerator ProcessSkillOutcome(BattleActionOutcome outcome)
+	{
+		yield break;
+	}
 
 	private void OnBattlePhaseChange(BattleModel.BattlePhase battlePhase)
 	{
@@ -123,55 +114,6 @@ public class BattleController : MonoBehaviour
 		default:
 			break;
 		}
-	}
-
-//	private void NextRound()
-//	{
-//		var actor = BattleManager.Instance.GetNextActor();
-//		if (BattleManager.Instance.AllOpponentsDefeated (actor.Team)) {
-//			// end battle
-//		}
-//		else if (actor.Team == Const.Team.Enemy) {
-//			this.ProcessEnemyTurn (actor);
-//		}
-//		else 
-//		{
-//			this.ProcessPlayerTurn (actor);
-//		}
-//	}
-
-//	private void ProcessEnemyTurn(UnitControllerBase actor)
-//	{
-//		this._mapController.RunAI (actor);
-//	}
-//
-//	private void ProcessPlayerTurn(UnitControllerBase actor)
-//	{
-//		BattleManager.Instance.Phase = BattleManager.BattlePhase.ActionSelect;
-//		this._actionMenu.CreateMenu (actor);
-//		this._mapController.SetActor (actor);
-//	}
-
-	private void OnMoveSelect(BattleUnitController actor)
-	{
-		BattleManager.Instance.Phase = BattleManager.BattlePhase.MovementSelect;
-		this._battleActionMenu.ShowMenu (false);
-		this._battleActionMenu.ShowCancel (true);
-	}
-
-	private void OnSkillSelect(BattleUnitController actor, Skill selectedSkill)
-	{
-		BattleManager.Instance.Phase = BattleManager.BattlePhase.TargetSelect;
-//		actor.SelectedSkill = selectedSkill;
-		this._battleActionMenu.ShowMenu (false);
-		this._battleActionMenu.ShowCancel (true);
-	}
-
-	private void OnSelectionCancel()
-	{
-		BattleManager.Instance.Phase = BattleManager.BattlePhase.ActionSelect;
-		this._battleActionMenu.ShowMenu (true);
-		this._battleActionMenu.ShowCancel (false);
 	}
 
     private void CreateUnitOnTile(Const.Team team, TileController tile)
@@ -193,16 +135,7 @@ public class BattleController : MonoBehaviour
 
             var unitController = unit.GetComponent<BattleUnitController>();
 
-//            var postfix = BattleManager.Instance.GetUnitPostfix(character.Name);
-
-//            unitController.Init(team, character, 'A');
-//            tile.AssignUnit(unitController);
-
 			unitController.gameObject.name = character.Name;
-
-//            unitController.gameObject.name = unitController.UnitName;
-
-//            BattleManager.Instance.AssignTileToUnit(team, unitController);
         }
     }
 
