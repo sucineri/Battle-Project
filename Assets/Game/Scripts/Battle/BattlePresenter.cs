@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class BattlePresenter : MonoBehaviour {
 
 	[SerializeField] private MapView _mapView;
-	[SerializeField] private BattleUnitsView _unitView;
+	[SerializeField] private BattleView _unitView;
 	[SerializeField] private TurnOrderView _turnOrderView;
 	[SerializeField] private BattleActionMenu _actionMenu;
 
@@ -129,11 +129,11 @@ public class BattlePresenter : MonoBehaviour {
 		yield return null;
 	}
 
-	private void ConfirmSkillSelection(SkillComponentBase skillComponent, TileController targetTile)
+	private void ConfirmSkillSelection(SkillController skillComponent, TileController targetTile)
 	{
-		var skill = skillComponent.GetSkill ();
-		var affectedTiles = BattleManager.Instance.GetAffectedTiles (targetTile, skill.SkillTarget.Pattern);
-		this._mapView.SetTilesAffected (affectedTiles, true);
+//		var skill = skillComponent.GetSkill ();
+//		var affectedTiles = BattleManager.Instance.GetAffectedTiles (targetTile, skill.SkillTarget.Pattern);
+//		this._mapView.SetTilesAffected (affectedTiles, true);
 
 //		Action onCancel = () => {
 //			this._mapView.SetTilesAffected(affectedTiles, false);

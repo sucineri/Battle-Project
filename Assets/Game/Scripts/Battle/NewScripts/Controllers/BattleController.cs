@@ -8,9 +8,8 @@ public class BattleController : MonoBehaviour
 {
 
 	[SerializeField] private BattleActionMenu _battleActionMenu;
-	[SerializeField] private MapView _mapView;
 	[SerializeField] private TurnOrderView _turnOrderView;
-	[SerializeField] private BattleUnitsView _battleUnitsView;
+	[SerializeField] private BattleView _battleView;
 
 	private BattleModel _battleModel;
 
@@ -19,11 +18,11 @@ public class BattleController : MonoBehaviour
 		var numberOfRows = 4;
 		var numberOfColumns = 3;
 
-		this._mapView.InitGrids (numberOfRows, numberOfColumns, OnTileClick);
+		this._battleView.InitMap (numberOfRows, numberOfColumns, OnTileClick);
 
 		this._battleModel = new BattleModel ();
 
-		this._battleModel.onTileCreated += this._mapView.AssignTile;
+		this._battleModel.onTileCreated += this._battleView.BindTileController;
 		this._battleModel.onTurnOrderChanged += this._turnOrderView.UpdateView;
 		this._battleModel.onBattleCharacterCreated += this.OnCreateBattleUnit;
 		this._battleModel.onProcessOutcome += this.ProcessOutcomeQueue;
@@ -56,9 +55,9 @@ public class BattleController : MonoBehaviour
 
 	private void OnCreateBattleUnit(MapPosition mapPosition, BattleCharacter character)
 	{
-		var mapTile = this._mapView.GetTileAtMapPosition (mapPosition);
+		var mapTile = this._battleView.GetTileAtMapPosition (mapPosition);
 
-		this._battleUnitsView.SpawnUnitOnTile (character, mapTile);
+		this._battleView.SpawnUnitOnTile (character, mapTile);
 	}
 
 	private void ProcessOutcomeQueue(Queue<BattleActionOutcome> outcomeQueue, Action callback)
@@ -79,7 +78,7 @@ public class BattleController : MonoBehaviour
 
 	private IEnumerator ProcessOutcome(BattleActionOutcome outcome)
 	{
-		switch (outcome.Type) {
+		switch (outcome.type) {
 
 		case Const.ActionType.Movement:
 			yield return StartCoroutine (this.ProcessMovementOutcome (outcome));
@@ -95,17 +94,17 @@ public class BattleController : MonoBehaviour
 
 	private IEnumerator ProcessMovementOutcome(BattleActionOutcome outcome)
 	{
-		var movementOutcome = outcome.ActorOutcome;
-		var actor = movementOutcome.Target;
-		var tile = this._mapView.GetTileAtMapPosition (movementOutcome.PositionChangeTo);
+		var movementOutcome = outcome.actorOutcome;
+		var actor = movementOutcome.target;
+		var tile = this._battleView.GetTileAtMapPosition (movementOutcome.positionChangeTo);
 		if (tile != null) {
-			yield return StartCoroutine (this._battleUnitsView.MoveUnitToTile (actor, tile));
+			yield return StartCoroutine (this._battleView.MoveUnitToTile (actor, tile));
 		}
 	}
 
 	private IEnumerator ProcessSkillOutcome(BattleActionOutcome outcome)
 	{
-		yield break;
+		yield return StartCoroutine (this._battleView.PlaySkillAnimation (this._battleModel.CurrentSelectedSkill, outcome));
 	}
 
 	private void OnBattlePhaseChange(BattleModel.BattlePhase battlePhase)
@@ -141,7 +140,7 @@ public class BattleController : MonoBehaviour
 
 	void OnDestroy()
 	{
-		this._battleModel.onTileCreated -= this._mapView.AssignTile;
+		this._battleModel.onTileCreated -= this._battleView.BindTileController;
 		this._battleModel.onTurnOrderChanged -= this._turnOrderView.UpdateView;
 		this._battleModel.onBattleCharacterCreated -= this.OnCreateBattleUnit;
 		this._battleModel.onProcessOutcome -= this.ProcessOutcomeQueue;

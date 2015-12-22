@@ -53,11 +53,11 @@ public class MapController : MonoBehaviour
 		}
     }
 
-	private void ConfirmSkillSelection(SkillComponentBase skillComponent, TileController targetTile)
+	private void ConfirmSkillSelection(SkillController skillComponent, TileController targetTile)
 	{
-		var skill = skillComponent.GetSkill ();
-		var affectedTiles = BattleManager.Instance.GetAffectedTiles (targetTile, skill.SkillTarget.Pattern);
-		this.SetTilesAffected (affectedTiles, true);
+//		var skill = skillComponent.GetSkill ();
+//		var affectedTiles = BattleManager.Instance.GetAffectedTiles (targetTile, skill.SkillTarget.Pattern);
+//		this.SetTilesAffected (affectedTiles, true);
 
 //		Action onCancel = () => {
 //			this.SetTilesAffected(affectedTiles, false);

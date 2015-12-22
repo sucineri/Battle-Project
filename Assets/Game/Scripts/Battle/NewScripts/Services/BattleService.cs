@@ -10,21 +10,31 @@ public class BattleService
 	{
 		List<BattleCharacter> affectedCharacters = new List<BattleCharacter> ();
 		foreach (var position in affectedPositions) {
-			foreach (var kv in characters) {
-				if (kv.Value.Equals (position)) {
-					affectedCharacters.Add (kv.Key);
-				}
+			var characterAtPosition = this.GetCharacterAtPosition (characters, position);
+			if (characterAtPosition != null && !characterAtPosition.IsDead) {
+				affectedCharacters.Add (characterAtPosition);
 			}
 		}
 		return affectedCharacters;
 	}
 
-	public Queue<BattleActionOutcome> ProcessActionQueue(Queue<BattleAction> actionQueue, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters)
+	public BattleCharacter GetCharacterAtPosition(Dictionary<BattleCharacter, MapPosition> characters, MapPosition targetPosition)
+	{
+		foreach (var kv in characters) {
+			if (kv.Value.Equals (targetPosition)) {
+				return kv.Key;
+			}
+		}
+		return null;
+	}
+
+	//TODO : i don't like this mapsize thing
+	public Queue<BattleActionOutcome> ProcessActionQueue(Queue<BattleAction> actionQueue, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters, Vector2 mapSize)
 	{
 		var outcomeQueue = new Queue<BattleActionOutcome> ();
 		while (actionQueue.Count > 0) {
 			var action = actionQueue.Dequeue ();
-			var outcome = this.ProcessAction (action, map, characters);
+			var outcome = this.ProcessAction (action, map, characters, mapSize);
 			if (outcome != null) {
 				outcomeQueue.Enqueue (outcome);
 			}
@@ -32,14 +42,14 @@ public class BattleService
 		return outcomeQueue;
 	}
 
-	private BattleActionOutcome ProcessAction(BattleAction action, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters)
+	private BattleActionOutcome ProcessAction(BattleAction action, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters, Vector2 mapSize)
 	{
 		switch (action.ActionType) 
 		{
 			case Const.ActionType.Movement:
 				return this.ProcessMovementAction (action, map, characters);
 			case Const.ActionType.Skill:
-				return this.ProcessSkillAction (action, map, characters);
+				return this.ProcessSkillAction (action, map, characters, mapSize);
 			default:
 				return null;
 		}
@@ -56,33 +66,39 @@ public class BattleService
 		characters[actor] = moveTo;
 
 		var outcome = new BattleActionOutcome ();
-		outcome.Type = Const.ActionType.Movement;
+		outcome.type = Const.ActionType.Movement;
+		outcome.targetPosition = moveTo;
+		outcome.targeteCharacter = actor;
 
 		var movementOutcome = new BattleActionOutcome.OutcomePerTarget ();
-		movementOutcome.Target = actor;
-		movementOutcome.PositionChangeTo = moveTo;
+		movementOutcome.target = actor;
+		movementOutcome.positionChangeTo = moveTo;
 
-		outcome.ActorOutcome = movementOutcome;
+		outcome.actorOutcome = movementOutcome;
 
 		return outcome;
 	}
 
-	private BattleActionOutcome ProcessSkillAction(BattleAction action, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters)
+	// TODO: i don't like this map size thing
+	private BattleActionOutcome ProcessSkillAction(BattleAction action, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters, Vector2 mapSize)
 	{
 		Debug.LogWarning(action.Actor.Name + " uses " + action.SelectedSkill.Name);
 
 		var actor = action.Actor;
 		var skill = action.SelectedSkill;
-		var affectedPositions = ServiceFactory.GetMapService ().GeAffectedMapPositions (skill.SkillTarget.Pattern, map, action.TargetPosition);
+		var affectedPositions = ServiceFactory.GetMapService ().GeAffectedMapPositions (skill.SkillTarget.Pattern, map, action.TargetPosition, mapSize);
 		var affectedCharacters = this.GetAffectdCharacters (characters, affectedPositions);
 
 		var outcome = new BattleActionOutcome ();
-		outcome.Type = Const.ActionType.Skill;
+		outcome.type = Const.ActionType.Skill;
+		outcome.targetPosition = action.TargetPosition;
+		outcome.targeteCharacter = this.GetCharacterAtPosition (characters, action.TargetPosition);
+		outcome.actor = actor;
 
 		for (int i = 0; i < skill.NumberOfTriggers; ++i) {
 			var triggerOutcome = new BattleActionOutcome.OutcomePerTrigger ();
 			foreach (var affectedCharacter in affectedCharacters) {
-				var targetOutcome = this.ApplyEffects (actor, affectedCharacter, skill.Effects);
+				var targetOutcome = this.ApplyEffects (actor, affectedCharacter, skill);
 				triggerOutcome.AddTargetOutcome (targetOutcome);
 			}
 			outcome.AddTriggerOutcome (triggerOutcome);
@@ -93,20 +109,22 @@ public class BattleService
 		return outcome;
 	}
 
-	private BattleActionOutcome.OutcomePerTarget ApplyEffects(BattleCharacter actor, BattleCharacter target, List<SkillEffect> effects)
+	private BattleActionOutcome.OutcomePerTarget ApplyEffects(BattleCharacter actor, BattleCharacter target, Skill skill)
 	{
 		// TODO: more effect types
+		var effects = skill.Effects;
 		var outcome = new BattleActionOutcome.OutcomePerTarget();
-		outcome.Target = target;
+		outcome.target = target;
 		foreach (var effect in effects) {
 			var damage = Math.Floor(DamageLogic.GetNormalAttackDamage (actor, target, effect));
-			outcome.HpChange -= damage;
+			outcome.hpChange -= damage;
 		}
+		outcome.effectPrefabPath = skill.EffectPrefabPath;
 
 		// Deduct Hp
-		target.CurrentHp = Math.Min (target.MaxHp, Math.Max (0d, target.CurrentHp + outcome.HpChange));
+		target.CurrentHp = Math.Min (target.MaxHp, Math.Max (0d, target.CurrentHp + outcome.hpChange));
 
-		Debug.LogWarning (target.Name + " takes " + outcome.HpChange + " damage");
+		Debug.LogWarning (target.Name + " takes " + outcome.hpChange + " damage");
 		Debug.LogWarning (target.Name + " remaining hp " + target.CurrentHp);
 
 		return outcome;

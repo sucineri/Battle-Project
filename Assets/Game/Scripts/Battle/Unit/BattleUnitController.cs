@@ -15,43 +15,21 @@ public class BattleUnitController : MonoBehaviour
 	[SerializeField] protected float attackDistanceOffset;
 	[SerializeField] protected float bodySizeOffset;
 
-//    public TileController CurrentTile { get; private set; }
-//
-//    public Const.Team Team { get; private set; }
-//
-//    public CharacterStats Character { get; private set; }
-//
-//    public double TurnOrderWeight { get; set; }
-
-//	public Skill SelectedSkill { get; set; }
-
-//    public char Postfix { get; private set; }
-//
-//    public string UnitName { get { return this.Character.Name + " " + Postfix; } }
-//
-//    public bool IsDead { get { return this.Character.CurrentHp <= 0d; } }
-
 	protected Vector3 defaultRotation = Vector3.zero;
 
     public void Init(BattleCharacter character)
     {
-//        this.Team = team;
-//        this.Character = character;
-//        this.Postfix = postFix;
-		this.hpBar.Init (character.HpPercentage);
-//        this.TurnOrderWeight = BattleActionWeight.GetDefaultTurnOrderWeight(this);
+		this.hpBar.Init (character.HpPercentage);		
 		this.defaultRotation = this.transform.localEulerAngles;
     }
 
-//    public void AssignToTile(TileController tile)
-//    {
-//        this.CurrentTile = tile;
-//        this._characterView.Init();
-//    }
-
-    public float GetAttackPositionOffset(BattleUnitController opponentUnit)
+    public float GetAttackPositionOffset(BattleUnitController targetedUnit)
     {
-		return this.attackDistanceOffset + opponentUnit.bodySizeOffset;
+		var targetBodySizeOffset = 0f;
+		if (targetedUnit != null) {
+			targetBodySizeOffset = targetedUnit.bodySizeOffset;
+		}
+		return this.attackDistanceOffset + targetBodySizeOffset;
     }
 
     public virtual IEnumerator MoveToPosition(Vector3 destination, float speed, float distanceOffset = 0f)
@@ -67,6 +45,18 @@ public class BattleUnitController : MonoBehaviour
 		yield return StartCoroutine(AnimationService.MoveToPosition(this.transform, destination, moveDuration, completion));
     }
 
+	public virtual IEnumerator MoveToAttackPosition(BattleUnitController targetedUnit, Vector3 targetPosition)
+	{
+		var offset = this.GetAttackPositionOffset (targetedUnit);
+		yield return StartCoroutine(this.MoveToPosition(targetPosition, this.attackMovementSpeed, offset));
+	}
+
+	public virtual IEnumerator ReturnToPosition(Vector3 originalPosition)
+	{
+		yield return StartCoroutine(this.MoveToPosition(originalPosition, this.attackMovementSpeed, 0));
+		this.DefaultStance ();
+	}
+
     public virtual IEnumerator AnimateAttack()
     {
         yield return StartCoroutine(this.characterView.PlayAttackAnimation());
@@ -78,55 +68,12 @@ public class BattleUnitController : MonoBehaviour
 		this.DefaultStance();
     }
 
-//    public virtual IEnumerator ReturnToBaseTile()
-//    {
-//        var position = this.CurrentTile.transform.position;
-//        yield return StartCoroutine(this.characterView.MoveTowards(position));
-//        this.DefaultStance();
-//    }
-
 	public virtual void DefaultStance()
 	{
 		this.characterView.CurrentAnimationState = BattleCharacterView.AnimationState.Idle;
 		this.transform.localEulerAngles = defaultRotation;
 	}
 
-//    public virtual IEnumerator TakeDamage(double damage, bool isLastHit)
-//    {
-//		this.ShowDamageText(damage);
-//
-//		var hpRemaining = System.Math.Max (0d, this.Character.CurrentHp - damage);
-//        this.Character.CurrentHp = hpRemaining;
-//		var hpPercentage = this.Character.HpPercentage;
-//		StartCoroutine(this.AnimateHpChange(hpPercentage));
-//        
-//		var isDead = this.IsDead && isLastHit;
-//        yield return StartCoroutine(this.characterView.PlayDamagedAnimation(isDead));
-//    }
-
-//    public SkillComponentBase GetSelectedSkill()
-//    {
-//		var skill = this.Character.Skills [0];
-//		if (SelectedSkill != null) {
-//			skill = SelectedSkill;
-//		}
-//
-//        // TODO: refactor these shit
-//		var prefab = Resources.Load (skill.PrefabPath);
-//		var go = Instantiate (prefab) as GameObject;
-//		var skillComp = go.GetComponent<SkillComponentBase> ();
-//		skillComp.InitWithSkill (skill);
-//		return skillComp;
-//    }
-
-    // default AI attack
-//    public IEnumerator RunAI()
-//    {
-//		var allUnits = BattleManager.Instance.AllUnits;
-//        var targetTile = TargetLogic.GetTargetTile(this, allUnits);
-//        yield return StartCoroutine(this.GetSelectedSkill().PlaySkillSequence(this, targetTile));
-//    }
-//
 	public void PlayEffect(string path)
 	{
 		var prefab = Resources.Load (path);
@@ -137,23 +84,31 @@ public class BattleUnitController : MonoBehaviour
 		go.SetActive (true);
 	}
 
-    private void ShowDamageText(double damage)
-    {
-        var go = Instantiate(this.damageTextPrefab) as GameObject;
-        var damageText = go.GetComponent<DamageText>();
-        go.transform.SetParent(this.transform);
-        go.transform.localPosition = this.damageTextPrefab.transform.localPosition;
-        go.transform.localScale = this.damageTextPrefab.transform.localScale;
-        go.SetActive(true);
-        damageText.ShowDamage(damage);
-    }
+	public IEnumerator TakeDamage(double damage, float hpPercentage)
+	{
+		this.ShowDamageText(damage);
+
+		yield return StartCoroutine(this.AnimateHpChange(hpPercentage));
+	}
+
+	public IEnumerator Die()
+	{
+		yield return StartCoroutine(this.characterView.PlayDamagedAnimation ());
+	}
+		
+	private void ShowDamageText(double damage)
+	{
+		var go = Instantiate(this.damageTextPrefab) as GameObject;
+		var damageText = go.GetComponent<DamageText>();
+		go.transform.SetParent(this.transform);
+		go.transform.localPosition = this.damageTextPrefab.transform.localPosition;
+		go.transform.localScale = this.damageTextPrefab.transform.localScale;
+		go.SetActive(true);
+		damageText.ShowDamage(damage);
+	}
 
     private IEnumerator AnimateHpChange(float hpPercentage)
     {
 		yield return StartCoroutine(hpBar.AnimateValueChange(hpPercentage));
-//        if (this.IsDead)
-//        {
-//            hpBar.gameObject.SetActive(false);
-//        }
     }
 }

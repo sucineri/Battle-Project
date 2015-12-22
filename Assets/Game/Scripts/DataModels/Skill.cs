@@ -14,6 +14,8 @@ public class Skill
 
 	public string PrefabPath { get; set; }
 
+	public string EffectPrefabPath { get; set; }
+
 	protected Skill ()
 	{
 		// no public default constructor
@@ -26,6 +28,7 @@ public class Skill
 		skill.Effects.Add (SkillEffect.MeleeAttackEffect ());
 		skill.NumberOfTriggers = 1;
 		skill.PrefabPath = "Skills/MeleeAttack";
+		skill.EffectPrefabPath = "Effects/Explosion";
 		skill.SkillTarget = Targetting.SingleOpponentTarget ();
 		return skill;
 	}
@@ -37,6 +40,7 @@ public class Skill
 		skill.Effects.Add (SkillEffect.CrossSlashEffect ());
 		skill.NumberOfTriggers = 1;
 		skill.PrefabPath = "Skills/CrossSlash";
+		skill.EffectPrefabPath = "Effects/Explosion";
 		skill.SkillTarget = Targetting.CrossOpponentTarget ();
 		return skill;
 	}

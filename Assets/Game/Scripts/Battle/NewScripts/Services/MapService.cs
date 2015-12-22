@@ -15,7 +15,7 @@ public class MapService
 		return list;
 	}
 
-	public List<MapPosition> GeAffectedMapPositions(List<Cordinate> pattern, Dictionary<MapPosition, Tile> map, MapPosition targetedPosition)
+	public List<MapPosition> GeAffectedMapPositions(List<Cordinate> pattern, Dictionary<MapPosition, Tile> map, MapPosition targetedPosition, Vector2 mapSize)
 	{
 		var list = new List<MapPosition>();
 		var team = targetedPosition.Team;
@@ -23,8 +23,15 @@ public class MapService
 		{
 			var newX = targetedPosition.X + offset.X;
 			var newY = targetedPosition.Y + offset.Y;
-			list.Add(new MapPosition(newX, newY, team));
+			if (this.ValidatePosition (mapSize, newX, newY)) {
+				list.Add(new MapPosition(newX, newY, team));
+			}
 		}
 		return list;
+	}
+
+	private bool ValidatePosition(Vector2 mapSize, int x, int y)
+	{
+		return (x >= 0 && y >= 0 && x < mapSize.x && y < mapSize.y);
 	}
 }
