@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class AnimationService
+public class AnimationHelper
 {
     public static IEnumerator MoveToPosition(Transform transformToMove, Vector3 destination, float duration, float completion = 1f)
     {

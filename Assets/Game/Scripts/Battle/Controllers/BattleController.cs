@@ -119,7 +119,7 @@ public class BattleController : MonoBehaviour
     {
         if (tile != null)
         {
-            var character = team == Const.Team.Player ? CharacterStats.Fighter() : CharacterStats.Slime();
+            var character = team == Const.Team.Player ? Character.Fighter() : Character.Slime();
             var prefab = Resources.Load(character.ModelPath) as GameObject;
 
             var position = tile.transform.position;

@@ -42,7 +42,7 @@ public class BattleUnitController : MonoBehaviour
 		var completion = distanceActual / distance;
 		var moveDuration = distanceActual / speed;
 
-		yield return StartCoroutine(AnimationService.MoveToPosition(this.transform, destination, moveDuration, completion));
+		yield return StartCoroutine(AnimationHelper.MoveToPosition(this.transform, destination, moveDuration, completion));
     }
 
 	public virtual IEnumerator MoveToAttackPosition(BattleUnitController targetedUnit, Vector3 targetPosition)
