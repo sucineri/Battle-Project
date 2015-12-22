@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 
-[RequireComponent (typeof(Text))]
+[RequireComponent(typeof(Text))]
 public class DamageText : MonoBehaviour
 {
 
@@ -17,7 +17,7 @@ public class DamageText : MonoBehaviour
 
     public void ShowDamage(double damage)
     {
-		label.text = damage.ToString("F0");
+        label.text = damage.ToString("F0");
         StartCoroutine(this.AnimateText());
     }
 
