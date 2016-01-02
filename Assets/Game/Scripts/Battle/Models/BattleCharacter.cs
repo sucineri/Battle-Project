@@ -27,6 +27,8 @@ public class BattleCharacter
 
     public MapPosition OccupiedMapPositions { get; set; }
 
+    public Skill SelectedSkill { get; set; }
+
     public string Name
     {
         get

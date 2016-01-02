@@ -30,8 +30,6 @@ public class BattleModel
 
     public List<MapPosition> CurrentMovablePositions { get; private set; }
 
-    public Skill CurrentSelectedSkill { get; private set; }
-
     public BattlePhase CurrentPhase { get; private set; }
 
     public Vector2 MapSize { get; private set; }
@@ -113,10 +111,10 @@ public class BattleModel
     {
         if (this.CurrentActor != null)
         {
-            var skills = this.CurrentActor.BaseCharacter.Skills;
-            this.CurrentSelectedSkill = skills.ElementAt(skillIndex);
-            if (this.CurrentSelectedSkill != null)
+            var skill = this.CurrentActor.BaseCharacter.Skills.ElementAt(skillIndex);
+            if (skill != null)
             {
+                this.CurrentActor.SelectedSkill = skill;
                 this.ChangePhase(BattlePhase.TargetSelect);
             }
         }
@@ -124,11 +122,8 @@ public class BattleModel
 
     public void CancelLastSelection()
     {
-        if (this.CurrentSelectedSkill != null)
-        {
-            this.CurrentSelectedSkill = null;
-            this.ChangePhase(BattlePhase.ActionSelect);
-        }
+        // TODO: this might require some major refactoring to know what the previous action was
+        this.ChangePhase(BattlePhase.ActionSelect);
     }
 
     public void CurrentCharacterMoveAction(MapPosition targetPosition)
@@ -148,9 +143,10 @@ public class BattleModel
 
     public void CurrentCharacterSkillAction(MapPosition targetPosition)
     {
-        if (this.CurrentSelectedSkill != null)
+        if(this.CurrentActor != null && this.CurrentActor.SelectedSkill != null)
         {
-            var affectedPositions = ServiceFactory.GetMapService().GeAffectedMapPositions(this.CurrentSelectedSkill.SkillTarget.Pattern, 
+            var selectedSkill = this.CurrentActor.SelectedSkill;
+            var affectedPositions = ServiceFactory.GetMapService().GeAffectedMapPositions(selectedSkill.SkillTarget.Pattern, 
                                this._mapTiles, targetPosition, this.MapSize);
 
             var affectedCharacters = ServiceFactory.GetBattleService().GetAffectdCharacters(this._battleCharactersPositions, affectedPositions);
@@ -159,7 +155,7 @@ public class BattleModel
             {
                 this.SetTileStateAtPositions(affectedPositions, Tile.TileState.SkillHighlight, true);
 
-                var action = new BattleAction(this.CurrentActor, Const.ActionType.Skill, Const.TargetType.Tile, targetPosition, this.CurrentSelectedSkill);
+                var action = new BattleAction(this.CurrentActor, Const.ActionType.Skill, Const.TargetType.Tile, targetPosition, selectedSkill);
                 var actionQueue = new Queue<BattleAction>();
                 actionQueue.Enqueue(action);
                 var outcomeQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharactersPositions, this.MapSize);
@@ -177,6 +173,11 @@ public class BattleModel
 
     private void NextRound()
     {
+        if (this.CurrentActor != null)
+        {
+            this.CurrentActor.SelectedSkill = null;
+        }
+
         this.SetTileStateAtPositions(this.CurrentMovablePositions, Tile.TileState.MovementHighlight, false);
 
         if (this.AllCharactersDefeated(Const.Team.Enemy))

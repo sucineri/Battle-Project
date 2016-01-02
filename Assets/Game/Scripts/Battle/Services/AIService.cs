@@ -39,6 +39,7 @@ public class AIService
         var targetPosition = targetCharacter.OccupiedMapPositions;
 
         var randomSkill = this.GetRandomElement<Skill>(actor.BaseCharacter.Skills);
+        actor.SelectedSkill = randomSkill;
         return new BattleAction(actor, Const.ActionType.Skill, Const.TargetType.Tile, targetPosition, randomSkill);
     }
 

@@ -109,7 +109,7 @@ public class BattleController : MonoBehaviour
 
     private IEnumerator ProcessSkillOutcome(BattleActionOutcome outcome)
     {
-        yield return StartCoroutine(this._battleView.PlaySkillAnimation(this._battleModel.CurrentSelectedSkill, outcome));
+        yield return StartCoroutine(this._battleView.PlaySkillAnimation(this._battleModel.CurrentActor.SelectedSkill, outcome));
     }
 
     private void OnBattlePhaseChange(BattleModel.BattlePhase battlePhase)
