@@ -32,8 +32,6 @@ public class BattleModel
 
     public BattlePhase CurrentPhase { get; private set; }
 
-    public Vector2 MapSize { get; private set; }
-
     public List<BattleCharacter> AllBattleCharacters
     {
         get
@@ -70,7 +68,6 @@ public class BattleModel
     {
         this.CreateBattleGrid(numberOfRows, numberOfColumns, Const.Team.Player);
         this.CreateBattleGrid(numberOfRows, numberOfColumns, Const.Team.Enemy);
-        this.MapSize = new Vector2(numberOfColumns, numberOfRows);
     }
 
     public void SpawnCharactersOnMap()
@@ -135,7 +132,7 @@ public class BattleModel
                 var action = new BattleAction(this.CurrentActor, Const.ActionType.Movement, Const.TargetType.Tile, targetPosition, null);
                 var actionQueue = new Queue<BattleAction>();
                 actionQueue.Enqueue(action);
-                var outcomeQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharactersPositions, this.MapSize);
+                var outcomeQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharactersPositions);
                 this.ProcessOutcome(outcomeQueue, BattlePhase.ActionSelect);
             }
         }
@@ -147,7 +144,7 @@ public class BattleModel
         {
             var selectedSkill = this.CurrentActor.SelectedSkill;
             var affectedPositions = ServiceFactory.GetMapService().GeAffectedMapPositions(selectedSkill.SkillTarget.Pattern, 
-                               this._mapTiles, targetPosition, this.MapSize);
+                               this._mapTiles, targetPosition);
 
             var affectedCharacters = ServiceFactory.GetBattleService().GetAffectdCharacters(this._battleCharactersPositions, affectedPositions);
 
@@ -158,7 +155,7 @@ public class BattleModel
                 var action = new BattleAction(this.CurrentActor, Const.ActionType.Skill, Const.TargetType.Tile, targetPosition, selectedSkill);
                 var actionQueue = new Queue<BattleAction>();
                 actionQueue.Enqueue(action);
-                var outcomeQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharactersPositions, this.MapSize);
+                var outcomeQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharactersPositions);
                 this.ProcessOutcome(outcomeQueue, BattlePhase.NextRound, () =>{
                     this.SetTileStateAtPositions(affectedPositions, Tile.TileState.SkillHighlight, false);
                 });
@@ -275,7 +272,7 @@ public class BattleModel
     private void RunAI(BattleCharacter actor)
     {
         var actionQueue = ServiceFactory.GetAIService().RunAI(actor, this._mapTiles, this._battleCharactersPositions);
-        var outcomeQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharactersPositions, this.MapSize);
+        var outcomeQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharactersPositions);
 
         this.ProcessOutcome(outcomeQueue, BattlePhase.NextRound);
     }

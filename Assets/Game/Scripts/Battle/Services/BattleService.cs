@@ -31,15 +31,14 @@ public class BattleService
         }
         return null;
     }
-
-    //TODO : i don't like this mapsize thing
-    public Queue<BattleActionOutcome> ProcessActionQueue(Queue<BattleAction> actionQueue, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters, Vector2 mapSize)
+        
+    public Queue<BattleActionOutcome> ProcessActionQueue(Queue<BattleAction> actionQueue, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
     {
         var outcomeQueue = new Queue<BattleActionOutcome>();
         while (actionQueue.Count > 0)
         {
             var action = actionQueue.Dequeue();
-            var outcome = this.ProcessAction(action, map, characters, mapSize);
+            var outcome = this.ProcessAction(action, map, characters);
             if (outcome != null)
             {
                 outcomeQueue.Enqueue(outcome);
@@ -48,14 +47,14 @@ public class BattleService
         return outcomeQueue;
     }
 
-    private BattleActionOutcome ProcessAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters, Vector2 mapSize)
+    private BattleActionOutcome ProcessAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
     {
         switch (action.ActionType)
         {
             case Const.ActionType.Movement:
                 return this.ProcessMovementAction(action, map, characters);
             case Const.ActionType.Skill:
-                return this.ProcessSkillAction(action, map, characters, mapSize);
+                return this.ProcessSkillAction(action, map, characters);
             default:
                 return null;
         }
@@ -84,15 +83,14 @@ public class BattleService
 
         return outcome;
     }
-
-    // TODO: i don't like this map size thing
-    private BattleActionOutcome ProcessSkillAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters, Vector2 mapSize)
+        
+    private BattleActionOutcome ProcessSkillAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
     {
         Debug.LogWarning(action.Actor.Name + " uses " + action.SelectedSkill.Name);
 
         var actor = action.Actor;
         var skill = action.SelectedSkill;
-        var affectedPositions = ServiceFactory.GetMapService().GeAffectedMapPositions(skill.SkillTarget.Pattern, map, action.TargetPosition, mapSize);
+        var affectedPositions = ServiceFactory.GetMapService().GeAffectedMapPositions(skill.SkillTarget.Pattern, map, action.TargetPosition);
         var affectedCharacters = this.GetAffectdCharacters(characters, affectedPositions);
 
         var outcome = new BattleActionOutcome();
