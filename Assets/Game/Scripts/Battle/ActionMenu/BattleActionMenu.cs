@@ -56,7 +56,7 @@ public class BattleActionMenu : MonoBehaviour
 
     private void OnSkillSelect(int skillIndex)
     {
-        this._battleModel.SelecteSkill(skillIndex);
+        this._battleModel.SelectSkill(skillIndex);
     }
 
     private MenuItem CreateMenuItem()

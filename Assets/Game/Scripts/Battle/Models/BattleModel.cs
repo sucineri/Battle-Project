@@ -16,7 +16,7 @@ public class BattleModel
     }
 
     private Dictionary<MapPosition, Tile> _mapTiles = new Dictionary<MapPosition, Tile>();
-    private Dictionary<BattleCharacter, MapPosition> _battleCharactersPositions = new Dictionary<BattleCharacter, MapPosition>();
+    private List<BattleCharacter> _battleCharactersPositions = new List<BattleCharacter>();
 
     public event Action<MapPosition, Tile> onTileCreated;
     public event Action<MapPosition, BattleCharacter> onBattleCharacterCreated;
@@ -40,7 +40,7 @@ public class BattleModel
     {
         get
         {
-            return this._battleCharactersPositions.Keys.ToList();
+            return new List<BattleCharacter>(this._battleCharactersPositions);
         }
     }
 
@@ -99,7 +99,9 @@ public class BattleModel
             ServiceFactory.GetTurnOrderService().AssignDefaultTurnOrderWeight(battleCharacter);
             battleCharacter.Postfix = ServiceFactory.GetUnitNameService().GetPostfix(battleCharacter.BaseCharacter.Name);
 
-            this._battleCharactersPositions.Add(battleCharacter, position);
+            battleCharacter.OccupiedMapPositions = position;
+
+            this._battleCharactersPositions.Add(battleCharacter);
             if (this.onBattleCharacterCreated != null)
             {
                 this.onBattleCharacterCreated(position, battleCharacter);
@@ -107,13 +109,13 @@ public class BattleModel
         }
     }
 
-    public void SelecteSkill(int skillIndex)
+    public void SelectSkill(int skillIndex)
     {
         if (this.CurrentActor != null)
         {
             var skills = this.CurrentActor.BaseCharacter.Skills;
-            CurrentSelectedSkill = skills.ElementAt(skillIndex);
-            if (CurrentSelectedSkill != null)
+            this.CurrentSelectedSkill = skills.ElementAt(skillIndex);
+            if (this.CurrentSelectedSkill != null)
             {
                 this.ChangePhase(BattlePhase.TargetSelect);
             }

@@ -25,6 +25,8 @@ public class BattleCharacter
 
     public char Postfix { get; set; }
 
+    public MapPosition OccupiedMapPositions { get; set; }
+
     public string Name
     {
         get

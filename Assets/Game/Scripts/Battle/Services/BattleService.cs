@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class BattleService
 {
 
-    public List<BattleCharacter> GetAffectdCharacters(Dictionary<BattleCharacter, MapPosition> characters, List<MapPosition> affectedPositions)
+    public List<BattleCharacter> GetAffectdCharacters(List<BattleCharacter> characters, List<MapPosition> affectedPositions)
     {
         List<BattleCharacter> affectedCharacters = new List<BattleCharacter>();
         foreach (var position in affectedPositions)
@@ -20,20 +20,20 @@ public class BattleService
         return affectedCharacters;
     }
 
-    public BattleCharacter GetCharacterAtPosition(Dictionary<BattleCharacter, MapPosition> characters, MapPosition targetPosition)
+    public BattleCharacter GetCharacterAtPosition(List<BattleCharacter> characters, MapPosition targetPosition)
     {
-        foreach (var kv in characters)
+        foreach (var character in characters)
         {
-            if (kv.Value.Equals(targetPosition))
+            if (character.OccupiedMapPositions.Equals(targetPosition))
             {
-                return kv.Key;
+                return character;
             }
         }
         return null;
     }
 
     //TODO : i don't like this mapsize thing
-    public Queue<BattleActionOutcome> ProcessActionQueue(Queue<BattleAction> actionQueue, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters, Vector2 mapSize)
+    public Queue<BattleActionOutcome> ProcessActionQueue(Queue<BattleAction> actionQueue, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters, Vector2 mapSize)
     {
         var outcomeQueue = new Queue<BattleActionOutcome>();
         while (actionQueue.Count > 0)
@@ -48,7 +48,7 @@ public class BattleService
         return outcomeQueue;
     }
 
-    private BattleActionOutcome ProcessAction(BattleAction action, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters, Vector2 mapSize)
+    private BattleActionOutcome ProcessAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters, Vector2 mapSize)
     {
         switch (action.ActionType)
         {
@@ -61,7 +61,7 @@ public class BattleService
         }
     }
 
-    private BattleActionOutcome ProcessMovementAction(BattleAction action, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters)
+    private BattleActionOutcome ProcessMovementAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
     {
         var actor = action.Actor;
         var moveTo = action.TargetPosition;
@@ -69,7 +69,7 @@ public class BattleService
         Debug.LogWarning(actor.Name + " moves to " + moveTo.ToString());
 
         // update character position
-        characters[actor] = moveTo;
+        actor.OccupiedMapPositions = moveTo;
 
         var outcome = new BattleActionOutcome();
         outcome.type = Const.ActionType.Movement;
@@ -86,7 +86,7 @@ public class BattleService
     }
 
     // TODO: i don't like this map size thing
-    private BattleActionOutcome ProcessSkillAction(BattleAction action, Dictionary<MapPosition, Tile> map, Dictionary<BattleCharacter, MapPosition> characters, Vector2 mapSize)
+    private BattleActionOutcome ProcessSkillAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters, Vector2 mapSize)
     {
         Debug.LogWarning(action.Actor.Name + " uses " + action.SelectedSkill.Name);
 
