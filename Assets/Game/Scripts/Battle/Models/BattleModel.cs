@@ -94,12 +94,17 @@ public class BattleModel
             ServiceFactory.GetTurnOrderService().AssignDefaultTurnOrderWeight(battleCharacter);
             battleCharacter.Postfix = ServiceFactory.GetUnitNameService().GetPostfix(battleCharacter.BaseCharacter.Name);
 
-            battleCharacter.OccupiedMapPositions = position;
-
-            this._battleCharactersPositions.Add(battleCharacter);
-            if (this.onBattleCharacterCreated != null)
+            var tilesCharacterNeeds = ServiceFactory.GetMapService().GeMapPositionsForPattern(battleCharacter.BaseCharacter.Shape, this._mapTiles, position);
+           
+            if (tilesCharacterNeeds.Count == battleCharacter.BaseCharacter.Shape.Count)
             {
-                this.onBattleCharacterCreated(position, battleCharacter);
+                battleCharacter.OccupiedMapPositions = tilesCharacterNeeds;
+
+                this._battleCharactersPositions.Add(battleCharacter);
+                if (this.onBattleCharacterCreated != null)
+                {
+                    this.onBattleCharacterCreated(position, battleCharacter);
+                }
             }
         }
     }
@@ -143,7 +148,7 @@ public class BattleModel
         if(this.CurrentActor != null && this.CurrentActor.SelectedSkill != null)
         {
             var selectedSkill = this.CurrentActor.SelectedSkill;
-            var affectedPositions = ServiceFactory.GetMapService().GeAffectedMapPositions(selectedSkill.SkillTarget.Pattern, 
+            var affectedPositions = ServiceFactory.GetMapService().GeMapPositionsForPattern(selectedSkill.SkillTarget.Pattern, 
                                this._mapTiles, targetPosition);
 
             var affectedCharacters = ServiceFactory.GetBattleService().GetAffectdCharacters(this._battleCharactersPositions, affectedPositions);

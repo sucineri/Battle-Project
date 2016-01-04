@@ -7,7 +7,7 @@ public class MapService
 {
     public List<MapPosition> GetMovablePositions(BattleCharacter actor, List<BattleCharacter> allCharacters, Dictionary<MapPosition, Tile> map)
     {
-        var actorPosition = actor.OccupiedMapPositions;
+        var actorPosition = actor.OccupiedMapPositions[0];
         var movement = actor.BaseCharacter.Movement;
 
         var occupiedPositions = new List<MapPosition>();
@@ -15,7 +15,7 @@ public class MapService
         {
             if (character != actor)
             {
-                occupiedPositions.Add(character.OccupiedMapPositions);
+                occupiedPositions.AddRange(character.OccupiedMapPositions);
             }
         }
 
@@ -23,7 +23,7 @@ public class MapService
         return list;
     }
 
-    public List<MapPosition> GeAffectedMapPositions(List<Cordinate> pattern, Dictionary<MapPosition, Tile> map, MapPosition targetedPosition)
+    public List<MapPosition> GeMapPositionsForPattern(List<Cordinate> pattern, Dictionary<MapPosition, Tile> map, MapPosition targetedPosition)
     {
         var list = new List<MapPosition>();
         var team = targetedPosition.Team;

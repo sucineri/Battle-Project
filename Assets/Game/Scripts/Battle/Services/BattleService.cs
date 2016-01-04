@@ -24,7 +24,7 @@ public class BattleService
     {
         foreach (var character in characters)
         {
-            if (character.OccupiedMapPositions.Equals(targetPosition))
+            if (character.OccupiedMapPositions.Contains(targetPosition))
             {
                 return character;
             }
@@ -67,8 +67,10 @@ public class BattleService
 
         Debug.LogWarning(actor.Name + " moves to " + moveTo.ToString());
 
+        var newOccupiedPositions = ServiceFactory.GetMapService().GeMapPositionsForPattern(actor.BaseCharacter.Shape, map, moveTo);
+
         // update character position
-        actor.OccupiedMapPositions = moveTo;
+        actor.OccupiedMapPositions = newOccupiedPositions;
 
         var outcome = new BattleActionOutcome();
         outcome.type = Const.ActionType.Movement;
@@ -90,7 +92,7 @@ public class BattleService
 
         var actor = action.Actor;
         var skill = action.SelectedSkill;
-        var affectedPositions = ServiceFactory.GetMapService().GeAffectedMapPositions(skill.SkillTarget.Pattern, map, action.TargetPosition);
+        var affectedPositions = ServiceFactory.GetMapService().GeMapPositionsForPattern(skill.SkillTarget.Pattern, map, action.TargetPosition);
         var affectedCharacters = this.GetAffectdCharacters(characters, affectedPositions);
 
         var outcome = new BattleActionOutcome();

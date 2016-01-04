@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class BattleCharacter
 {
@@ -25,7 +26,7 @@ public class BattleCharacter
 
     public char Postfix { get; set; }
 
-    public MapPosition OccupiedMapPositions { get; set; }
+    public List<MapPosition> OccupiedMapPositions { get; set; }
 
     public Skill SelectedSkill { get; set; }
 

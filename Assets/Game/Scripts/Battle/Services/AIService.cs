@@ -36,7 +36,7 @@ public class AIService
         }
 
         var targetCharacter = this.GetRandomElement<BattleCharacter>(allOpponents);
-        var targetPosition = targetCharacter.OccupiedMapPositions;
+        var targetPosition = targetCharacter.OccupiedMapPositions[0];
 
         var randomSkill = this.GetRandomElement<Skill>(actor.BaseCharacter.Skills);
         actor.SelectedSkill = randomSkill;

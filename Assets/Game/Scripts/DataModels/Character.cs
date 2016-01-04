@@ -32,6 +32,8 @@ public class Character
 
     public List<Skill> Skills = new List<Skill>();
 
+    public List<Cordinate> Shape { get; set; }
+
     protected Character()
     {
     }
@@ -55,6 +57,10 @@ public class Character
         character.Skills.Add(Skill.MeleeAttack());
         character.Skills.Add(Skill.CrossSlash());
         character.Movement = 2;
+
+        character.Shape = new List<Cordinate>();
+        character.Shape.Add(new Cordinate(0, 0));
+
         return character;
     }
 
@@ -76,6 +82,10 @@ public class Character
         character.SizeOffset = 1.5f;
         character.Skills.Add(Skill.MeleeAttack());
         character.Movement = 2;
+
+        character.Shape = new List<Cordinate>();
+        character.Shape.Add(new Cordinate(0, 0));
+
         return character;
     }
 }
