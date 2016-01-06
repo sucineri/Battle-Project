@@ -24,4 +24,16 @@ public class MapLayout
         layout.positions.Add(new MapPosition(1, 3, Const.Team.Enemy));
         return layout;
     }
+
+    public static MapLayout BossLayout()
+    {
+        var layout = new MapLayout();
+        layout.positions.Add(new MapPosition(1, 0, Const.Team.Player));
+        layout.positions.Add(new MapPosition(0, 1, Const.Team.Player));
+        layout.positions.Add(new MapPosition(0, 2, Const.Team.Player));
+        layout.positions.Add(new MapPosition(2, 3, Const.Team.Player));
+
+        layout.positions.Add(new MapPosition(1, 1, Const.Team.Enemy));
+        return layout;
+    }
 }

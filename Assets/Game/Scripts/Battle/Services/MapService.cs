@@ -7,9 +7,6 @@ public class MapService
 {
     public List<MapPosition> GetMovablePositions(BattleCharacter actor, List<BattleCharacter> allCharacters, Dictionary<MapPosition, Tile> map)
     {
-        var actorPosition = actor.OccupiedMapPositions[0];
-        var movement = actor.BaseCharacter.Movement;
-
         var occupiedPositions = new List<MapPosition>();
         foreach (var character in allCharacters)
         {
@@ -19,8 +16,30 @@ public class MapService
             }
         }
 
-        var list = map.Keys.ToList().FindAll(x => x.Team == actor.Team && x.GetDistance(actorPosition) <= movement && !occupiedPositions.Contains(x));
-        return list;
+        var unOccupiedPositions = map.Keys.ToList().Except(occupiedPositions);
+
+        var moveableTiles = new List<MapPosition>();
+        foreach (var availablePosition in unOccupiedPositions)
+        {
+            if (this.CanCharacterMoveToPosition(actor, availablePosition, occupiedPositions, map))
+            {
+                moveableTiles.Add(availablePosition);
+            }
+        }
+
+        return moveableTiles;
+    }
+
+    public bool CanCharacterMoveToPosition(BattleCharacter actor, MapPosition position, List<MapPosition> occupiedPositions, Dictionary<MapPosition, Tile> map)
+    {
+        var movement = actor.BaseCharacter.Movement;
+        var actorPosition = actor.OccupiedMapPositions[0];
+        if (position.Team == actor.Team && actorPosition.GetDistance(position) <= movement)
+        {
+            var tilesRequired = this.GeMapPositionsForPattern(actor.BaseCharacter.Shape, map, position);
+            return (tilesRequired.Count == actor.BaseCharacter.Shape.Count) && (occupiedPositions.Intersect(tilesRequired).ToList().Count == 0);
+        }
+        return false;
     }
 
     public List<MapPosition> GeMapPositionsForPattern(List<Cordinate> pattern, Dictionary<MapPosition, Tile> map, MapPosition targetedPosition)

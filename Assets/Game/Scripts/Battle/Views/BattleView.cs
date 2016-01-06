@@ -18,12 +18,15 @@ public class BattleView : MonoBehaviour
         }
     }
 
-    public IEnumerator MoveUnitToTile(BattleCharacter character, TileController targetTile)
+    public IEnumerator MoveUnitToMapPosition(BattleCharacter character, List<MapPosition> occupiedPositions)
     {
+        var occupiedTiles = this.GetTiles(occupiedPositions);
+        var targetPosition = this.GetCenterPosition(occupiedTiles);
+
         var unitController = this._battleUnits[character];
         if (unitController != null)
         {
-            yield return StartCoroutine(unitController.MoveToTile(targetTile));
+            yield return StartCoroutine(unitController.MoveToPosition(targetPosition));
         }
     }
 
@@ -43,9 +46,10 @@ public class BattleView : MonoBehaviour
         tile.onStateChange += controller.OnTileStateChange;
     }
 
-    public void SpawnUnitOnTile(BattleCharacter character, TileController tile)
+    public void SpawnUnit(BattleCharacter character)
     {
-        var position = tile.transform.position;
+        var tiles = this.GetTiles(character.OccupiedMapPositions);
+        var position = this.GetCenterPosition(tiles);
         var battleUnit = BattleUnitFactory.CreateBattleUnit(character);
         battleUnit.transform.position = position;
 
@@ -69,5 +73,44 @@ public class BattleView : MonoBehaviour
             yield return StartCoroutine(skillController.PlaySkillSequence(actorController, this, outcome));
         }
         yield return null;
+    }
+   
+    private List<TileController> GetTiles(List<MapPosition> positions)
+    {
+        var tiles = new List<TileController>();
+        foreach (var position in positions)
+        {
+            tiles.Add(this.GetTileAtMapPosition(position));
+        }
+        return tiles;
+    }
+
+    private Vector3 GetCenterPosition(List<TileController> tiles)
+    {
+        var minX = float.MaxValue;
+        var minY = float.MaxValue;
+        var minZ = float.MaxValue;
+        var maxX = float.MinValue;
+        var maxY = float.MinValue;
+        var maxZ = float.MinValue;
+
+        foreach (var tileController in tiles)
+        {
+            var position = tileController.transform.position;
+
+            minX = Mathf.Min(minX, position.x);
+            minY = Mathf.Min(minY, position.y);
+            minZ = Mathf.Min(minZ, position.z);
+            maxX = Mathf.Max(maxX, position.x);
+            maxY = Mathf.Max(maxY, position.y);
+            maxZ = Mathf.Max(maxZ, position.z);
+        }
+
+        var minPosition = new Vector3(minX, minY, minZ);
+        var maxPosition = new Vector3(maxX, maxY, maxZ);
+
+        var centerPosition = Vector3.Lerp(minPosition, maxPosition, 0.5f);
+
+        return centerPosition;
     }
 }

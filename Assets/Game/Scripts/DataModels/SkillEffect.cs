@@ -23,4 +23,11 @@ public class SkillEffect
         skillEffect.StatsModifiers = new BasicStats(0d, 0d, 2d, 0d, 0d, 0d);
         return skillEffect;
     }
+
+    public static SkillEffect SquashEffect()
+    {
+        var skillEffect = new SkillEffect();
+        skillEffect.StatsModifiers = new BasicStats(0d, 0d, 0.3d, 0d, 0d, 0d);
+        return skillEffect;
+    }
 }

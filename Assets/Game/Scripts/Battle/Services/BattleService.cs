@@ -2,13 +2,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class BattleService
 {
 
     public List<BattleCharacter> GetAffectdCharacters(List<BattleCharacter> characters, List<MapPosition> affectedPositions)
     {
-        List<BattleCharacter> affectedCharacters = new List<BattleCharacter>();
+        HashSet<BattleCharacter> affectedCharacters = new HashSet<BattleCharacter>();
         foreach (var position in affectedPositions)
         {
             var characterAtPosition = this.GetCharacterAtPosition(characters, position);
@@ -17,7 +18,7 @@ public class BattleService
                 affectedCharacters.Add(characterAtPosition);
             }
         }
-        return affectedCharacters;
+        return affectedCharacters.ToList();
     }
 
     public BattleCharacter GetCharacterAtPosition(List<BattleCharacter> characters, MapPosition targetPosition)

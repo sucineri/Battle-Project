@@ -67,6 +67,8 @@ public class SkillController: MonoBehaviour
         }
 
         yield return StartCoroutine(actor.ReturnToPosition(actorOrigPosition));
+
+        Destroy(this.gameObject);
     }
 
     protected IEnumerator PlayTargetOutcome(BattleUnitController unit, BattleActionOutcome.OutcomePerTarget targetOutcome)

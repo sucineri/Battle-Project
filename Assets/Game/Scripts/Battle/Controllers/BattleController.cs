@@ -54,11 +54,9 @@ public class BattleController : MonoBehaviour
         }
     }
 
-    private void OnCreateBattleUnit(MapPosition mapPosition, BattleCharacter character)
+    private void OnCreateBattleUnit(BattleCharacter character)
     {
-        var mapTile = this._battleView.GetTileAtMapPosition(mapPosition);
-
-        this._battleView.SpawnUnitOnTile(character, mapTile);
+        this._battleView.SpawnUnit(character);
     }
 
     private void ProcessOutcomeQueue(Queue<BattleActionOutcome> outcomeQueue, Action callback)
@@ -100,11 +98,10 @@ public class BattleController : MonoBehaviour
     {
         var movementOutcome = outcome.actorOutcome;
         var actor = movementOutcome.target;
-        var tile = this._battleView.GetTileAtMapPosition(movementOutcome.positionChangeTo);
-        if (tile != null)
-        {
-            yield return StartCoroutine(this._battleView.MoveUnitToTile(actor, tile));
-        }
+
+        var occupiedPositions = this._battleModel.GetMapPositionsForPattern(actor.BaseCharacter.Shape, movementOutcome.positionChangeTo);
+
+        yield return StartCoroutine(this._battleView.MoveUnitToMapPosition(actor, occupiedPositions));
     }
 
     private IEnumerator ProcessSkillOutcome(BattleActionOutcome outcome)
@@ -118,29 +115,6 @@ public class BattleController : MonoBehaviour
         {
             default:
                 break;
-        }
-    }
-
-    private void CreateUnitOnTile(Const.Team team, TileController tile)
-    {
-        if (tile != null)
-        {
-            var character = team == Const.Team.Player ? Character.Fighter() : Character.Slime();
-            var prefab = Resources.Load(character.ModelPath) as GameObject;
-
-            var position = tile.transform.position;
-            var unit = Instantiate(prefab) as GameObject;
-
-            unit.transform.position = position;
-            if (team == Const.Team.Enemy)
-            {
-                unit.transform.Rotate(new Vector3(0f, 180f, 0f));
-            }
-            unit.transform.SetParent(this.transform);
-
-            var unitController = unit.GetComponent<BattleUnitController>();
-
-            unitController.gameObject.name = character.Name;
         }
     }
 

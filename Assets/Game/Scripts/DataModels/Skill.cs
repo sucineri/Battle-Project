@@ -44,4 +44,16 @@ public class Skill
         skill.SkillTarget = Targetting.CrossOpponentTarget();
         return skill;
     }
+
+    public static Skill Squash()
+    {
+        var skill = new Skill();
+        skill.Name = "Squash";
+        skill.Effects.Add(SkillEffect.SquashEffect());
+        skill.NumberOfTriggers = 1;
+        skill.PrefabPath = "Skills/Squash";
+        skill.EffectPrefabPath = "Effects/Explosion";
+        skill.SkillTarget = Targetting.SquashTarget();
+        return skill;
+    }
 }

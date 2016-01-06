@@ -33,7 +33,7 @@ public class BattleUnitController : MonoBehaviour
         return this.attackDistanceOffset + targetBodySizeOffset;
     }
 
-    public virtual IEnumerator MoveToPosition(Vector3 destination, float speed, float distanceOffset = 0f)
+    public virtual IEnumerator MoveToPositionWithOffset(Vector3 destination, float speed, float distanceOffset)
     {
         this.transform.LookAt(destination);
         this.characterView.CurrentAnimationState = BattleCharacterView.AnimationState.Walk;
@@ -49,12 +49,12 @@ public class BattleUnitController : MonoBehaviour
     public virtual IEnumerator MoveToAttackPosition(BattleUnitController targetedUnit, Vector3 targetPosition)
     {
         var offset = this.GetAttackPositionOffset(targetedUnit);
-        yield return StartCoroutine(this.MoveToPosition(targetPosition, this.attackMovementSpeed, offset));
+        yield return StartCoroutine(this.MoveToPositionWithOffset(targetPosition, this.attackMovementSpeed, offset));
     }
 
     public virtual IEnumerator ReturnToPosition(Vector3 originalPosition)
     {
-        yield return StartCoroutine(this.MoveToPosition(originalPosition, this.attackMovementSpeed, 0));
+        yield return StartCoroutine(this.MoveToPositionWithOffset(originalPosition, this.attackMovementSpeed, 0));
         this.DefaultStance();
     }
 
@@ -63,9 +63,9 @@ public class BattleUnitController : MonoBehaviour
         yield return StartCoroutine(this.characterView.PlayAttackAnimation());
     }
 
-    public virtual IEnumerator MoveToTile(TileController tile)
+    public virtual IEnumerator MoveToPosition(Vector3 position)
     {
-        yield return StartCoroutine(this.MoveToPosition(tile.transform.position, this.regularMovementSpeed));
+        yield return StartCoroutine(this.MoveToPositionWithOffset(position, this.regularMovementSpeed, 0));
         this.DefaultStance();
     }
 

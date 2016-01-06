@@ -88,4 +88,33 @@ public class Character
 
         return character;
     }
+
+    public static Character SlimeKing()
+    {
+        var random = new System.Random();
+        var character = new Character();
+        var maxHp = random.Next(5000, 7000);
+        var maxMp = random.Next(1000, 1500);
+        var atk = random.Next(1000, 1500);
+        var def = random.Next(200, 250);
+        var agi = random.Next(50, 100);
+        var wis = random.Next(200, 250);
+        character.Name = "Slime King";
+        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis);
+        character.PortraitPath = "Characters/SlimeKing/portrait";
+        character.ModelPath = "Characters/SlimeKing/model";
+        character.AttackDistance = 2.5f;
+        character.SizeOffset = 1.5f;
+        character.Skills.Add(Skill.MeleeAttack());
+        character.Skills.Add(Skill.Squash());
+        character.Movement = 2;
+
+        character.Shape = new List<Cordinate>();
+        character.Shape.Add(new Cordinate(0, 0));
+        character.Shape.Add(new Cordinate(1, 0));
+        character.Shape.Add(new Cordinate(0, -1));
+        character.Shape.Add(new Cordinate(1, -1));
+
+        return character;
+    }
 }

@@ -19,7 +19,7 @@ public class BattleModel
     private List<BattleCharacter> _battleCharactersPositions = new List<BattleCharacter>();
 
     public event Action<MapPosition, Tile> onTileCreated;
-    public event Action<MapPosition, BattleCharacter> onBattleCharacterCreated;
+    public event Action<BattleCharacter> onBattleCharacterCreated;
     public event Action<List<BattleCharacter>> onTurnOrderChanged;
     public event Action<BattleCharacter> onActorSelected;
     public event Action<Queue<BattleActionOutcome>, Action> onProcessOutcome;
@@ -73,13 +73,13 @@ public class BattleModel
     public void SpawnCharactersOnMap()
     {
         // TODO: real character data
-        var layout = MapLayout.GetDefaultLayout();
+        var layout = MapLayout.BossLayout();
         var enemyCount = 0;
         var playerCount = 0;
         foreach (var position in layout.positions)
         {
             var team = position.Team;
-            var character = team == Const.Team.Player ? Character.Fighter() : Character.Slime();
+            var character = team == Const.Team.Player ? Character.Fighter() : Character.SlimeKing();
             var battleCharacter = new BattleCharacter(character, team);
 
             if (team == Const.Team.Enemy)
@@ -94,16 +94,16 @@ public class BattleModel
             ServiceFactory.GetTurnOrderService().AssignDefaultTurnOrderWeight(battleCharacter);
             battleCharacter.Postfix = ServiceFactory.GetUnitNameService().GetPostfix(battleCharacter.BaseCharacter.Name);
 
-            var tilesCharacterNeeds = ServiceFactory.GetMapService().GeMapPositionsForPattern(battleCharacter.BaseCharacter.Shape, this._mapTiles, position);
+            var tilesRequired = ServiceFactory.GetMapService().GeMapPositionsForPattern(battleCharacter.BaseCharacter.Shape, this._mapTiles, position);
            
-            if (tilesCharacterNeeds.Count == battleCharacter.BaseCharacter.Shape.Count)
+            if (tilesRequired.Count == battleCharacter.BaseCharacter.Shape.Count)
             {
-                battleCharacter.OccupiedMapPositions = tilesCharacterNeeds;
+                battleCharacter.OccupiedMapPositions = tilesRequired;
 
                 this._battleCharactersPositions.Add(battleCharacter);
                 if (this.onBattleCharacterCreated != null)
                 {
-                    this.onBattleCharacterCreated(position, battleCharacter);
+                    this.onBattleCharacterCreated(battleCharacter);
                 }
             }
         }
@@ -145,11 +145,11 @@ public class BattleModel
 
     public void CurrentCharacterSkillAction(MapPosition targetPosition)
     {
+        // TODO: consider moving affectedPositions and affectedCharacters into outcome. Calculate those in BattlerService
         if(this.CurrentActor != null && this.CurrentActor.SelectedSkill != null)
         {
             var selectedSkill = this.CurrentActor.SelectedSkill;
-            var affectedPositions = ServiceFactory.GetMapService().GeMapPositionsForPattern(selectedSkill.SkillTarget.Pattern, 
-                               this._mapTiles, targetPosition);
+            var affectedPositions = this.GetMapPositionsForPattern(selectedSkill.SkillTarget.Pattern, targetPosition);
 
             var affectedCharacters = ServiceFactory.GetBattleService().GetAffectdCharacters(this._battleCharactersPositions, affectedPositions);
 
@@ -166,6 +166,11 @@ public class BattleModel
                 });
             }
         }
+    }
+
+    public List<MapPosition> GetMapPositionsForPattern(List<Cordinate> pattern, MapPosition targetPosition)
+    {
+        return ServiceFactory.GetMapService().GeMapPositionsForPattern(pattern, this._mapTiles, targetPosition);
     }
 
     private bool AllCharactersDefeated(Const.Team team)
@@ -205,7 +210,8 @@ public class BattleModel
 
         if (this.CurrentActor.Team == Const.Team.Enemy)
         {
-            this.RunAI(this.CurrentActor);
+//            this.RunAI(this.CurrentActor);
+            this.ChangePhase(BattlePhase.ActionSelect);
         }
         else
         {
