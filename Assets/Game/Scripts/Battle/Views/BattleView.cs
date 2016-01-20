@@ -63,7 +63,7 @@ public class BattleView : MonoBehaviour
         this._battleUnits.Add(character, battleUnit);
     }
 
-    public IEnumerator PlaySkillAnimation(Skill skill, BattleActionOutcome outcome)
+    public IEnumerator PlaySkillAnimation(Skill skill, BattleActionResult outcome)
     {
         var skillController = SkillControllerFactory.CreateSkillController(skill);
         if (skillController != null)

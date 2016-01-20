@@ -23,6 +23,12 @@ public class Const
         Tile
     }
 
+    public enum TargetSearchRule
+    {
+        SelectedTarget,
+        Nearest
+    }
+
     public enum BasicStats
     {
         MaxHp,

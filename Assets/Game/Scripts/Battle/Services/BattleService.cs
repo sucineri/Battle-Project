@@ -7,7 +7,7 @@ using System.Linq;
 public class BattleService
 {
 
-    public List<BattleCharacter> GetAffectdCharacters(List<BattleCharacter> characters, List<MapPosition> affectedPositions)
+    public List<BattleCharacter> GetCharactersAtPositions(List<BattleCharacter> characters, List<MapPosition> affectedPositions)
     {
         HashSet<BattleCharacter> affectedCharacters = new HashSet<BattleCharacter>();
         foreach (var position in affectedPositions)
@@ -33,9 +33,9 @@ public class BattleService
         return null;
     }
         
-    public Queue<BattleActionOutcome> ProcessActionQueue(Queue<BattleAction> actionQueue, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
+    public Queue<BattleActionResult> ProcessActionQueue(Queue<BattleAction> actionQueue, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
     {
-        var outcomeQueue = new Queue<BattleActionOutcome>();
+        var outcomeQueue = new Queue<BattleActionResult>();
         while (actionQueue.Count > 0)
         {
             var action = actionQueue.Dequeue();
@@ -48,7 +48,7 @@ public class BattleService
         return outcomeQueue;
     }
 
-    private BattleActionOutcome ProcessAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
+    private BattleActionResult ProcessAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
     {
         switch (action.ActionType)
         {
@@ -61,7 +61,7 @@ public class BattleService
         }
     }
 
-    private BattleActionOutcome ProcessMovementAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
+    private BattleActionResult ProcessMovementAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
     {
         var actor = action.Actor;
         var moveTo = action.TargetPosition;
@@ -73,56 +73,141 @@ public class BattleService
         // update character position
         actor.OccupiedMapPositions = newOccupiedPositions;
 
-        var outcome = new BattleActionOutcome();
-        outcome.type = Const.ActionType.Movement;
-        outcome.targetPosition = moveTo;
-        outcome.targeteCharacter = actor;
+        var actionResult = new BattleActionResult();
+        actionResult.type = Const.ActionType.Movement;
+        actionResult.targetPosition = moveTo;
+        actionResult.targetCharacter = actor;
+        actionResult.actor = actor;
 
-        var movementOutcome = new BattleActionOutcome.OutcomePerTarget();
-        movementOutcome.target = actor;
-        movementOutcome.positionChangeTo = moveTo;
+        var movementEffect = new BattleActionResult.EffectOnTarget();
+        movementEffect.target = actor;
+        movementEffect.positionChangeTo = moveTo;
 
-        outcome.actorOutcome = movementOutcome;
+        var effectResult = new BattleActionResult.ActionEffectResult();
+        effectResult.AddEffectOnTarget(movementEffect);
 
-        return outcome;
+        actionResult.AddSkillEffectResult(effectResult);
+
+        return actionResult;
     }
         
-    private BattleActionOutcome ProcessSkillAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
+    private BattleActionResult ProcessSkillAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
     {
         Debug.LogWarning(action.Actor.Name + " uses " + action.SelectedSkill.Name);
 
         var actor = action.Actor;
         var skill = action.SelectedSkill;
-        var affectedPositions = ServiceFactory.GetMapService().GeMapPositionsForPattern(skill.SkillTarget.Pattern, map, action.TargetPosition);
-        var affectedCharacters = this.GetAffectdCharacters(characters, affectedPositions);
 
-        var outcome = new BattleActionOutcome();
-        outcome.type = Const.ActionType.Skill;
-        outcome.targetPosition = action.TargetPosition;
-        outcome.targeteCharacter = this.GetCharacterAtPosition(characters, action.TargetPosition);
-        outcome.actor = actor;
+        var skillActionResult = new BattleActionResult();
+        skillActionResult.type = Const.ActionType.Skill;
+        skillActionResult.targetPosition = action.TargetPosition;
+        skillActionResult.targetCharacter = this.GetCharacterAtPosition(characters, action.TargetPosition);
+        skillActionResult.actor = actor;
 
-        for (int i = 0; i < skill.NumberOfTriggers; ++i)
+        MapPosition prevTargetPosition = action.TargetPosition;
+        foreach (var effect in skill.Effects)
         {
-            var triggerOutcome = new BattleActionOutcome.OutcomePerTrigger();
+            var affectedCharacters = this.GetTargets(actor, effect.EffectTarget, map, characters, skillActionResult, ref prevTargetPosition);
+
+            var actionEffectResult = new BattleActionResult.ActionEffectResult();
+
             foreach (var affectedCharacter in affectedCharacters)
             {
-                var targetOutcome = this.ApplyEffects(actor, affectedCharacter, skill);
-                triggerOutcome.AddTargetOutcome(targetOutcome);
+                var resultOnTarget = this.ApplyEffects(actor, affectedCharacter, skill);
+                actionEffectResult.AddEffectOnTarget(resultOnTarget);
             }
-            outcome.AddTriggerOutcome(triggerOutcome);
+            skillActionResult.AddSkillEffectResult(actionEffectResult);
         }
 
         ServiceFactory.GetTurnOrderService().AddActionTurnOrderWeight(action);
 
-        return outcome;
+        return skillActionResult;
     }
 
-    private BattleActionOutcome.OutcomePerTarget ApplyEffects(BattleCharacter actor, BattleCharacter target, Skill skill)
+    private List<BattleCharacter> GetTargets(BattleCharacter actor, EffectTarget effectTarget, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters, BattleActionResult actionResult, ref MapPosition prevTargetPosition)
+    {
+        List<BattleCharacter> affectedCharacters = new List<BattleCharacter>();
+        if (effectTarget.TargetSearchRule == Const.TargetSearchRule.Nearest)
+        {
+            var target = this.GetNearestTarget(actor, effectTarget, map, characters, actionResult, prevTargetPosition);
+            if (target != null)
+            {
+                prevTargetPosition = target.OccupiedMapPositions[0];
+                affectedCharacters.Add(target);
+            }
+        }
+        else
+        {
+            var affectedPositions = ServiceFactory.GetMapService().GeMapPositionsForPattern(effectTarget.Pattern, map, prevTargetPosition);
+            var potentialTargets = this.GetCharactersAtPositions(characters, affectedPositions);
+            foreach (var potentialTarget in potentialTargets)
+            {
+                if (this.IsTargetValidForEffect(actor, potentialTarget, effectTarget))
+                {
+                    affectedCharacters.Add(potentialTarget);
+                }
+            }
+        }
+
+        return affectedCharacters;
+    }
+
+    private BattleCharacter GetNearestTarget(BattleCharacter actor, EffectTarget effectTarget, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters, BattleActionResult actionResult, MapPosition targetPosition)
+    {
+        var nearestDistance = int.MaxValue;
+        BattleCharacter target = null;
+
+        // TODO: another target rule that allows repeat?
+        bool allowRepeat = false;
+
+        foreach (var character in characters)
+        {
+            if (!allowRepeat && actionResult.IsCharacterAffected(character))
+            {
+                continue;
+            }
+
+            if (this.IsTargetValidForEffect(actor, character, effectTarget))
+            {
+                foreach (var characterOccupiedPosition in character.OccupiedMapPositions)
+                {
+                    var distance = characterOccupiedPosition.GetDistance(targetPosition);
+                    if (distance < nearestDistance && distance > 0)
+                    {
+                        target = character;
+                        nearestDistance = distance;
+                    }
+                }
+            }
+        }
+        return target;
+    }
+
+    private bool IsTargetValidForEffect(BattleCharacter actor, BattleCharacter target, EffectTarget effect)
+    {
+        if (target.IsDead)
+        {
+            return false;
+        }
+
+        switch (effect.TargetGroup)
+        {
+            case Const.SkillTargetGroup.Ally:
+                return actor.Team == target.Team;
+            case Const.SkillTargetGroup.Opponent:
+                return actor.Team != target.Team;
+            case Const.SkillTargetGroup.Self:
+                return actor == target;
+            default:
+                return false;
+        }
+    }
+
+    private BattleActionResult.EffectOnTarget ApplyEffects(BattleCharacter actor, BattleCharacter target, Skill skill)
     {
         // TODO: more effect types
         var effects = skill.Effects;
-        var outcome = new BattleActionOutcome.OutcomePerTarget();
+        var outcome = new BattleActionResult.EffectOnTarget();
         outcome.target = target;
         foreach (var effect in effects)
         {

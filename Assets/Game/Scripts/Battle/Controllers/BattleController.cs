@@ -59,12 +59,12 @@ public class BattleController : MonoBehaviour
         this._battleView.SpawnUnit(character);
     }
 
-    private void ProcessOutcomeQueue(Queue<BattleActionOutcome> outcomeQueue, Action callback)
+    private void ProcessOutcomeQueue(Queue<BattleActionResult> outcomeQueue, Action callback)
     {
         StartCoroutine(this.ProcessOutcomeQueueCoroutine(outcomeQueue, callback));
     }
 
-    private IEnumerator ProcessOutcomeQueueCoroutine(Queue<BattleActionOutcome> outcomeQueue, Action callback)
+    private IEnumerator ProcessOutcomeQueueCoroutine(Queue<BattleActionResult> outcomeQueue, Action callback)
     {
         while (outcomeQueue.Count > 0)
         {
@@ -77,7 +77,7 @@ public class BattleController : MonoBehaviour
         callback();
     }
 
-    private IEnumerator ProcessOutcome(BattleActionOutcome outcome)
+    private IEnumerator ProcessOutcome(BattleActionResult outcome)
     {
         switch (outcome.type)
         {
@@ -94,17 +94,18 @@ public class BattleController : MonoBehaviour
         }
     }
 
-    private IEnumerator ProcessMovementOutcome(BattleActionOutcome outcome)
+    private IEnumerator ProcessMovementOutcome(BattleActionResult actionResult)
     {
-        var movementOutcome = outcome.actorOutcome;
-        var actor = movementOutcome.target;
+        var movementEffect = actionResult.allSkillEffectResult[0].effectsOnTarget[0];
+        var actor = movementEffect.target;
+        var newPosition = movementEffect.positionChangeTo;
 
-        var occupiedPositions = this._battleModel.GetMapPositionsForPattern(actor.BaseCharacter.Shape, movementOutcome.positionChangeTo);
+        var occupiedPositions = this._battleModel.GetMapPositionsForPattern(actor.BaseCharacter.Shape, newPosition);
 
         yield return StartCoroutine(this._battleView.MoveUnitToMapPosition(actor, occupiedPositions));
     }
 
-    private IEnumerator ProcessSkillOutcome(BattleActionOutcome outcome)
+    private IEnumerator ProcessSkillOutcome(BattleActionResult outcome)
     {
         yield return StartCoroutine(this._battleView.PlaySkillAnimation(this._battleModel.CurrentActor.SelectedSkill, outcome));
     }

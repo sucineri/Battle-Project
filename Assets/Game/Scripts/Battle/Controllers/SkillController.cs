@@ -8,20 +8,20 @@ public class SkillController: MonoBehaviour
 
     [SerializeField] protected int[] _effectKeyFrames;
 
-    public virtual IEnumerator PlaySkillSequence(BattleUnitController actor, BattleView battleView, BattleActionOutcome outcome)
+    public virtual IEnumerator PlaySkillSequence(BattleUnitController actor, BattleView battleView, BattleActionResult actionResult)
     {
         Vector3 targetPosition = new Vector3();
         BattleUnitController targetedUnit = null;
         TileController targetedTile = null;
 
-        if (outcome.targeteCharacter != null)
+        if (actionResult.targetCharacter != null)
         {
-            targetedUnit = battleView.GetBattleUnit(outcome.targeteCharacter);
+            targetedUnit = battleView.GetBattleUnit(actionResult.targetCharacter);
             targetPosition = targetedUnit.transform.position;
         }
         else
         {
-            targetedTile = battleView.GetTileAtMapPosition(outcome.targetPosition);
+            targetedTile = battleView.GetTileAtMapPosition(actionResult.targetPosition);
             targetPosition = targetedTile.transform.position;
         }
 
@@ -33,30 +33,30 @@ public class SkillController: MonoBehaviour
 
         var deadUnits = new List<BattleUnitController>();
 
-        for (int i = 0; i < outcome.allOutcomes.Count; ++i)
+        for (int i = 0; i < actionResult.allSkillEffectResult.Count; ++i)
         {
             var delay = this.GetDelayedKeyFrames(i);
             yield return StartCoroutine(this.WaitForFrames(delay));
 
-            var triggerOutcome = outcome.allOutcomes[i];
+            var skillEffectResult = actionResult.allSkillEffectResult[i];
 
-            for (int j = 0; j < triggerOutcome.OutcomeForTargets.Count; ++j)
+            for (int j = 0; j < skillEffectResult.effectsOnTarget.Count; ++j)
             {
-                var targetOutcome = triggerOutcome.OutcomeForTargets[j];
-                var unit = battleView.GetBattleUnit(targetOutcome.target);
+                var effectOnTarget = skillEffectResult.effectsOnTarget[j];
+                var unit = battleView.GetBattleUnit(effectOnTarget.target);
 
-                if (targetOutcome.target.CurrentHp <= 0)
+                if (effectOnTarget.target.CurrentHp <= 0)
                 {
                     deadUnits.Add(unit);
                 }
 
-                if (j != triggerOutcome.OutcomeForTargets.Count - 1)
+                if (j != skillEffectResult.effectsOnTarget.Count - 1)
                 {
-                    StartCoroutine(PlayTargetOutcome(unit, targetOutcome));
+                    StartCoroutine(PlayTargetOutcome(unit, effectOnTarget));
                 }
                 else
                 {
-                    yield return StartCoroutine(PlayTargetOutcome(unit, targetOutcome));
+                    yield return StartCoroutine(PlayTargetOutcome(unit, effectOnTarget));
                 }
             }
         }
@@ -71,11 +71,11 @@ public class SkillController: MonoBehaviour
         Destroy(this.gameObject);
     }
 
-    protected IEnumerator PlayTargetOutcome(BattleUnitController unit, BattleActionOutcome.OutcomePerTarget targetOutcome)
+    protected IEnumerator PlayTargetOutcome(BattleUnitController unit, BattleActionResult.EffectOnTarget effectOnTarget)
     {
-        unit.PlayEffect(targetOutcome.effectPrefabPath);
-        var hpPercentage = targetOutcome.target.HpPercentage;
-        yield return StartCoroutine(unit.TakeDamage(targetOutcome.hpChange, hpPercentage));
+        unit.PlayEffect(effectOnTarget.effectPrefabPath);
+        var hpPercentage = effectOnTarget.target.HpPercentage;
+        yield return StartCoroutine(unit.TakeDamage(effectOnTarget.hpChange, hpPercentage));
     }
 
     protected IEnumerator WaitForFrames(int frames)

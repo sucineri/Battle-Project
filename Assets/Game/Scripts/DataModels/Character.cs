@@ -105,7 +105,7 @@ public class Character
         character.ModelPath = "Characters/SlimeKing/model";
         character.AttackDistance = 2.5f;
         character.SizeOffset = 1.5f;
-        character.Skills.Add(Skill.MeleeAttack());
+        character.Skills.Add(Skill.ChainLightning());
         character.Skills.Add(Skill.Squash());
         character.Movement = 2;
 

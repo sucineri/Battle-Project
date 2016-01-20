@@ -10,16 +10,9 @@ public class Skill
 
     public int NumberOfTriggers { get; set; }
 
-    public Targetting SkillTarget { get; set; }
-
     public string PrefabPath { get; set; }
 
     public string EffectPrefabPath { get; set; }
-
-    protected Skill()
-    {
-        // no public default constructor
-    }
 
     public static Skill MeleeAttack()
     {
@@ -29,7 +22,6 @@ public class Skill
         skill.NumberOfTriggers = 1;
         skill.PrefabPath = "Skills/MeleeAttack";
         skill.EffectPrefabPath = "Effects/Explosion";
-        skill.SkillTarget = Targetting.SingleOpponentTarget();
         return skill;
     }
 
@@ -41,7 +33,6 @@ public class Skill
         skill.NumberOfTriggers = 1;
         skill.PrefabPath = "Skills/CrossSlash";
         skill.EffectPrefabPath = "Effects/Explosion";
-        skill.SkillTarget = Targetting.CrossOpponentTarget();
         return skill;
     }
 
@@ -53,7 +44,19 @@ public class Skill
         skill.NumberOfTriggers = 1;
         skill.PrefabPath = "Skills/Squash";
         skill.EffectPrefabPath = "Effects/Explosion";
-        skill.SkillTarget = Targetting.SquashTarget();
+        return skill;
+    }
+
+    public static Skill ChainLightning()
+    {
+        var skill = new Skill();
+        skill.Name = "Chain Lightning";
+        skill.Effects.Add(SkillEffect.ChainLightning());
+        skill.Effects.Add(SkillEffect.ChainLightningSecondary());
+        skill.Effects.Add(SkillEffect.ChainLightningSecondary());
+        skill.NumberOfTriggers = 1;
+        skill.PrefabPath = "Skills/ChainLightning";
+        skill.EffectPrefabPath = "Effects/Explosion";
         return skill;
     }
 }

@@ -22,7 +22,7 @@ public class BattleModel
     public event Action<BattleCharacter> onBattleCharacterCreated;
     public event Action<List<BattleCharacter>> onTurnOrderChanged;
     public event Action<BattleCharacter> onActorSelected;
-    public event Action<Queue<BattleActionOutcome>, Action> onProcessOutcome;
+    public event Action<Queue<BattleActionResult>, Action> onProcessOutcome;
     public event Action<BattlePhase> onBattlePhaseChange;
     public event Action<int> onSkillSelected;
 
@@ -149,9 +149,9 @@ public class BattleModel
         if(this.CurrentActor != null && this.CurrentActor.SelectedSkill != null)
         {
             var selectedSkill = this.CurrentActor.SelectedSkill;
-            var affectedPositions = this.GetMapPositionsForPattern(selectedSkill.SkillTarget.Pattern, targetPosition);
+            var affectedPositions = this.GetMapPositionsForPattern(selectedSkill.Effects[0].EffectTarget.Pattern, targetPosition);
 
-            var affectedCharacters = ServiceFactory.GetBattleService().GetAffectdCharacters(this._battleCharactersPositions, affectedPositions);
+            var affectedCharacters = ServiceFactory.GetBattleService().GetCharactersAtPositions(this._battleCharactersPositions, affectedPositions);
 
             if (affectedCharacters.Count > 0)
             {
@@ -250,7 +250,7 @@ public class BattleModel
         }
     }
 
-    private void ProcessOutcome(Queue<BattleActionOutcome> outcomeQueue, BattlePhase nextPhase, Action callback = null)
+    private void ProcessOutcome(Queue<BattleActionResult> outcomeQueue, BattlePhase nextPhase, Action callback = null)
     {
         Action onComplete = () =>{
             this.ChangePhase(nextPhase);

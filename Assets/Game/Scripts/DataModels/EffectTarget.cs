@@ -3,35 +3,58 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class Targetting
+public class EffectTarget
 {
     public Const.SkillTargetGroup TargetGroup { get; set; }
 
     public Const.SkillTargetType TargetType { get; set; }
 
+    public Const.TargetSearchRule TargetSearchRule { get; set; }
+
     public List<Cordinate> Pattern { get; set; }
 
-    protected Targetting()
+    public static EffectTarget SingleOpponentTarget()
     {
-        // no public default constructor
-    }
-
-    public static Targetting SingleOpponentTarget()
-    {
-        var pattern = new Targetting();
+        var pattern = new EffectTarget();
         pattern.TargetGroup = Const.SkillTargetGroup.Opponent;
         pattern.TargetType = Const.SkillTargetType.Unit;
+        pattern.TargetSearchRule = Const.TargetSearchRule.SelectedTarget;
 
         pattern.Pattern = new List<Cordinate>();
         pattern.Pattern.Add(new Cordinate(0, 0));
         return pattern;
     }
 
-    public static Targetting CrossOpponentTarget()
+    public static EffectTarget ChainLightning()
     {
-        var pattern = new Targetting();
+        var pattern = new EffectTarget();
         pattern.TargetGroup = Const.SkillTargetGroup.Opponent;
         pattern.TargetType = Const.SkillTargetType.Unit;
+        pattern.TargetSearchRule = Const.TargetSearchRule.SelectedTarget;
+
+        pattern.Pattern = new List<Cordinate>();
+        pattern.Pattern.Add(new Cordinate(0, 0));
+        return pattern;
+    }
+
+    public static EffectTarget ChainLightningSecondary()
+    {
+        var pattern = new EffectTarget();
+        pattern.TargetGroup = Const.SkillTargetGroup.Opponent;
+        pattern.TargetType = Const.SkillTargetType.Unit;
+        pattern.TargetSearchRule = Const.TargetSearchRule.Nearest;
+
+        pattern.Pattern = new List<Cordinate>();
+        pattern.Pattern.Add(new Cordinate(0, 0));
+        return pattern;
+    }
+
+    public static EffectTarget CrossOpponentTarget()
+    {
+        var pattern = new EffectTarget();
+        pattern.TargetGroup = Const.SkillTargetGroup.Opponent;
+        pattern.TargetType = Const.SkillTargetType.Unit;
+        pattern.TargetSearchRule = Const.TargetSearchRule.SelectedTarget;
 
         pattern.Pattern = new List<Cordinate>();
         pattern.Pattern.Add(new Cordinate(0, 0));
@@ -42,11 +65,12 @@ public class Targetting
         return pattern;
     }
 
-    public static Targetting SquashTarget()
+    public static EffectTarget SquashTarget()
     {
-        var pattern = new Targetting();
+        var pattern = new EffectTarget();
         pattern.TargetGroup = Const.SkillTargetGroup.Opponent;
         pattern.TargetType = Const.SkillTargetType.Unit;
+        pattern.TargetSearchRule = Const.TargetSearchRule.SelectedTarget;
 
         pattern.Pattern = AllCordinates();
         return pattern;
