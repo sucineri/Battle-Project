@@ -22,7 +22,7 @@ public class BattleModel
     public event Action<BattleCharacter> onBattleCharacterCreated;
     public event Action<List<BattleCharacter>> onTurnOrderChanged;
     public event Action<BattleCharacter> onActorSelected;
-    public event Action<Queue<BattleActionResult>, Action> onProcessOutcome;
+    public event Action<Queue<BattleActionResult>, Action> onProcessActionResult;
     public event Action<BattlePhase> onBattlePhaseChange;
     public event Action<int> onSkillSelected;
 
@@ -137,31 +137,39 @@ public class BattleModel
                 var action = new BattleAction(this.CurrentActor, Const.ActionType.Movement, Const.TargetType.Tile, targetPosition, null);
                 var actionQueue = new Queue<BattleAction>();
                 actionQueue.Enqueue(action);
-                var outcomeQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharactersPositions);
-                this.ProcessOutcome(outcomeQueue, BattlePhase.ActionSelect);
+                var resultQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharactersPositions);
+                this.ProcessOutcome(resultQueue, BattlePhase.ActionSelect);
             }
         }
     }
 
     public void CurrentCharacterSkillAction(MapPosition targetPosition)
     {
-        // TODO: consider moving affectedPositions and affectedCharacters into outcome. Calculate those in BattlerService
         if(this.CurrentActor != null && this.CurrentActor.SelectedSkill != null)
         {
             var selectedSkill = this.CurrentActor.SelectedSkill;
             var affectedPositions = this.GetMapPositionsForPattern(selectedSkill.Effects[0].EffectTarget.Pattern, targetPosition);
 
-            var affectedCharacters = ServiceFactory.GetBattleService().GetCharactersAtPositions(this._battleCharactersPositions, affectedPositions);
+            var action = new BattleAction(this.CurrentActor, Const.ActionType.Skill, Const.TargetType.Tile, targetPosition, selectedSkill);
+            var actionQueue = new Queue<BattleAction>();
+            actionQueue.Enqueue(action);
 
-            if (affectedCharacters.Count > 0)
+            var isValidAction = false;
+            var resultQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharactersPositions);
+
+            foreach (var result in resultQueue)
+            {
+                if (result.HasResult)
+                {
+                    isValidAction = true;
+                    break;
+                }
+            }
+
+            if (isValidAction)
             {
                 this.SetTileStateAtPositions(affectedPositions, Tile.TileState.SkillHighlight, true);
-
-                var action = new BattleAction(this.CurrentActor, Const.ActionType.Skill, Const.TargetType.Tile, targetPosition, selectedSkill);
-                var actionQueue = new Queue<BattleAction>();
-                actionQueue.Enqueue(action);
-                var outcomeQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharactersPositions);
-                this.ProcessOutcome(outcomeQueue, BattlePhase.NextRound, () =>{
+                this.ProcessOutcome(resultQueue, BattlePhase.NextRound, () =>{
                     this.SetTileStateAtPositions(affectedPositions, Tile.TileState.SkillHighlight, false);
                 });
             }
@@ -260,10 +268,10 @@ public class BattleModel
             }
         };
 
-        if (this.onProcessOutcome != null)
+        if (this.onProcessActionResult != null)
         {
             this.ChangePhase(BattlePhase.Animation);
-            this.onProcessOutcome(outcomeQueue, onComplete);
+            this.onProcessActionResult(outcomeQueue, onComplete);
         }
         else
         {

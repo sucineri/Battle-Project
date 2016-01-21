@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 
 public class BattleCharacterView : MonoBehaviour
@@ -8,11 +9,12 @@ public class BattleCharacterView : MonoBehaviour
         Idle,
         Attack,
         Walk,
-        Damage,
-        Dead
+        Damage
     }
-
+        
     [SerializeField] protected Animator characterAnimator;
+
+    public event Action<bool> onDamageAnimationComplete;
 
     protected int waitStateHash = Animator.StringToHash("Wait");
     protected int attackStateHash = Animator.StringToHash("Attack");
@@ -20,7 +22,6 @@ public class BattleCharacterView : MonoBehaviour
     protected int damageStateHash = Animator.StringToHash("Damage");
 
     private AnimationState _currentAnimationState;
-
     public AnimationState CurrentAnimationState
     {
         get
@@ -32,6 +33,20 @@ public class BattleCharacterView : MonoBehaviour
             this._currentAnimationState = value;
             this.OnAnimationStateChange();
         }
+    }
+
+    private bool _isDead = false;
+    public bool IsDead 
+    { 
+        get
+        {
+            return this._isDead;
+        } 
+        set
+        {
+            this._isDead = value;
+            this.characterAnimator.SetBool("dead", this._isDead);
+        } 
     }
 
     public virtual IEnumerator PlayAttackAnimation()
@@ -47,6 +62,11 @@ public class BattleCharacterView : MonoBehaviour
         characterAnimator.CrossFade(damageStateHash, 0);
         yield return new WaitForEndOfFrame();
         yield return new WaitForSeconds(this.GetCurrentClipDuration());
+
+        if (this.onDamageAnimationComplete != null)
+        {
+            this.onDamageAnimationComplete(this.IsDead);
+        }
     }
 
     protected float GetCurrentClipDuration()
@@ -69,10 +89,7 @@ public class BattleCharacterView : MonoBehaviour
                 break;
             case AnimationState.Damage:
                 this.StartCoroutine(this.PlayDamagedAnimation());
-                break;
-            case AnimationState.Dead:
-                this.characterAnimator.SetBool("dead", true);
-                break;				
+                break;			
         }
     }
 }

@@ -25,7 +25,7 @@ public class BattleController : MonoBehaviour
         this._battleModel.onTileCreated += this._battleView.BindTileController;
         this._battleModel.onTurnOrderChanged += this._turnOrderView.UpdateView;
         this._battleModel.onBattleCharacterCreated += this.OnCreateBattleUnit;
-        this._battleModel.onProcessOutcome += this.ProcessOutcomeQueue;
+        this._battleModel.onProcessActionResult += this.ProcessActionResultQueue;
         this._battleModel.onBattlePhaseChange += this.OnBattlePhaseChange;
 
         this._battleModel.CreateBattleMap(numberOfRows, numberOfColumns);
@@ -59,34 +59,34 @@ public class BattleController : MonoBehaviour
         this._battleView.SpawnUnit(character);
     }
 
-    private void ProcessOutcomeQueue(Queue<BattleActionResult> outcomeQueue, Action callback)
+    private void ProcessActionResultQueue(Queue<BattleActionResult> resultQueue, Action callback)
     {
-        StartCoroutine(this.ProcessOutcomeQueueCoroutine(outcomeQueue, callback));
+        StartCoroutine(this.ProcessActionResultQueueCoroutine(resultQueue, callback));
     }
 
-    private IEnumerator ProcessOutcomeQueueCoroutine(Queue<BattleActionResult> outcomeQueue, Action callback)
+    private IEnumerator ProcessActionResultQueueCoroutine(Queue<BattleActionResult> resultQueue, Action callback)
     {
-        while (outcomeQueue.Count > 0)
+        while (resultQueue.Count > 0)
         {
-            var outcome = outcomeQueue.Dequeue();
-            if (outcome != null)
+            var result = resultQueue.Dequeue();
+            if (result != null)
             {
-                yield return StartCoroutine(this.ProcessOutcome(outcome));
+                yield return StartCoroutine(this.ProcessActionResult(result));
             }
         }
         callback();
     }
 
-    private IEnumerator ProcessOutcome(BattleActionResult outcome)
+    private IEnumerator ProcessActionResult(BattleActionResult actionResult)
     {
-        switch (outcome.type)
+        switch (actionResult.type)
         {
 
             case Const.ActionType.Movement:
-                yield return StartCoroutine(this.ProcessMovementOutcome(outcome));
+                yield return StartCoroutine(this.ProcessMovementActionResult(actionResult));
                 break;
             case Const.ActionType.Skill:
-                yield return StartCoroutine(this.ProcessSkillOutcome(outcome));
+                yield return StartCoroutine(this.ProcessSkillActionResult(actionResult));
                 break;
             default:
                 yield return null;
@@ -94,7 +94,7 @@ public class BattleController : MonoBehaviour
         }
     }
 
-    private IEnumerator ProcessMovementOutcome(BattleActionResult actionResult)
+    private IEnumerator ProcessMovementActionResult(BattleActionResult actionResult)
     {
         var movementEffect = actionResult.allSkillEffectResult[0].effectsOnTarget[0];
         var actor = movementEffect.target;
@@ -105,9 +105,9 @@ public class BattleController : MonoBehaviour
         yield return StartCoroutine(this._battleView.MoveUnitToMapPosition(actor, occupiedPositions));
     }
 
-    private IEnumerator ProcessSkillOutcome(BattleActionResult outcome)
+    private IEnumerator ProcessSkillActionResult(BattleActionResult actionResult)
     {
-        yield return StartCoroutine(this._battleView.PlaySkillAnimation(this._battleModel.CurrentActor.SelectedSkill, outcome));
+        yield return StartCoroutine(this._battleView.PlaySkillAnimation(this._battleModel.CurrentActor.SelectedSkill, actionResult));
     }
 
     private void OnBattlePhaseChange(BattleModel.BattlePhase battlePhase)
@@ -124,7 +124,7 @@ public class BattleController : MonoBehaviour
         this._battleModel.onTileCreated -= this._battleView.BindTileController;
         this._battleModel.onTurnOrderChanged -= this._turnOrderView.UpdateView;
         this._battleModel.onBattleCharacterCreated -= this.OnCreateBattleUnit;
-        this._battleModel.onProcessOutcome -= this.ProcessOutcomeQueue;
+        this._battleModel.onProcessActionResult -= this.ProcessActionResultQueue;
         this._battleModel.onBattlePhaseChange -= this.OnBattlePhaseChange;
     }
 }

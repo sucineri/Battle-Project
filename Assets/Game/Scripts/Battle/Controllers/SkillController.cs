@@ -31,8 +31,6 @@ public class SkillController: MonoBehaviour
 
         StartCoroutine(actor.AnimateAttack());
 
-        var deadUnits = new List<BattleUnitController>();
-
         for (int i = 0; i < actionResult.allSkillEffectResult.Count; ++i)
         {
             var delay = this.GetDelayedKeyFrames(i);
@@ -45,25 +43,15 @@ public class SkillController: MonoBehaviour
                 var effectOnTarget = skillEffectResult.effectsOnTarget[j];
                 var unit = battleView.GetBattleUnit(effectOnTarget.target);
 
-                if (effectOnTarget.target.CurrentHp <= 0)
-                {
-                    deadUnits.Add(unit);
-                }
-
                 if (j != skillEffectResult.effectsOnTarget.Count - 1)
                 {
-                    StartCoroutine(PlayTargetOutcome(unit, effectOnTarget));
+                    StartCoroutine(PlayEffectOnTarget(unit, effectOnTarget));
                 }
                 else
                 {
-                    yield return StartCoroutine(PlayTargetOutcome(unit, effectOnTarget));
+                    yield return StartCoroutine(PlayEffectOnTarget(unit, effectOnTarget));
                 }
             }
-        }
-
-        foreach (var du in deadUnits)
-        {
-            StartCoroutine(du.Die());
         }
 
         yield return StartCoroutine(actor.ReturnToPosition(actorOrigPosition));
@@ -71,7 +59,7 @@ public class SkillController: MonoBehaviour
         Destroy(this.gameObject);
     }
 
-    protected IEnumerator PlayTargetOutcome(BattleUnitController unit, BattleActionResult.EffectOnTarget effectOnTarget)
+    protected IEnumerator PlayEffectOnTarget(BattleUnitController unit, BattleActionResult.EffectOnTarget effectOnTarget)
     {
         unit.PlayEffect(effectOnTarget.effectPrefabPath);
         var hpPercentage = effectOnTarget.target.HpPercentage;

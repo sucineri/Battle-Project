@@ -35,17 +35,17 @@ public class BattleService
         
     public Queue<BattleActionResult> ProcessActionQueue(Queue<BattleAction> actionQueue, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
     {
-        var outcomeQueue = new Queue<BattleActionResult>();
+        var resultQueue = new Queue<BattleActionResult>();
         while (actionQueue.Count > 0)
         {
             var action = actionQueue.Dequeue();
-            var outcome = this.ProcessAction(action, map, characters);
-            if (outcome != null)
+            var actionResult = this.ProcessAction(action, map, characters);
+            if (actionResult != null)
             {
-                outcomeQueue.Enqueue(outcome);
+                resultQueue.Enqueue(actionResult);
             }
         }
-        return outcomeQueue;
+        return resultQueue;
     }
 
     private BattleActionResult ProcessAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
@@ -104,10 +104,15 @@ public class BattleService
         skillActionResult.targetCharacter = this.GetCharacterAtPosition(characters, action.TargetPosition);
         skillActionResult.actor = actor;
 
-        MapPosition prevTargetPosition = action.TargetPosition;
+        MapPosition prevTargetPosition = null;
         foreach (var effect in skill.Effects)
         {
             var affectedCharacters = this.GetTargets(actor, effect.EffectTarget, map, characters, skillActionResult, ref prevTargetPosition);
+
+            if (affectedCharacters.Count == 0)
+            {
+                continue;
+            }
 
             var actionEffectResult = new BattleActionResult.ActionEffectResult();
 
@@ -129,15 +134,22 @@ public class BattleService
         List<BattleCharacter> affectedCharacters = new List<BattleCharacter>();
         if (effectTarget.TargetSearchRule == Const.TargetSearchRule.Nearest)
         {
-            var target = this.GetNearestTarget(actor, effectTarget, map, characters, actionResult, prevTargetPosition);
-            if (target != null)
+            if (prevTargetPosition != null)
             {
-                prevTargetPosition = target.OccupiedMapPositions[0];
-                affectedCharacters.Add(target);
+                var target = this.GetNearestTarget(actor, effectTarget, map, characters, actionResult, prevTargetPosition);
+                if (target != null)
+                {
+                    prevTargetPosition = target.OccupiedMapPositions[0];
+                    affectedCharacters.Add(target);
+                }
             }
         }
         else
         {
+            if (prevTargetPosition == null)
+            {
+                prevTargetPosition = actionResult.targetPosition;
+            }
             var affectedPositions = ServiceFactory.GetMapService().GeMapPositionsForPattern(effectTarget.Pattern, map, prevTargetPosition);
             var potentialTargets = this.GetCharactersAtPositions(characters, affectedPositions);
             foreach (var potentialTarget in potentialTargets)

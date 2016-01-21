@@ -29,6 +29,14 @@ public class BattleActionResult
     public BattleCharacter actor;
     public List<ActionEffectResult> allSkillEffectResult = new List<ActionEffectResult>();
 
+    public bool HasResult
+    {
+        get
+        {
+            return allSkillEffectResult.Count > 0;
+        }
+    }
+
     public void AddSkillEffectResult(ActionEffectResult effectResult)
     {
         this.allSkillEffectResult.Add(effectResult);

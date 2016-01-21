@@ -21,6 +21,7 @@ public class BattleUnitController : MonoBehaviour
     {
         this.hpBar.Init(character.HpPercentage);		
         this.defaultRotation = this.transform.localEulerAngles;
+        this.characterView.onDamageAnimationComplete += this.OnDamageAnimationComplete;
     }
 
     public float GetAttackPositionOffset(BattleUnitController targetedUnit)
@@ -89,12 +90,10 @@ public class BattleUnitController : MonoBehaviour
     {
         this.ShowDamageText(damage);
 
-        yield return StartCoroutine(this.AnimateHpChange(hpPercentage));
-    }
+        this.characterView.IsDead = hpPercentage <= 0f;
+        this.characterView.CurrentAnimationState = BattleCharacterView.AnimationState.Damage;
 
-    public IEnumerator Die()
-    {
-        yield return StartCoroutine(this.characterView.PlayDamagedAnimation());
+        yield return StartCoroutine(this.AnimateHpChange(hpPercentage));
     }
 
     private void ShowDamageText(double damage)
@@ -111,5 +110,13 @@ public class BattleUnitController : MonoBehaviour
     private IEnumerator AnimateHpChange(float hpPercentage)
     {
         yield return StartCoroutine(hpBar.AnimateValueChange(hpPercentage));
+    }
+
+    private void OnDamageAnimationComplete(bool isDead)
+    {
+        if (isDead)
+        {
+            this.hpBar.gameObject.SetActive(false);
+        }
     }
 }
