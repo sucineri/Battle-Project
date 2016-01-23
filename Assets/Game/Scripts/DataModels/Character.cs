@@ -32,11 +32,7 @@ public class Character
 
     public List<Skill> Skills = new List<Skill>();
 
-    public List<Cordinate> Shape { get; set; }
-
-    protected Character()
-    {
-    }
+    public Pattern PatternShape { get; set; }
 
     public static Character Fighter()
     {
@@ -58,8 +54,7 @@ public class Character
         character.Skills.Add(Skill.CrossSlash());
         character.Movement = 2;
 
-        character.Shape = new List<Cordinate>();
-        character.Shape.Add(new Cordinate(0, 0));
+        character.PatternShape = Pattern.Single();
 
         return character;
     }
@@ -83,8 +78,7 @@ public class Character
         character.Skills.Add(Skill.MeleeAttack());
         character.Movement = 2;
 
-        character.Shape = new List<Cordinate>();
-        character.Shape.Add(new Cordinate(0, 0));
+        character.PatternShape = Pattern.Single();
 
         return character;
     }
@@ -97,7 +91,7 @@ public class Character
         var maxMp = random.Next(1000, 1500);
         var atk = random.Next(1000, 1500);
         var def = random.Next(200, 250);
-        var agi = random.Next(50, 100);
+        var agi = random.Next(500, 1000);
         var wis = random.Next(200, 250);
         character.Name = "Slime King";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis);
@@ -109,12 +103,7 @@ public class Character
         character.Skills.Add(Skill.Squash());
         character.Movement = 2;
 
-        character.Shape = new List<Cordinate>();
-        character.Shape.Add(new Cordinate(0, 0));
-        character.Shape.Add(new Cordinate(1, 0));
-        character.Shape.Add(new Cordinate(0, -1));
-        character.Shape.Add(new Cordinate(1, -1));
-
+        character.PatternShape = Pattern.Square();
         return character;
     }
 }

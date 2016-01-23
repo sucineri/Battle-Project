@@ -16,7 +16,7 @@ public class BattleModel
     }
 
     private Dictionary<MapPosition, Tile> _mapTiles = new Dictionary<MapPosition, Tile>();
-    private List<BattleCharacter> _battleCharactersPositions = new List<BattleCharacter>();
+    private List<BattleCharacter> _battleCharacters = new List<BattleCharacter>();
 
     public event Action<MapPosition, Tile> onTileCreated;
     public event Action<BattleCharacter> onBattleCharacterCreated;
@@ -36,7 +36,7 @@ public class BattleModel
     {
         get
         {
-            return new List<BattleCharacter>(this._battleCharactersPositions);
+            return new List<BattleCharacter>(this._battleCharacters);
         }
     }
 
@@ -74,33 +74,25 @@ public class BattleModel
     {
         // TODO: real character data
         var layout = MapLayout.BossLayout();
-        var enemyCount = 0;
-        var playerCount = 0;
+
         foreach (var position in layout.positions)
         {
             var team = position.Team;
             var character = team == Const.Team.Player ? Character.Fighter() : Character.SlimeKing();
             var battleCharacter = new BattleCharacter(character, team);
 
-            if (team == Const.Team.Enemy)
-            {
-                enemyCount++;
-            }
-            else
-            {
-                playerCount++;
-            }
-
             ServiceFactory.GetTurnOrderService().AssignDefaultTurnOrderWeight(battleCharacter);
             battleCharacter.Postfix = ServiceFactory.GetUnitNameService().GetPostfix(battleCharacter.BaseCharacter.Name);
 
-            var tilesRequired = ServiceFactory.GetMapService().GeMapPositionsForPattern(battleCharacter.BaseCharacter.Shape, this._mapTiles, position);
-           
-            if (tilesRequired.Count == battleCharacter.BaseCharacter.Shape.Count)
+            var mapService = ServiceFactory.GetMapService();
+            var availableTiles = mapService.GetUnoccupiedTiles(this._battleCharacters, this._mapTiles);
+            var tilesRequired = mapService.RequestPositions(battleCharacter.BaseCharacter.PatternShape.Shape, this._mapTiles, position, availableTiles);
+
+            if (tilesRequired.Count == battleCharacter.BaseCharacter.PatternShape.Shape.Count)
             {
                 battleCharacter.OccupiedMapPositions = tilesRequired;
 
-                this._battleCharactersPositions.Add(battleCharacter);
+                this._battleCharacters.Add(battleCharacter);
                 if (this.onBattleCharacterCreated != null)
                 {
                     this.onBattleCharacterCreated(battleCharacter);
@@ -137,7 +129,7 @@ public class BattleModel
                 var action = new BattleAction(this.CurrentActor, Const.ActionType.Movement, Const.TargetType.Tile, targetPosition, null);
                 var actionQueue = new Queue<BattleAction>();
                 actionQueue.Enqueue(action);
-                var resultQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharactersPositions);
+                var resultQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharacters);
                 this.ProcessOutcome(resultQueue, BattlePhase.ActionSelect);
             }
         }
@@ -155,7 +147,7 @@ public class BattleModel
             actionQueue.Enqueue(action);
 
             var isValidAction = false;
-            var resultQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharactersPositions);
+            var resultQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharacters);
 
             foreach (var result in resultQueue)
             {
@@ -176,7 +168,7 @@ public class BattleModel
         }
     }
 
-    public List<MapPosition> GetMapPositionsForPattern(List<Cordinate> pattern, MapPosition targetPosition)
+    public List<MapPosition> GetMapPositionsForPattern(Pattern pattern, MapPosition targetPosition)
     {
         return ServiceFactory.GetMapService().GeMapPositionsForPattern(pattern, this._mapTiles, targetPosition);
     }
@@ -207,7 +199,7 @@ public class BattleModel
         }
 
         this.CurrentActor = this.GetNextActor();
-        this.CurrentMovablePositions = ServiceFactory.GetMapService().GetMovablePositions(this.CurrentActor, this._battleCharactersPositions, this._mapTiles);
+        this.CurrentMovablePositions = ServiceFactory.GetMapService().GetMovablePositions(this.CurrentActor, this._battleCharacters, this._mapTiles);
 
         if (this.onActorSelected != null)
         {
@@ -290,8 +282,8 @@ public class BattleModel
 
     private void RunAI(BattleCharacter actor)
     {
-        var actionQueue = ServiceFactory.GetAIService().RunAI(actor, this._mapTiles, this._battleCharactersPositions);
-        var outcomeQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharactersPositions);
+        var actionQueue = ServiceFactory.GetAIService().RunAI(actor, this._mapTiles, this._battleCharacters);
+        var outcomeQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharacters);
 
         this.ProcessOutcome(outcomeQueue, BattlePhase.NextRound);
     }

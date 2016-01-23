@@ -36,7 +36,7 @@ public class MapPosition
             return false;
         }
 
-        // If parameter cannot be cast to Point return false.
+        // If parameter cannot be cast to MapPosition return false.
         MapPosition p = obj as MapPosition;
         if ((System.Object)p == null)
         {

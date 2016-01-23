@@ -68,7 +68,9 @@ public class BattleService
 
         Debug.LogWarning(actor.Name + " moves to " + moveTo.ToString());
 
-        var newOccupiedPositions = ServiceFactory.GetMapService().GeMapPositionsForPattern(actor.BaseCharacter.Shape, map, moveTo);
+        var mapService = ServiceFactory.GetMapService();
+        var unOccupiedPositions = mapService.GetUnoccupiedTiles(characters, map);
+        var newOccupiedPositions = mapService.RequestPositions(actor.BaseCharacter.PatternShape.Shape, map, moveTo, unOccupiedPositions);
 
         // update character position
         actor.OccupiedMapPositions = newOccupiedPositions;
