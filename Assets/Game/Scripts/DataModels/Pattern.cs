@@ -53,4 +53,12 @@ public class Pattern
         pattern.IsWholeGrid = true;
         return pattern;
     }
+
+    public static Pattern TwoColumns()
+    {
+        var pattern = new Pattern();
+        pattern.WholeColumns.Add(1);
+        pattern.WholeColumns.Add(2);
+        return pattern;
+    }
 }

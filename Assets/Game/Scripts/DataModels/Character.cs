@@ -89,9 +89,9 @@ public class Character
         var character = new Character();
         var maxHp = random.Next(5000, 7000);
         var maxMp = random.Next(1000, 1500);
-        var atk = random.Next(1000, 1500);
-        var def = random.Next(200, 250);
-        var agi = random.Next(500, 1000);
+        var atk = random.Next(500, 700);
+        var def = random.Next(100, 150);
+        var agi = random.Next(50, 100);
         var wis = random.Next(200, 250);
         character.Name = "Slime King";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis);

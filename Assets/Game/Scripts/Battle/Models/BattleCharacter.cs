@@ -38,6 +38,14 @@ public class BattleCharacter
         }
     }
 
+    public MapPosition BasePosition
+    {
+        get
+        {
+            return this.OccupiedMapPositions[0];
+        }
+    }
+
     protected BattleCharacter()
     {
     }

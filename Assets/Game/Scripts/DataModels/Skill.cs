@@ -6,6 +6,8 @@ public class Skill
 {
     public string Name { get; set; }
 
+    public Targeting SkillTargetArea { get; set; }
+
     public List<SkillEffect> Effects = new List<SkillEffect>();
 
     public int NumberOfTriggers { get; set; }
@@ -22,6 +24,7 @@ public class Skill
         skill.NumberOfTriggers = 1;
         skill.PrefabPath = "Skills/MeleeAttack";
         skill.EffectPrefabPath = "Effects/Explosion";
+        skill.SkillTargetArea = Targeting.MeleeTargetArea();
         return skill;
     }
 
@@ -33,6 +36,7 @@ public class Skill
         skill.NumberOfTriggers = 1;
         skill.PrefabPath = "Skills/CrossSlash";
         skill.EffectPrefabPath = "Effects/Explosion";
+        skill.SkillTargetArea = Targeting.MeleeTargetArea();
         return skill;
     }
 
@@ -44,6 +48,7 @@ public class Skill
         skill.NumberOfTriggers = 1;
         skill.PrefabPath = "Skills/Squash";
         skill.EffectPrefabPath = "Effects/Explosion";
+        skill.SkillTargetArea = Targeting.MeleeTargetArea();
         return skill;
     }
 
@@ -57,6 +62,7 @@ public class Skill
         skill.NumberOfTriggers = 1;
         skill.PrefabPath = "Skills/ChainLightning";
         skill.EffectPrefabPath = "Effects/Explosion";
+        skill.SkillTargetArea = Targeting.MeleeTargetArea();
         return skill;
     }
 }

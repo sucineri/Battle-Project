@@ -9,7 +9,8 @@ public class Tile
         None = 0,
         Selected = 1,
         SkillHighlight = 2,
-        MovementHighlight = 4
+        MovementHighlight = 4,
+        SkillRadius = 8
     }
 
     private TileState _state;

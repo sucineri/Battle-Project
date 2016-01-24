@@ -131,17 +131,17 @@ public class BattleService
         return skillActionResult;
     }
 
-    private List<BattleCharacter> GetTargets(BattleCharacter actor, EffectTarget effectTarget, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters, BattleActionResult actionResult, ref MapPosition prevTargetPosition)
+    private List<BattleCharacter> GetTargets(BattleCharacter actor, Targeting targeting, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters, BattleActionResult actionResult, ref MapPosition prevTargetPosition)
     {
         List<BattleCharacter> affectedCharacters = new List<BattleCharacter>();
-        if (effectTarget.TargetSearchRule == Const.TargetSearchRule.Nearest)
+        if (targeting.TargetSearchRule == Const.TargetSearchRule.Nearest)
         {
             if (prevTargetPosition != null)
             {
-                var target = this.GetNearestTarget(actor, effectTarget, map, characters, actionResult, prevTargetPosition);
+                var target = this.GetNearestTarget(actor, targeting, map, characters, actionResult, prevTargetPosition);
                 if (target != null)
                 {
-                    prevTargetPosition = target.OccupiedMapPositions[0];
+                    prevTargetPosition = target.BasePosition;
                     affectedCharacters.Add(target);
                 }
             }
@@ -152,11 +152,11 @@ public class BattleService
             {
                 prevTargetPosition = actionResult.targetPosition;
             }
-            var affectedPositions = ServiceFactory.GetMapService().GeMapPositionsForPattern(effectTarget.Pattern, map, prevTargetPosition);
+            var affectedPositions = ServiceFactory.GetMapService().GeMapPositionsForPattern(targeting.Pattern, map, prevTargetPosition);
             var potentialTargets = this.GetCharactersAtPositions(characters, affectedPositions);
             foreach (var potentialTarget in potentialTargets)
             {
-                if (this.IsTargetValidForEffect(actor, potentialTarget, effectTarget))
+                if (this.IsTargetValidForEffect(actor, potentialTarget, targeting))
                 {
                     affectedCharacters.Add(potentialTarget);
                 }
@@ -166,7 +166,7 @@ public class BattleService
         return affectedCharacters;
     }
 
-    private BattleCharacter GetNearestTarget(BattleCharacter actor, EffectTarget effectTarget, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters, BattleActionResult actionResult, MapPosition targetPosition)
+    private BattleCharacter GetNearestTarget(BattleCharacter actor, Targeting targeting, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters, BattleActionResult actionResult, MapPosition targetPosition)
     {
         var nearestDistance = int.MaxValue;
         BattleCharacter target = null;
@@ -181,7 +181,7 @@ public class BattleService
                 continue;
             }
 
-            if (this.IsTargetValidForEffect(actor, character, effectTarget))
+            if (this.IsTargetValidForEffect(actor, character, targeting))
             {
                 foreach (var characterOccupiedPosition in character.OccupiedMapPositions)
                 {
@@ -197,7 +197,7 @@ public class BattleService
         return target;
     }
 
-    private bool IsTargetValidForEffect(BattleCharacter actor, BattleCharacter target, EffectTarget effect)
+    private bool IsTargetValidForEffect(BattleCharacter actor, BattleCharacter target, Targeting effect)
     {
         if (target.IsDead)
         {

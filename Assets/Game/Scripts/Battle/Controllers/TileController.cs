@@ -11,6 +11,7 @@ public class TileController : MonoBehaviour
     [SerializeField] private Color _selectedColor;
     [SerializeField] private Color _movementColor;
     [SerializeField] private Color _skillHighlightColor;
+    [SerializeField] private Color _skillRadiusColor;
 
     private MapPosition _mapPosition;
 
@@ -35,6 +36,10 @@ public class TileController : MonoBehaviour
         else if ((state & Tile.TileState.SkillHighlight) == Tile.TileState.SkillHighlight)
         {
             this._tileSprite.color = _skillHighlightColor;
+        }
+        else if ((state & Tile.TileState.SkillRadius) == Tile.TileState.SkillRadius)
+        {
+            this._tileSprite.color = _skillRadiusColor;
         }
         else
         {

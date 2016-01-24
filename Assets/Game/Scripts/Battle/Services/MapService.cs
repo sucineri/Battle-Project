@@ -36,7 +36,7 @@ public class MapService
     public bool CanCharacterMoveToPosition(BattleCharacter actor, MapPosition position, List<MapPosition> availablePositions, Dictionary<MapPosition, Tile> map)
     {
         var movement = actor.BaseCharacter.Movement;
-        var actorPosition = actor.OccupiedMapPositions[0];
+        var actorPosition = actor.BasePosition;
 
         if (position.Team == actor.Team && actorPosition.GetDistance(position) <= movement)
         {
@@ -64,6 +64,21 @@ public class MapService
         return list;
     }
 
+    public List<MapPosition> GetValidMapPositionsForSkill(Skill skill, BattleCharacter actor, Dictionary<MapPosition, Tile> map, List<BattleCharacter> allBattleCharacters)
+    {
+        var basePosition = actor.BasePosition;
+        var targeting = skill.SkillTargetArea;
+        if (targeting.TargetGroup == Const.SkillTargetGroup.Opponent)
+        {
+            // creates a fake position
+            var oppositeTeam = actor.Team == Const.Team.Enemy ? Const.Team.Player : Const.Team.Enemy;
+            basePosition = new MapPosition(-(basePosition.X + 1), basePosition.Y, oppositeTeam);
+        }
+
+        var validPositions = this.GeMapPositionsForPattern(targeting.Pattern, map, basePosition);
+        return validPositions;
+    }
+
     public List<MapPosition> GeMapPositionsForPattern(Pattern pattern, Dictionary<MapPosition, Tile> map, MapPosition basePosition)
     {
         var list = new List<MapPosition>();
@@ -82,22 +97,22 @@ public class MapService
 
     private bool IsPositionCoveredByPattern(Pattern pattern, MapPosition position, MapPosition basePosition)
     {
+        var offsetX = position.X - basePosition.X;
+        var offsetY = position.Y - basePosition.Y;
         if (pattern.IsWholeGrid)
         {
             return true;
         }
-        else if (pattern.WholeRows.Contains(position.Y))
+        else if (pattern.WholeRows.Contains(offsetY))
         {
             return true;
         }
-        else if (pattern.WholeColumns.Contains(position.X))
+        else if (pattern.WholeColumns.Contains(offsetX))
         {
             return true;
         }
         else
         {
-            var offsetX = position.X - basePosition.X;
-            var offsetY = position.Y - basePosition.Y;
             return pattern.Shape.Contains(new Cordinate(offsetX, offsetY));
         }
     }

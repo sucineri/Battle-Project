@@ -5,13 +5,13 @@ public class SkillEffect
 {
     public BasicStats StatsModifiers { get; set; }
 
-    public EffectTarget EffectTarget { get; set; }
+    public Targeting EffectTarget { get; set; }
 
     public static SkillEffect MeleeAttackEffect()
     {
         var skillEffect = new SkillEffect();
         skillEffect.StatsModifiers = new BasicStats(0d, 0d, 1d, 0d, 0d, 0d);
-        skillEffect.EffectTarget = EffectTarget.SingleOpponentTarget();
+        skillEffect.EffectTarget = Targeting.SingleOpponentTarget();
         return skillEffect;
     }
 
@@ -19,7 +19,7 @@ public class SkillEffect
     {
         var skillEffect = new SkillEffect();
         skillEffect.StatsModifiers = new BasicStats(0d, 0d, 2d, 0d, 0d, 0d);
-        skillEffect.EffectTarget = EffectTarget.CrossOpponentTarget();
+        skillEffect.EffectTarget = Targeting.CrossOpponentTarget();
         return skillEffect;
     }
 
@@ -27,7 +27,7 @@ public class SkillEffect
     {
         var skillEffect = new SkillEffect();
         skillEffect.StatsModifiers = new BasicStats(0d, 0d, 0.3d, 0d, 0d, 0d);
-        skillEffect.EffectTarget = EffectTarget.SquashTarget();
+        skillEffect.EffectTarget = Targeting.SquashTarget();
         return skillEffect;
     }
 
@@ -35,7 +35,7 @@ public class SkillEffect
     {
         var skillEffect = new SkillEffect();
         skillEffect.StatsModifiers = new BasicStats(0d, 0d, 2d, 0d, 0d, 0d);
-        skillEffect.EffectTarget = EffectTarget.ChainLightning();
+        skillEffect.EffectTarget = Targeting.ChainLightning();
         return skillEffect;
     }
 
@@ -43,7 +43,7 @@ public class SkillEffect
     {
         var skillEffect = new SkillEffect();
         skillEffect.StatsModifiers = new BasicStats(0d, 0d, 1d, 0d, 0d, 0d);
-        skillEffect.EffectTarget = EffectTarget.ChainLightningSecondary();
+        skillEffect.EffectTarget = Targeting.ChainLightningSecondary();
         return skillEffect;
     }
 }
