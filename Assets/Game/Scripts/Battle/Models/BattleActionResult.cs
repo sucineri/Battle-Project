@@ -27,6 +27,7 @@ public class BattleActionResult
     public MapPosition targetPosition;
     public BattleCharacter targetCharacter;
     public BattleCharacter actor;
+    public Skill skill;
     public List<ActionEffectResult> allSkillEffectResult = new List<ActionEffectResult>();
 
     public bool HasResult

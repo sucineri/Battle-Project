@@ -2,41 +2,51 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class TurnOrderService
 {
-    public List<BattleCharacter> GetActionOrder(List<BattleCharacter> allUnits)
+    public List<BattleCharacter> GetActionOrder(List<BattleCharacter> allCharacters)
     {
-        allUnits = allUnits.FindAll(x => !x.IsDead);
-
-        this.OrderByWeight(allUnits);
-
-        return allUnits;
-    }
-
-    public void AssignDefaultTurnOrderWeight(BattleCharacter character)
-    {
-        character.TurnOrderWeight = 1.0d / character.BaseCharacter.Agility;
-    }
-
-    public void AddActionTurnOrderWeight(BattleAction action)
-    {
-        // TODO: differnet weight for differnt actions
-        if (action.ActionType == Const.ActionType.Skill)
+        var actionableCharacters = this.GetActionableCharacters(allCharacters);
+        if (!this.AnyCharacterReadyToAct(actionableCharacters))
         {
-            var character = action.Actor;
-            character.TurnOrderWeight += 1.0d / character.BaseCharacter.Agility;
+            this.TickTilAllCharactersActionReady(actionableCharacters);
+        }
+        return this.OrderByAtbPoints(actionableCharacters);
+    }
+
+    private void TickTilAllCharactersActionReady(List<BattleCharacter> actionableCharacters)
+    {
+        var ticks = this.GetTicksTilAllActionReady(actionableCharacters);
+        foreach (var character in actionableCharacters)
+        {
+            character.Tick(ticks);
         }
     }
 
-    private void OrderByWeight(List<BattleCharacter> allUnits)
+    private List<BattleCharacter> OrderByAtbPoints(List<BattleCharacter> actionableCharacters)
     {
-        if (allUnits != null)
-        {
-            allUnits.Sort((a, b) =>{
-                return a.TurnOrderWeight.CompareTo(b.TurnOrderWeight);  
-            });
-        }
+        return actionableCharacters.OrderByDescending(c => c.AtbPoints).ToList();
     }
 
+    private bool AnyCharacterReadyToAct(List<BattleCharacter> actionableCharacters)
+    {
+        return actionableCharacters.Find(c => c.AtbPoints > Const.ActionReadyAtbPoints) != null;
+    }
+
+    private List<BattleCharacter> GetActionableCharacters(List<BattleCharacter> allCharacters)
+    {
+        return allCharacters.FindAll(u => !u.IsDead);
+    }
+
+    private int GetTicksTilAllActionReady(List<BattleCharacter> actionableCharacters)
+    {
+        var maxTicks = 0;
+        foreach (var character in actionableCharacters)
+        {
+            maxTicks = Math.Max(maxTicks, character.TicksTilActionReady);
+        }
+        return maxTicks;
+    }
 }

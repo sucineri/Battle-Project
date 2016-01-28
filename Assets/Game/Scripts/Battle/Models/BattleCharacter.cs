@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -6,13 +6,15 @@ public class BattleCharacter
 {
     public Character BaseCharacter { get; private set; }
 
+    public int BattleCharacterId { get; set; }
+
     public Const.Team Team { get; private set; }
 
     public double CurrentHp { get; set; }
 
     public double CurrentMp { get; set; }
 
-    public double TurnOrderWeight { get; set; }
+    public double AtbPoints { get; private set; }
 
     public double MaxHp { get { return this.BaseCharacter.MaxHp; } }
 
@@ -46,8 +48,13 @@ public class BattleCharacter
         }
     }
 
-    protected BattleCharacter()
+    public int TicksTilActionReady
     {
+        get
+        {
+            double pointsRequired = Math.Max(0d, (double)Const.ActionReadyAtbPoints - this.AtbPoints);
+            return Convert.ToInt32(Math.Ceiling(pointsRequired / this.BaseCharacter.Agility));
+        }
     }
 
     public BattleCharacter(Character baseCharacter, Const.Team team)
@@ -56,5 +63,21 @@ public class BattleCharacter
         this.Team = team;
         this.CurrentHp = this.BaseCharacter.MaxHp;
         this.CurrentMp = this.BaseCharacter.MaxMp;
+    }
+
+    public void Tick(int ticks)
+    {
+        this.AtbPoints += this.BaseCharacter.Agility * ticks;
+    }
+
+    public void FinishAction()
+    {
+        this.SelectedSkill = null;
+        this.ConsumeAtbPoints(Const.ActionReadyAtbPoints);
+    }
+
+    public void ConsumeAtbPoints(int consumedPoints)
+    {
+        this.AtbPoints -= consumedPoints;
     }
 }

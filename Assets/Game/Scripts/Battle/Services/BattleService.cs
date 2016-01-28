@@ -105,6 +105,7 @@ public class BattleService
         skillActionResult.targetPosition = action.TargetPosition;
         skillActionResult.targetCharacter = this.GetCharacterAtPosition(characters, action.TargetPosition);
         skillActionResult.actor = actor;
+        skillActionResult.skill = skill;
 
         MapPosition prevTargetPosition = null;
         foreach (var effect in skill.Effects)
@@ -125,8 +126,8 @@ public class BattleService
             }
             skillActionResult.AddSkillEffectResult(actionEffectResult);
         }
-
-        ServiceFactory.GetTurnOrderService().AddActionTurnOrderWeight(action);
+            
+        actor.FinishAction();
 
         return skillActionResult;
     }

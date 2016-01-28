@@ -77,14 +77,15 @@ public class BattleModel
     {
         // TODO: real character data
         var layout = MapLayout.BossLayout();
+        var id = 0;
 
         foreach (var position in layout.positions)
         {
             var team = position.Team;
             var character = team == Const.Team.Player ? Character.Fighter() : Character.SlimeKing();
             var battleCharacter = new BattleCharacter(character, team);
+            battleCharacter.BattleCharacterId = ++id;
 
-            ServiceFactory.GetTurnOrderService().AssignDefaultTurnOrderWeight(battleCharacter);
             battleCharacter.Postfix = ServiceFactory.GetUnitNameService().GetPostfix(battleCharacter.BaseCharacter.Name);
 
             var mapService = ServiceFactory.GetMapService();
@@ -198,11 +199,6 @@ public class BattleModel
 
     private void NextRound()
     {
-        if (this.CurrentActor != null)
-        {
-            this.CurrentActor.SelectedSkill = null;
-        }
-
         this.SetTileStateAtPositions(this.CurrentMovablePositions, Tile.TileState.MovementHighlight, false);
 
         if (this.AllCharactersDefeated(Const.Team.Enemy))

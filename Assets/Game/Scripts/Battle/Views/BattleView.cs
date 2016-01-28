@@ -63,14 +63,14 @@ public class BattleView : MonoBehaviour
         this._battleUnits.Add(character, battleUnit);
     }
 
-    public IEnumerator PlaySkillAnimation(Skill skill, BattleActionResult outcome)
+    public IEnumerator PlaySkillAnimation(BattleActionResult actionResult)
     {
-        var skillController = SkillControllerFactory.CreateSkillController(skill);
+        var skillController = SkillControllerFactory.CreateSkillController(actionResult.skill);
         if (skillController != null)
         {
-            var actor = outcome.actor;
+            var actor = actionResult.actor;
             var actorController = this.GetBattleUnit(actor);
-            yield return StartCoroutine(skillController.PlaySkillSequence(actorController, this, outcome));
+            yield return StartCoroutine(skillController.PlaySkillSequence(actorController, this, actionResult));
         }
         yield return null;
     }
