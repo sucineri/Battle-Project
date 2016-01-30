@@ -59,12 +59,12 @@ public class BattleActionMenu : MonoBehaviour
         this._battleModel.SelectSkill(skillIndex);
     }
 
-    private MenuItem CreateMenuItem()
+    private BattleMenuItem CreateMenuItem()
     {
         var go = Instantiate(this._menuPrefab) as GameObject;
         go.transform.SetParent(this._layout.transform);
         go.transform.localScale = Vector3.one;
-        var menuItem = go.GetComponent<MenuItem>();
+        var menuItem = go.GetComponent<BattleMenuItem>();
         return menuItem;
     }
 
