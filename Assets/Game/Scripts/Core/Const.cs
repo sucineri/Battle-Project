@@ -55,7 +55,7 @@ public class Const
 
     public const string TileKey = "Tile";
 
-    public const int ActionReadyAtbPoints = 1000;
+    public const int DefaultSkillRank = 3;
 
     public static string GetTileKey(Const.Team team, int x, int y)
     {

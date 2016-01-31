@@ -10,11 +10,13 @@ public class BattleCharacter
 
     public Const.Team Team { get; private set; }
 
+    public int Speed { get; private set; }
+
     public double CurrentHp { get; set; }
 
     public double CurrentMp { get; set; }
 
-    public double AtbPoints { get; private set; }
+    public int ActionCooldown { get; set; }
 
     public double MaxHp { get { return this.BaseCharacter.MaxHp; } }
 
@@ -48,14 +50,7 @@ public class BattleCharacter
         }
     }
 
-    public int TicksTilActionReady
-    {
-        get
-        {
-            double pointsRequired = Math.Max(0d, (double)Const.ActionReadyAtbPoints - this.AtbPoints);
-            return Convert.ToInt32(Math.Ceiling(pointsRequired / this.BaseCharacter.Agility));
-        }
-    }
+    public BattleCharacter() {}
 
     public BattleCharacter(Character baseCharacter, Const.Team team)
     {
@@ -63,21 +58,11 @@ public class BattleCharacter
         this.Team = team;
         this.CurrentHp = this.BaseCharacter.MaxHp;
         this.CurrentMp = this.BaseCharacter.MaxMp;
+        this.Speed = TickSpeed.GetTickSpeed(this.BaseCharacter.Agility);
     }
 
     public void Tick(int ticks)
     {
-        this.AtbPoints += this.BaseCharacter.Agility * ticks;
-    }
-
-    public void FinishAction()
-    {
-        this.SelectedSkill = null;
-        this.ConsumeAtbPoints(Const.ActionReadyAtbPoints);
-    }
-
-    public void ConsumeAtbPoints(int consumedPoints)
-    {
-        this.AtbPoints -= consumedPoints;
+        this.ActionCooldown -= ticks;
     }
 }

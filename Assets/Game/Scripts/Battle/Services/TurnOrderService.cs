@@ -9,44 +9,37 @@ public class TurnOrderService
     public List<BattleCharacter> GetActionOrder(List<BattleCharacter> allCharacters)
     {
         var actionableCharacters = this.GetActionableCharacters(allCharacters);
-        if (!this.AnyCharacterReadyToAct(actionableCharacters))
-        {
-            this.TickTilAllCharactersActionReady(actionableCharacters);
-        }
-        return this.OrderByAtbPoints(actionableCharacters);
-    }
+        var orderedList = this.OrderByCooldown(actionableCharacters);
 
-    private void TickTilAllCharactersActionReady(List<BattleCharacter> actionableCharacters)
-    {
-        var ticks = this.GetTicksTilAllActionReady(actionableCharacters);
+        var minTicks = orderedList.First().ActionCooldown;
         foreach (var character in actionableCharacters)
         {
-            character.Tick(ticks);
+            character.Tick(minTicks);
         }
+
+        return orderedList;
     }
 
-    private List<BattleCharacter> OrderByAtbPoints(List<BattleCharacter> actionableCharacters)
+    public void ApplySkillCooldownToCharacter(BattleCharacter character, Skill skillUsed)
     {
-        return actionableCharacters.OrderByDescending(c => c.AtbPoints).ToList();
+        character.ActionCooldown = character.Speed * skillUsed.Rank;
     }
 
-    private bool AnyCharacterReadyToAct(List<BattleCharacter> actionableCharacters)
+    public void ApplyDefaultCooldownToCharacter(BattleCharacter character)
     {
-        return actionableCharacters.Find(c => c.AtbPoints > Const.ActionReadyAtbPoints) != null;
+        character.ActionCooldown = character.Speed * Const.DefaultSkillRank;
+    }
+
+    private List<BattleCharacter> OrderByCooldown(List<BattleCharacter> actionableCharacters)
+    {
+        return actionableCharacters.OrderBy(c => c.ActionCooldown)
+            .ThenByDescending(c => c.BaseCharacter.Agility)
+            .ThenByDescending(c => c.BattleCharacterId)
+            .ToList();
     }
 
     private List<BattleCharacter> GetActionableCharacters(List<BattleCharacter> allCharacters)
     {
         return allCharacters.FindAll(u => !u.IsDead);
-    }
-
-    private int GetTicksTilAllActionReady(List<BattleCharacter> actionableCharacters)
-    {
-        var maxTicks = 0;
-        foreach (var character in actionableCharacters)
-        {
-            maxTicks = Math.Max(maxTicks, character.TicksTilActionReady);
-        }
-        return maxTicks;
     }
 }

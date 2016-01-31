@@ -16,6 +16,8 @@ public class Skill
 
     public string EffectPrefabPath { get; set; }
 
+    public int Rank { get; set; }
+
     public static Skill MeleeAttack()
     {
         var skill = new Skill();
@@ -25,6 +27,7 @@ public class Skill
         skill.PrefabPath = "Skills/MeleeAttack";
         skill.EffectPrefabPath = "Effects/Explosion";
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
+        skill.Rank = 3;
         return skill;
     }
 
@@ -37,6 +40,7 @@ public class Skill
         skill.PrefabPath = "Skills/CrossSlash";
         skill.EffectPrefabPath = "Effects/Explosion";
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
+        skill.Rank = 4;
         return skill;
     }
 
@@ -49,6 +53,7 @@ public class Skill
         skill.PrefabPath = "Skills/Squash";
         skill.EffectPrefabPath = "Effects/Explosion";
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
+        skill.Rank = 5;
         return skill;
     }
 
@@ -63,6 +68,7 @@ public class Skill
         skill.PrefabPath = "Skills/ChainLightning";
         skill.EffectPrefabPath = "Effects/Explosion";
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
+        skill.Rank = 5;
         return skill;
     }
 }

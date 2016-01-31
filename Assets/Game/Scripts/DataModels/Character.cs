@@ -4,17 +4,17 @@ using System.Collections.Generic;
 
 public class Character
 {
-    public BasicStats BasicStats { get; private set; }
+    public BasicStats BasicStats { get; set; }
 
-    public string Name { get; private set; }
+    public string Name { get; set; }
 
-    public string PortraitPath { get; private set; }
+    public string PortraitPath { get; set; }
 
-    public string ModelPath { get; private set; }
+    public string ModelPath { get; set; }
 
-    public float AttackDistance { get; private set; }
+    public float AttackDistance { get; set; }
 
-    public float SizeOffset { get; private set; }
+    public float SizeOffset { get; set; }
 
     public double MaxHp { get { return this.BasicStats.GetStats(Const.BasicStats.MaxHp); } }
 
@@ -28,7 +28,7 @@ public class Character
 
     public double Agility { get { return this.BasicStats.GetStats(Const.BasicStats.Agility); } }
 
-    public int Movement { get; private set; }
+    public int Movement { get; set; }
 
     public List<Skill> Skills = new List<Skill>();
 

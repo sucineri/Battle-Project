@@ -127,7 +127,7 @@ public class BattleService
             skillActionResult.AddSkillEffectResult(actionEffectResult);
         }
             
-        actor.FinishAction();
+        ServiceFactory.GetTurnOrderService().ApplySkillCooldownToCharacter(actor, skill);
 
         return skillActionResult;
     }
@@ -239,6 +239,4 @@ public class BattleService
 
         return outcome;
     }
-	
-
 }

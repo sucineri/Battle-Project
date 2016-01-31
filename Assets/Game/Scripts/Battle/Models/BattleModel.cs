@@ -103,6 +103,12 @@ public class BattleModel
                 }
             }
         }
+
+        var turnOrderService = ServiceFactory.GetTurnOrderService();
+        foreach (var character in this._battleCharacters)
+        {
+            turnOrderService.ApplyDefaultCooldownToCharacter(character);
+        }
     }
 
     public void SelectSkill(int skillIndex)
