@@ -52,6 +52,11 @@ public class Const
         Character
     }
 
+    public enum EnmityTargetType
+    {
+        Target,
+        All
+    }
 
     public const string TileKey = "Tile";
 

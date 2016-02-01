@@ -34,6 +34,8 @@ public class BattleCharacter
 
     public Skill SelectedSkill { get; set; }
 
+    public BattleEnmity Enmity { get; set; }
+
     public string Name
     {
         get
@@ -59,6 +61,7 @@ public class BattleCharacter
         this.CurrentHp = this.BaseCharacter.MaxHp;
         this.CurrentMp = this.BaseCharacter.MaxMp;
         this.Speed = TickSpeed.GetTickSpeed(this.BaseCharacter.Agility);
+        this.Enmity = new BattleEnmity();
     }
 
     public void Tick(int ticks)

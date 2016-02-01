@@ -18,6 +18,10 @@ public class Skill
 
     public int Rank { get; set; }
 
+    public Const.EnmityTargetType EnmityType { get; set; }
+
+    public int BaseEnmity { get; set; }
+
     public static Skill MeleeAttack()
     {
         var skill = new Skill();
@@ -28,6 +32,8 @@ public class Skill
         skill.EffectPrefabPath = "Effects/Explosion";
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
         skill.Rank = 3;
+        skill.BaseEnmity = 10;
+        skill.EnmityType = Const.EnmityTargetType.Target;
         return skill;
     }
 
@@ -41,6 +47,8 @@ public class Skill
         skill.EffectPrefabPath = "Effects/Explosion";
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
         skill.Rank = 4;
+        skill.BaseEnmity = 15;
+        skill.EnmityType = Const.EnmityTargetType.Target;
         return skill;
     }
 
@@ -54,6 +62,24 @@ public class Skill
         skill.EffectPrefabPath = "Effects/Explosion";
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
         skill.Rank = 5;
+        skill.BaseEnmity = 30;
+        skill.EnmityType = Const.EnmityTargetType.Target;
+        return skill;
+    }
+
+    public static Skill DoubleCross()
+    {
+        var skill = new Skill();
+        skill.Name = "Double Cross";
+        skill.Effects.Add(SkillEffect.CrossSlashEffect());
+        skill.Effects.Add(SkillEffect.CrossSlashEffect());
+        skill.NumberOfTriggers = 1;
+        skill.PrefabPath = "Skills/DoubleCross";
+        skill.EffectPrefabPath = "Effects/Explosion";
+        skill.SkillTargetArea = Targeting.MeleeTargetArea();
+        skill.Rank = 5;
+        skill.BaseEnmity = 30;
+        skill.EnmityType = Const.EnmityTargetType.Target;
         return skill;
     }
 
@@ -69,6 +95,8 @@ public class Skill
         skill.EffectPrefabPath = "Effects/Explosion";
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
         skill.Rank = 5;
+        skill.BaseEnmity = 40;
+        skill.EnmityType = Const.EnmityTargetType.Target;
         return skill;
     }
 }

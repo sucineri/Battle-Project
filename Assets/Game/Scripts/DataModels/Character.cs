@@ -52,6 +52,7 @@ public class Character
         character.SizeOffset = 1.5f;
         character.Skills.Add(Skill.MeleeAttack());
         character.Skills.Add(Skill.CrossSlash());
+        character.Skills.Add(Skill.DoubleCross());
         character.Movement = 2;
 
         character.PatternShape = Pattern.Single();

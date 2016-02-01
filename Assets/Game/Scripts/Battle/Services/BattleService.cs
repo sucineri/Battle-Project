@@ -93,7 +93,7 @@ public class BattleService
         return actionResult;
     }
         
-    private BattleActionResult ProcessSkillAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
+    private BattleActionResult ProcessSkillAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> allCharacters)
     {
         Debug.LogWarning(action.Actor.Name + " uses " + action.SelectedSkill.Name);
 
@@ -103,14 +103,17 @@ public class BattleService
         var skillActionResult = new BattleActionResult();
         skillActionResult.type = Const.ActionType.Skill;
         skillActionResult.targetPosition = action.TargetPosition;
-        skillActionResult.targetCharacter = this.GetCharacterAtPosition(characters, action.TargetPosition);
+        skillActionResult.targetCharacter = this.GetCharacterAtPosition(allCharacters, action.TargetPosition);
         skillActionResult.actor = actor;
         skillActionResult.skill = skill;
+
+        // For keeping track of affect characters to apply enmity
+        HashSet<BattleCharacter> uniqueAffectedOpponents = new HashSet<BattleCharacter>();
 
         MapPosition prevTargetPosition = null;
         foreach (var effect in skill.Effects)
         {
-            var affectedCharacters = this.GetTargets(actor, effect.EffectTarget, map, characters, skillActionResult, ref prevTargetPosition);
+            var affectedCharacters = this.GetTargets(actor, effect.EffectTarget, map, allCharacters, skillActionResult, ref prevTargetPosition);
 
             if (affectedCharacters.Count == 0)
             {
@@ -125,9 +128,21 @@ public class BattleService
                 actionEffectResult.AddEffectOnTarget(resultOnTarget);
             }
             skillActionResult.AddSkillEffectResult(actionEffectResult);
+
+            foreach (var character in affectedCharacters)
+            {
+                if (character.Team != actor.Team)
+                {
+                    uniqueAffectedOpponents.Add(character);
+                }
+            }
         }
             
         ServiceFactory.GetTurnOrderService().ApplySkillCooldownToCharacter(actor, skill);
+
+        UnityEngine.Debug.LogWarning(uniqueAffectedOpponents.ToList().Count);
+
+        ServiceFactory.GetEnmityService().ApplyEnmityForSkill(actor, skill, uniqueAffectedOpponents.ToList(), allCharacters);
 
         return skillActionResult;
     }

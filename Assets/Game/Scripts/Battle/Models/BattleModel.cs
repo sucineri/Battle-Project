@@ -109,6 +109,8 @@ public class BattleModel
         {
             turnOrderService.ApplyDefaultCooldownToCharacter(character);
         }
+
+        ServiceFactory.GetEnmityService().InitEnmity(this._battleCharacters);
     }
 
     public void SelectSkill(int skillIndex)
