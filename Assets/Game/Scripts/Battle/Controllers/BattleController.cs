@@ -10,6 +10,7 @@ public class BattleController : MonoBehaviour
     [SerializeField] private BattleActionMenu _battleActionMenu;
     [SerializeField] private TurnOrderView _turnOrderView;
     [SerializeField] private BattleView _battleView;
+    [SerializeField] private EnmityView _enmityView;
 
     private BattleModel _battleModel;
 
@@ -22,11 +23,7 @@ public class BattleController : MonoBehaviour
 
         this._battleModel = new BattleModel();
 
-        this._battleModel.onTileCreated += this._battleView.BindTileController;
-        this._battleModel.onTurnOrderChanged += this._turnOrderView.UpdateView;
-        this._battleModel.onBattleCharacterCreated += this.OnCreateBattleUnit;
-        this._battleModel.onProcessActionResult += this.ProcessActionResultQueue;
-        this._battleModel.onBattlePhaseChange += this.OnBattlePhaseChange;
+        this.SetupEventListeners();
 
         this._battleModel.CreateBattleMap(numberOfRows, numberOfColumns);
         yield return 0;
@@ -37,6 +34,16 @@ public class BattleController : MonoBehaviour
         this._battleActionMenu.Init(this._battleModel);
 
         this._battleModel.ChangePhase(BattleModel.BattlePhase.NextRound);
+    }
+
+    private void SetupEventListeners()
+    {
+        this._battleModel.onTileCreated += this._battleView.BindTileController;
+        this._battleModel.onTurnOrderChanged += this._turnOrderView.UpdateView;
+        this._battleModel.onBattleCharacterCreated += this.OnCreateBattleUnit;
+        this._battleModel.onProcessActionResult += this.ProcessActionResultQueue;
+        this._battleModel.onBattlePhaseChange += this.OnBattlePhaseChange;
+        this._battleModel.onNextActionableEnemyChanged += this._enmityView.UpdateView;
     }
 
     private void OnTileClick(MapPosition tilePosition)
@@ -126,5 +133,6 @@ public class BattleController : MonoBehaviour
         this._battleModel.onBattleCharacterCreated -= this.OnCreateBattleUnit;
         this._battleModel.onProcessActionResult -= this.ProcessActionResultQueue;
         this._battleModel.onBattlePhaseChange -= this.OnBattlePhaseChange;
+        this._battleModel.onNextActionableEnemyChanged -= this._enmityView.UpdateView;
     }
 }

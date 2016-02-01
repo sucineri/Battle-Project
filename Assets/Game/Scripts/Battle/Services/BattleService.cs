@@ -140,8 +140,6 @@ public class BattleService
             
         ServiceFactory.GetTurnOrderService().ApplySkillCooldownToCharacter(actor, skill);
 
-        UnityEngine.Debug.LogWarning(uniqueAffectedOpponents.ToList().Count);
-
         ServiceFactory.GetEnmityService().ApplyEnmityForSkill(actor, skill, uniqueAffectedOpponents.ToList(), allCharacters);
 
         return skillActionResult;

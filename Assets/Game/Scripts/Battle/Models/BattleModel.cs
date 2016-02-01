@@ -21,10 +21,28 @@ public class BattleModel
     public event Action<MapPosition, Tile> onTileCreated;
     public event Action<BattleCharacter> onBattleCharacterCreated;
     public event Action<List<BattleCharacter>> onTurnOrderChanged;
-    public event Action<BattleCharacter> onActorSelected;
+    public event Action<BattleCharacter> onNextActionableEnemyChanged;
     public event Action<Queue<BattleActionResult>, Action> onProcessActionResult;
     public event Action<BattlePhase> onBattlePhaseChange;
     public event Action<int> onSkillSelected;
+
+    // For now this is only used for updating the enmity view
+    private BattleCharacter _nextActionableEnemy;
+    public BattleCharacter NextActionableEnemy
+    {
+        get
+        {
+            return this._nextActionableEnemy;
+        }
+        set
+        { 
+            this._nextActionableEnemy = value;
+            if (this.onNextActionableEnemyChanged != null)
+            {
+                this.onNextActionableEnemyChanged(this._nextActionableEnemy);
+            }
+        }
+    }
 
     public BattleCharacter CurrentActor { get; private set; }
 
@@ -220,13 +238,9 @@ public class BattleModel
             return;
         }
 
-        this.CurrentActor = this.GetNextActor();
-        this.CurrentMovablePositions = ServiceFactory.GetMapService().GetMovablePositions(this.CurrentActor, this._battleCharacters, this._mapTiles);
+        this.RefreshActionOrder();
 
-        if (this.onActorSelected != null)
-        {
-            this.onActorSelected(this.CurrentActor);
-        }
+        this.CurrentMovablePositions = ServiceFactory.GetMapService().GetMovablePositions(this.CurrentActor, this._battleCharacters, this._mapTiles);
 
         this.SetTileStateAtPositions(this.CurrentMovablePositions, Tile.TileState.MovementHighlight, true);
 
@@ -241,18 +255,16 @@ public class BattleModel
         }
     }
 
-    private BattleCharacter GetNextActor()
+    private void RefreshActionOrder()
     {
         var orderList = ServiceFactory.GetTurnOrderService().GetActionOrder(this.AllBattleCharacters);
         if (this.onTurnOrderChanged != null)
         {
             this.onTurnOrderChanged(orderList);
         }
-        if (orderList != null && orderList.Count > 0)
-        {
-            return orderList[0];
-        }
-        return null;
+
+        this.CurrentActor = orderList.ElementAt(0);
+        this.NextActionableEnemy = orderList.First(x => x.Team == Const.Team.Enemy);
     }
 
     private void CreateBattleGrid(int numberOfRows, int numberOfColumns, Const.Team team)

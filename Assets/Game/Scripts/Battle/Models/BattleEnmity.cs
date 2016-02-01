@@ -5,15 +5,16 @@ using System.Linq;
 
 public class BattleEnmity  
 {
-    private List<CharacterEnmity> _enmityList = new List<CharacterEnmity>();
+    private List<EnmityTarget> _enmityList = new List<EnmityTarget>();
 
     public void InitEnmityList(List<BattleCharacter> enemies, int initEnmityLevel)
     {
-        this._enmityList = new List<CharacterEnmity>();
+        this._enmityList = new List<EnmityTarget>();
         foreach (var enemy in enemies)
         {
-            this._enmityList.Add(new CharacterEnmity(enemy, initEnmityLevel));
+            this._enmityList.Add(new EnmityTarget(enemy, initEnmityLevel));
         }
+        this.ArrangeList();
     }
 
     public void ChangeEnmityLevel(BattleCharacter character, int enmityDelta)
@@ -26,6 +27,12 @@ public class BattleEnmity
                 break;
             }
         }
+        this.ArrangeList();
+    }
+
+    public List<EnmityTarget> GetEnmityList()
+    {
+        return this._enmityList;
     }
 
     public void ArrangeList()
@@ -33,12 +40,12 @@ public class BattleEnmity
         this._enmityList.Sort();
     }
 
-    internal class CharacterEnmity : IComparable
+    public class EnmityTarget : IComparable
     {
         public BattleCharacter Character { get; private set; }
         public int EnmityLevel { get; set; }
 
-        public CharacterEnmity(BattleCharacter character, int enmityLevel)
+        public EnmityTarget(BattleCharacter character, int enmityLevel)
         {
             this.Character = character;
             this.EnmityLevel = enmityLevel;
@@ -47,7 +54,7 @@ public class BattleEnmity
         #region IComparable implementation
         public int CompareTo(object obj)
         {
-            var otherEnmity = obj as CharacterEnmity;
+            var otherEnmity = obj as EnmityTarget;
             if (otherEnmity != null)
             {
                 return otherEnmity.EnmityLevel.CompareTo(this.EnmityLevel);
