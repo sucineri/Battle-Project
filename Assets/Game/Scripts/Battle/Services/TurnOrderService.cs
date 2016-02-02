@@ -8,15 +8,15 @@ public class TurnOrderService
     public List<BattleCharacter> GetActionOrder(List<BattleCharacter> allCharacters)
     {
         var actionableCharacters = this.GetActionableCharacters(allCharacters);
-        var orderedList = this.OrderByCooldown(actionableCharacters);
+        this.OrderByCooldown(actionableCharacters);
 
-        var minTicks = orderedList.First().ActionCooldown;
+        var minTicks = actionableCharacters.First().ActionCooldown;
         foreach (var character in actionableCharacters)
         {
             character.Tick(minTicks);
         }
 
-        return orderedList;
+        return actionableCharacters;
     }
 
     public void ApplySkillCooldownToCharacter(BattleCharacter character, Skill skillUsed)
@@ -29,12 +29,19 @@ public class TurnOrderService
         character.ActionCooldown = character.Speed * Const.DefaultSkillRank;
     }
 
-    private List<BattleCharacter> OrderByCooldown(List<BattleCharacter> actionableCharacters)
+    private void OrderByCooldown(List<BattleCharacter> actionableCharacters)
     {
-        return actionableCharacters.OrderBy(c => c.ActionCooldown)
-            .ThenByDescending(c => c.BaseCharacter.Agility)
-            .ThenByDescending(c => c.BattleCharacterId)
-            .ToList();
+        actionableCharacters.Sort((x, y) =>{
+            if(x.ActionCooldown != y.ActionCooldown)
+            {
+                return x.ActionCooldown.CompareTo(y.ActionCooldown);
+            }
+            if(x.BaseCharacter.Agility != y.BaseCharacter.Agility ) 
+            {
+                return y.BaseCharacter.Agility.CompareTo(x.BaseCharacter.Agility);
+            }
+            return y.BattleCharacterId.CompareTo(x.BattleCharacterId);
+        });
     }
 
     private List<BattleCharacter> GetActionableCharacters(List<BattleCharacter> allCharacters)
