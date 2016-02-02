@@ -23,32 +23,32 @@ public class EnmityService
         }
     }
 
-    public void ApplyEnmityForSkill(BattleCharacter actor, Skill skill, List<BattleCharacter> affectedCharacters, List<BattleCharacter> allCharacters)
+    public void ApplyEnmityForSkillEffect(BattleCharacter actor, SkillEffect effect, List<BattleCharacter> affectedCharacters, List<BattleCharacter> allCharacters)
     {
-        switch (skill.EnmityType)
+        switch (effect.EnmityType)
         {
             case Const.EnmityTargetType.Target:
-                this.ApplyEnmityToCharacters(actor, skill, affectedCharacters);
+                this.ApplyEnmityToCharacters(actor, effect, affectedCharacters);
                 break;
             case Const.EnmityTargetType.All:
                 var targets = allCharacters.FindAll(x => x.Team != actor.Team);
-                this.ApplyEnmityToCharacters(actor, skill, targets);
+                this.ApplyEnmityToCharacters(actor, effect, targets);
                 break;
         }
     }
 
-    private void ApplyEnmityToCharacters(BattleCharacter actor, Skill skill, List<BattleCharacter> targets)
+    private void ApplyEnmityToCharacters(BattleCharacter actor, SkillEffect effect, List<BattleCharacter> targets)
     {
         foreach (var target in targets)
         {
-            this.ApplyEnmityToCharacter(actor, skill, target);
+            this.ApplyEnmityToCharacter(actor, effect, target);
         }
     }
 
-    private void ApplyEnmityToCharacter(BattleCharacter actor, Skill skill, BattleCharacter target)
+    private void ApplyEnmityToCharacter(BattleCharacter actor, SkillEffect effect, BattleCharacter target)
     {
         // TODO: better enmity calculation logic
-        var enmityDelta = skill.BaseEnmity;
+        var enmityDelta = effect.BaseEnmity;
         target.Enmity.ChangeEnmityLevel(actor, enmityDelta);
     }
 }

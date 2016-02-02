@@ -107,9 +107,6 @@ public class BattleService
         skillActionResult.actor = actor;
         skillActionResult.skill = skill;
 
-        // For keeping track of affect characters to apply enmity
-        HashSet<BattleCharacter> uniqueAffectedOpponents = new HashSet<BattleCharacter>();
-
         MapPosition prevTargetPosition = null;
         foreach (var effect in skill.Effects)
         {
@@ -124,23 +121,15 @@ public class BattleService
 
             foreach (var affectedCharacter in affectedCharacters)
             {
-                var resultOnTarget = this.ApplyEffects(actor, affectedCharacter, skill);
+                var resultOnTarget = this.ApplyEffect(actor, affectedCharacter, effect, skill.EffectPrefabPath);
                 actionEffectResult.AddEffectOnTarget(resultOnTarget);
             }
             skillActionResult.AddSkillEffectResult(actionEffectResult);
 
-            foreach (var character in affectedCharacters)
-            {
-                if (character.Team != actor.Team)
-                {
-                    uniqueAffectedOpponents.Add(character);
-                }
-            }
+            ServiceFactory.GetEnmityService().ApplyEnmityForSkillEffect(actor, effect, affectedCharacters, allCharacters);
         }
             
         ServiceFactory.GetTurnOrderService().ApplySkillCooldownToCharacter(actor, skill);
-
-        ServiceFactory.GetEnmityService().ApplyEnmityForSkill(actor, skill, uniqueAffectedOpponents.ToList(), allCharacters);
 
         return skillActionResult;
     }
@@ -231,25 +220,23 @@ public class BattleService
         }
     }
 
-    private BattleActionResult.EffectOnTarget ApplyEffects(BattleCharacter actor, BattleCharacter target, Skill skill)
+    private BattleActionResult.EffectOnTarget ApplyEffect(BattleCharacter actor, BattleCharacter target, SkillEffect effect, string effectPrefabPath)
     {
         // TODO: more effect types
-        var effects = skill.Effects;
-        var outcome = new BattleActionResult.EffectOnTarget();
-        outcome.target = target;
-        foreach (var effect in effects)
-        {
-            var damage = Math.Floor(DamageLogic.GetNormalAttackDamage(actor, target, effect));
-            outcome.hpChange -= damage;
-        }
-        outcome.effectPrefabPath = skill.EffectPrefabPath;
+        var effectOnTarget = new BattleActionResult.EffectOnTarget();
+        effectOnTarget.target = target;
+
+        var damage = Math.Floor(DamageLogic.GetNormalAttackDamage(actor, target, effect));
+        effectOnTarget.hpChange = -damage;
+
+        effectOnTarget.effectPrefabPath = effectPrefabPath;
 
         // Deduct Hp
-        target.CurrentHp = Math.Min(target.MaxHp, Math.Max(0d, target.CurrentHp + outcome.hpChange));
+        target.CurrentHp = Math.Min(target.MaxHp, Math.Max(0d, target.CurrentHp + effectOnTarget.hpChange));
 
-        Debug.LogWarning(target.Name + " takes " + outcome.hpChange + " damage");
+        Debug.LogWarning(target.Name + " takes " + effectOnTarget.hpChange + " damage");
         Debug.LogWarning(target.Name + " remaining hp " + target.CurrentHp);
 
-        return outcome;
+        return effectOnTarget;
     }
 }
