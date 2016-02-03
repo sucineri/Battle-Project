@@ -36,7 +36,8 @@ public class Const
         Attack,
         Defense,
         Agility,
-        Wisdom
+        Wisdom,
+        Mind
     }
 
     public enum ActionType

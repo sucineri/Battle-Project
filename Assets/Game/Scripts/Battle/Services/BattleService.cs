@@ -226,7 +226,7 @@ public class BattleService
         var effectOnTarget = new BattleActionResult.EffectOnTarget();
         effectOnTarget.target = target;
 
-        var damage = Math.Floor(DamageLogic.GetNormalAttackDamage(actor, target, effect));
+        var damage = Math.Floor(DamageLogic.CalculateDamage(actor, target, effect));
         effectOnTarget.hpChange = -damage;
 
         effectOnTarget.effectPrefabPath = effectPrefabPath;

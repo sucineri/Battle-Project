@@ -6,12 +6,7 @@ public class BasicStats
 {
     private Dictionary<Const.BasicStats, double> _stats = new Dictionary<Const.BasicStats, double>();
 
-    protected BasicStats()
-    {
-        // no public default constructor
-    }
-
-    public BasicStats(double maxHp, double maxMp, double atk, double def, double agi, double wis)
+    public BasicStats(double maxHp, double maxMp, double atk, double def, double agi, double wis, double mnd)
     {
         _stats.Add(Const.BasicStats.MaxHp, maxHp);
         _stats.Add(Const.BasicStats.MaxMp, maxMp);
@@ -19,6 +14,7 @@ public class BasicStats
         _stats.Add(Const.BasicStats.Defense, def);
         _stats.Add(Const.BasicStats.Agility, agi);
         _stats.Add(Const.BasicStats.Wisdom, wis);
+        _stats.Add(Const.BasicStats.Mind, mnd);
     }
 
     public double GetStats(Const.BasicStats key)

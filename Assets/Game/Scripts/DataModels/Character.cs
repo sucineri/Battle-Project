@@ -28,6 +28,8 @@ public class Character
 
     public double Agility { get { return this.BasicStats.GetStats(Const.BasicStats.Agility); } }
 
+    public double Mind { get { return this.BasicStats.GetStats(Const.BasicStats.Mind); } }
+
     public int Movement { get; set; }
 
     public List<Skill> Skills = new List<Skill>();
@@ -44,8 +46,9 @@ public class Character
         var def = random.Next(100, 150);
         var agi = random.Next(50, 100);
         var wis = random.Next(30, 80);
+        var mnd = random.Next(30, 50);
         character.Name = "Fighter";
-        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis);
+        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd);
         character.PortraitPath = "Characters/Fighter/portrait";
         character.ModelPath = "Characters/Fighter/model";
         character.AttackDistance = 1.5f;
@@ -70,8 +73,9 @@ public class Character
         var def = random.Next(100, 150);
         var agi = random.Next(50, 100);
         var wis = random.Next(30, 80);
+        var mnd = random.Next(30, 50);
         character.Name = "Slime";
-        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis);
+        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd);
         character.PortraitPath = "Characters/Slime/portrait";
         character.ModelPath = "Characters/Slime/model";
         character.AttackDistance = 2.5f;
@@ -94,8 +98,9 @@ public class Character
         var def = random.Next(100, 150);
         var agi = random.Next(50, 100);
         var wis = random.Next(200, 250);
+        var mnd = random.Next(30, 50);
         character.Name = "Slime King";
-        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis);
+        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd);
         character.PortraitPath = "Characters/SlimeKing/portrait";
         character.ModelPath = "Characters/SlimeKing/model";
         character.AttackDistance = 2.5f;
