@@ -86,17 +86,20 @@ public class BattleUnitController : MonoBehaviour
         go.SetActive(true);
     }
 
-    public IEnumerator TakeDamage(double damage, float hpPercentage)
+    public IEnumerator TakeDamage(double hpDelta, float hpPercentage)
     {
-        this.ShowDamageText(damage);
+        this.ShowEffectText(hpDelta);
 
         this.characterView.IsDead = hpPercentage <= 0f;
-        this.characterView.CurrentAnimationState = BattleCharacterView.AnimationState.Damage;
+        if (hpDelta < 0)
+        {
+            this.characterView.CurrentAnimationState = BattleCharacterView.AnimationState.Damage;
+        }
 
         yield return StartCoroutine(this.AnimateHpChange(hpPercentage));
     }
 
-    private void ShowDamageText(double damage)
+    private void ShowEffectText(double hpDelta)
     {
         var go = Instantiate(this.damageTextPrefab) as GameObject;
         var damageText = go.GetComponent<DamageText>();
@@ -104,7 +107,7 @@ public class BattleUnitController : MonoBehaviour
         go.transform.localPosition = this.damageTextPrefab.transform.localPosition;
         go.transform.localScale = this.damageTextPrefab.transform.localScale;
         go.SetActive(true);
-        damageText.ShowDamage(damage);
+        damageText.ShowHpChange(hpDelta);
     }
 
     private IEnumerator AnimateHpChange(float hpPercentage)

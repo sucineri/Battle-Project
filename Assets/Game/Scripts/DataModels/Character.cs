@@ -6,6 +6,8 @@ public class Character
 {
     public BasicStats BasicStats { get; set; }
 
+    public Affinity Resistances { get; set; }
+
     public string Name { get; set; }
 
     public string PortraitPath { get; set; }
@@ -49,13 +51,14 @@ public class Character
         var mnd = random.Next(30, 50);
         character.Name = "Fighter";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd);
+        character.Resistances = new Affinity(2.0f);
         character.PortraitPath = "Characters/Fighter/portrait";
         character.ModelPath = "Characters/Fighter/model";
         character.AttackDistance = 1.5f;
         character.SizeOffset = 1.5f;
         character.Skills.Add(Skill.MeleeAttack());
         character.Skills.Add(Skill.CrossSlash());
-        character.Skills.Add(Skill.DoubleCross());
+        character.Skills.Add(Skill.MinorHeal());
         character.Movement = 2;
 
         character.PatternShape = Pattern.Single();
@@ -76,6 +79,7 @@ public class Character
         var mnd = random.Next(30, 50);
         character.Name = "Slime";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd);
+        character.Resistances = new Affinity(2.0f);
         character.PortraitPath = "Characters/Slime/portrait";
         character.ModelPath = "Characters/Slime/model";
         character.AttackDistance = 2.5f;
@@ -101,6 +105,7 @@ public class Character
         var mnd = random.Next(30, 50);
         character.Name = "Slime King";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd);
+        character.Resistances = new Affinity(2.0f);
         character.PortraitPath = "Characters/SlimeKing/portrait";
         character.ModelPath = "Characters/SlimeKing/model";
         character.AttackDistance = 2.5f;

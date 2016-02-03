@@ -23,9 +23,29 @@ public class DamageLogic
 
         if (mndMod != 0d)
         {
-            damage += Math.Floor(attacker.BaseCharacter.Wisdom * wisMod);
+            damage += Math.Floor(attacker.BaseCharacter.Mind * mndMod);
         }
 
+        damage = ApplyAffinityBonuses(damage, defender.BaseCharacter.Resistances, effect.Affinities);
+
+        return damage;
+    }
+
+    private static double ApplyAffinityBonuses(double baseDamage, Affinity resistances, Affinity effectAffinities)
+    {
+        if (resistances == null || effectAffinities == null)
+        {
+            return baseDamage;
+        }
+
+        var damage = baseDamage;
+        // TODO: Confirm affinity spec
+        foreach (var kv in effectAffinities.GetNonZeroAffinities())
+        {
+            var resistance = resistances.GetAffinity(kv.Key);
+            var percentage = 1d - resistance;
+            damage *= percentage;
+        }
         return damage;
     }
 }

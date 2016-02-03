@@ -40,6 +40,11 @@ public class Const
         Mind
     }
 
+    public enum Affinities
+    {
+        Healing
+    }
+
     public enum ActionType
     {
         Movement,

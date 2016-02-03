@@ -85,4 +85,17 @@ public class Skill
         skill.Rank = 5;
         return skill;
     }
+
+    public static Skill MinorHeal()
+    {
+        var skill = new Skill();
+        skill.Name = "Minor Heal";
+        skill.Effects.Add(SkillEffect.MinorHealEffect());
+        skill.NumberOfTriggers = 1;
+        skill.PrefabPath = "Skills/MinorHeal";
+        skill.EffectPrefabPath = "Effects/Healing";
+        skill.SkillTargetArea = Targeting.HealTargetArea();
+        skill.Rank = 3;
+        return skill;
+    }
 }

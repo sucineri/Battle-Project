@@ -5,6 +5,8 @@ public class SkillEffect
 {
     public BasicStats StatsModifiers { get; set; }
 
+    public Affinity Affinities { get; set; }
+
     public Targeting EffectTarget { get; set; }
 
     public Const.EnmityTargetType EnmityType { get; set; }
@@ -58,6 +60,17 @@ public class SkillEffect
         skillEffect.EffectTarget = Targeting.ChainLightningSecondary();
         skillEffect.BaseEnmity = 20;
         skillEffect.EnmityType = Const.EnmityTargetType.Target;
+        return skillEffect;
+    }
+
+    public static SkillEffect MinorHealEffect()
+    {
+        var skillEffect = new SkillEffect();
+        skillEffect.StatsModifiers = new BasicStats(0d, 0d, 0d, 0d, 0d, 0d, 3d);
+        skillEffect.EffectTarget = Targeting.SingleAllyTarget();
+        skillEffect.Affinities = new Affinity(1d);
+        skillEffect.BaseEnmity = 40;
+        skillEffect.EnmityType = Const.EnmityTargetType.All;
         return skillEffect;
     }
 }
