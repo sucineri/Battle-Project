@@ -36,6 +36,17 @@ public class Targeting
         return targeting;
     }
 
+    public static Targeting SingleTarget()
+    {
+        var targeting = new Targeting();
+        targeting.TargetGroup = Const.SkillTargetGroup.All;
+        targeting.TargetType = Const.SkillTargetType.Unit;
+        targeting.TargetSearchRule = Const.TargetSearchRule.SelectedTarget;
+
+        targeting.Pattern = Pattern.Single();
+        return targeting;
+    }
+
     public static Targeting ChainLightning()
     {
         var targeting = new Targeting();
@@ -96,7 +107,7 @@ public class Targeting
     public static Targeting HealTargetArea()
     {
         var targeting = new Targeting();
-        targeting.TargetGroup = Const.SkillTargetGroup.Ally;
+        targeting.TargetGroup = Const.SkillTargetGroup.All;
         targeting.TargetType = Const.SkillTargetType.Tile;
 
         targeting.Pattern = Pattern.Cross();

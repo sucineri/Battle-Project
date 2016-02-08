@@ -9,6 +9,7 @@ public class ServiceFactory
     private static TurnOrderService _turnOrderService = new TurnOrderService();
     private static UnitNameService _unitNameService = new UnitNameService();
     private static EnmityService _enmityService = new EnmityService();
+    private static TargetingService _targetingService = new TargetingService();
 
     public static AIService GetAIService()
     {
@@ -38,5 +39,10 @@ public class ServiceFactory
     public static EnmityService GetEnmityService()
     {
         return _enmityService;
+    }
+
+    public static TargetingService GetTargetingService()
+    {
+        return _targetingService;
     }
 }

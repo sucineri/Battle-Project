@@ -18,14 +18,24 @@ public class MapPosition
 
     public int GetDistance(MapPosition otherPosition)
     {
+        return this.GetXDistance(otherPosition) + this.GetYDistance(otherPosition);
+    }
+
+    public int GetXDistance(MapPosition otherPosition)
+    {
         if (this.Team != otherPosition.Team)
         {
-            return Int32.MaxValue;
+            return this.X + otherPosition.X + 1;
         }
         else
         {
-            return Math.Abs(this.X - otherPosition.X) + Math.Abs(this.Y - otherPosition.Y);
+            return Math.Abs(this.X - otherPosition.X);
         }
+    }
+
+    public int GetYDistance(MapPosition otherPosition)
+    {
+        return Math.Abs(this.Y - otherPosition.Y);
     }
 
     public override bool Equals(System.Object obj)

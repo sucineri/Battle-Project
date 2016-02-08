@@ -67,7 +67,7 @@ public class SkillEffect
     {
         var skillEffect = new SkillEffect();
         skillEffect.StatsModifiers = new BasicStats(0d, 0d, 0d, 0d, 0d, 0d, 3d);
-        skillEffect.EffectTarget = Targeting.SingleAllyTarget();
+        skillEffect.EffectTarget = Targeting.SingleTarget();
         skillEffect.Affinities = new Affinity(1d);
         skillEffect.BaseEnmity = 40;
         skillEffect.EnmityType = Const.EnmityTargetType.All;

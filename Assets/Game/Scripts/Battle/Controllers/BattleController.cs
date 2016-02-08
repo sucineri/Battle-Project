@@ -107,7 +107,7 @@ public class BattleController : MonoBehaviour
         var actor = movementEffect.target;
         var newPosition = movementEffect.positionChangeTo;
 
-        var occupiedPositions = this._battleModel.GetMapPositionsForPattern(actor.BaseCharacter.PatternShape, newPosition);
+        var occupiedPositions = this._battleModel.GetMapPositionsForPattern(actor.BaseCharacter.PatternShape, Const.SkillTargetGroup.Ally, actor.Team, newPosition);
 
         yield return StartCoroutine(this._battleView.MoveUnitToMapPosition(actor, occupiedPositions));
     }

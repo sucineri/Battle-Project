@@ -57,8 +57,8 @@ public class Pattern
     public static Pattern TwoColumns()
     {
         var pattern = new Pattern();
-        pattern.WholeColumns.Add(1);
-        pattern.WholeColumns.Add(2);
+        pattern.WholeColumns.Add(-1);
+        pattern.WholeColumns.Add(-2);
         return pattern;
     }
 }

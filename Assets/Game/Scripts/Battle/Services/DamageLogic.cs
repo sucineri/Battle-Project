@@ -38,14 +38,21 @@ public class DamageLogic
             return baseDamage;
         }
 
-        var damage = baseDamage;
-        // TODO: Confirm affinity spec
-        foreach (var kv in effectAffinities.GetNonZeroAffinities())
+        var nonZeroAffinities = effectAffinities.GetNonZeroAffinities();
+
+        if (nonZeroAffinities.Count == 0)
         {
-            var resistance = resistances.GetAffinity(kv.Key);
-            var percentage = 1d - resistance;
-            damage *= percentage;
+            return baseDamage;
         }
-        return damage;
+
+        var modifiedDamage = 0d;
+
+        foreach (var kv in nonZeroAffinities)
+        {
+            var resistanceEffect = 1d - resistances.GetAffinity(kv.Key);
+            modifiedDamage += baseDamage * resistanceEffect * kv.Value;
+            UnityEngine.Debug.LogWarning("base " + baseDamage + " resist " + resistanceEffect + " value " + kv.Value);
+        }
+        return Math.Floor(modifiedDamage);
     }
 }

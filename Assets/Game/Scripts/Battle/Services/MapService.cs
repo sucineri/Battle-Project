@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,26 +68,18 @@ public class MapService
     {
         var basePosition = actor.BasePosition;
         var targeting = skill.SkillTargetArea;
-        if (targeting.TargetGroup == Const.SkillTargetGroup.Opponent)
-        {
-            // creates a fake position
-            var oppositeTeam = actor.Team == Const.Team.Enemy ? Const.Team.Player : Const.Team.Enemy;
-            basePosition = new MapPosition(-(basePosition.X + 1), basePosition.Y, oppositeTeam);
-        }
 
-        var validPositions = this.GeMapPositionsForPattern(targeting.Pattern, map, basePosition);
+        var validPositions = this.GeMapPositionsForPattern(targeting.Pattern, targeting.TargetGroup, actor.Team, map, basePosition);
         return validPositions;
     }
 
-    public List<MapPosition> GeMapPositionsForPattern(Pattern pattern, Dictionary<MapPosition, Tile> map, MapPosition basePosition)
+    public List<MapPosition> GeMapPositionsForPattern(Pattern pattern, Const.SkillTargetGroup targetGroup, Const.Team sourceTeam, Dictionary<MapPosition, Tile> map, MapPosition basePosition)
     {
         var list = new List<MapPosition>();
-        var team = basePosition.Team;
-        var sameTeamPositions = map.Keys.ToList().FindAll(x => x.Team == team);
 
-        foreach (var mapPosition in sameTeamPositions)
+        foreach (var mapPosition in map.Keys)
         {
-            if (this.IsPositionCoveredByPattern(pattern, mapPosition, basePosition))
+            if (this.IsPositionCoveredByPattern(pattern, targetGroup, sourceTeam, mapPosition, basePosition))
             {
                 list.Add(mapPosition);
             }
@@ -95,10 +87,21 @@ public class MapService
         return list;
     }
 
-    private bool IsPositionCoveredByPattern(Pattern pattern, MapPosition position, MapPosition basePosition)
+    private bool IsPositionCoveredByPattern(Pattern pattern, Const.SkillTargetGroup targetGroup, Const.Team sourceTeam, MapPosition position, MapPosition basePosition)
     {
+        if (!ServiceFactory.GetTargetingService().IsInTargetGroup(targetGroup, sourceTeam, position.Team))
+        {
+            return false;
+        }
+
         var offsetX = position.X - basePosition.X;
         var offsetY = position.Y - basePosition.Y;
+
+        if (position.Team != basePosition.Team)
+        {
+            offsetX = -position.GetXDistance(basePosition);
+        }
+
         if (pattern.IsWholeGrid)
         {
             return true;

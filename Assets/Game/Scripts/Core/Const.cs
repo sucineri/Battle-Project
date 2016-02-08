@@ -14,7 +14,8 @@ public class Const
         None,
         Ally,
         Opponent,
-        Self
+        Self,
+        All
     }
 
     public enum SkillTargetType

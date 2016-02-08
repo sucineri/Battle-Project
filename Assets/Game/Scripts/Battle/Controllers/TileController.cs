@@ -29,17 +29,17 @@ public class TileController : MonoBehaviour
         {
             this._tileSprite.color = _selectedColor;
         }
-        else if ((state & Tile.TileState.MovementHighlight) == Tile.TileState.MovementHighlight)
+        else if ((state & Tile.TileState.SkillRadius) == Tile.TileState.SkillRadius)
         {
-            this._tileSprite.color = _movementColor;
+            this._tileSprite.color = _skillRadiusColor;
         }
         else if ((state & Tile.TileState.SkillHighlight) == Tile.TileState.SkillHighlight)
         {
             this._tileSprite.color = _skillHighlightColor;
         }
-        else if ((state & Tile.TileState.SkillRadius) == Tile.TileState.SkillRadius)
+        else if ((state & Tile.TileState.MovementHighlight) == Tile.TileState.MovementHighlight)
         {
-            this._tileSprite.color = _skillRadiusColor;
+            this._tileSprite.color = _movementColor;
         }
         else
         {

@@ -182,7 +182,8 @@ public class BattleModel
             var selectedSkill = this.CurrentActor.SelectedSkill;
 
             //TODO: check skill target
-            var affectedPositions = this.GetMapPositionsForPattern(selectedSkill.Effects[0].EffectTarget.Pattern, targetPosition);
+            var targeting = selectedSkill.Effects[0].EffectTarget;
+            var affectedPositions = this.GetMapPositionsForPattern(targeting.Pattern, targeting.TargetGroup, this.CurrentActor.Team, targetPosition);
 
             var action = new BattleAction(this.CurrentActor, Const.ActionType.Skill, Const.TargetType.Tile, targetPosition, selectedSkill);
             var actionQueue = new Queue<BattleAction>();
@@ -213,9 +214,9 @@ public class BattleModel
         }
     }
 
-    public List<MapPosition> GetMapPositionsForPattern(Pattern pattern, MapPosition basePosition)
+    public List<MapPosition> GetMapPositionsForPattern(Pattern pattern, Const.SkillTargetGroup targetGroup, Const.Team sourceTeam, MapPosition basePosition)
     {
-        return ServiceFactory.GetMapService().GeMapPositionsForPattern(pattern, this._mapTiles, basePosition);
+        return ServiceFactory.GetMapService().GeMapPositionsForPattern(pattern, targetGroup, sourceTeam, this._mapTiles, basePosition);
     }
 
     private bool AllCharactersDefeated(Const.Team team)

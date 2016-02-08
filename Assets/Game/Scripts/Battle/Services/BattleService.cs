@@ -155,7 +155,7 @@ public class BattleService
             {
                 prevTargetPosition = actionResult.targetPosition;
             }
-            var affectedPositions = ServiceFactory.GetMapService().GeMapPositionsForPattern(targeting.Pattern, map, prevTargetPosition);
+            var affectedPositions = ServiceFactory.GetMapService().GeMapPositionsForPattern(targeting.Pattern, targeting.TargetGroup, actor.Team, map, prevTargetPosition);
             var potentialTargets = this.GetCharactersAtPositions(characters, affectedPositions);
             foreach (var potentialTarget in potentialTargets)
             {
@@ -215,6 +215,8 @@ public class BattleService
                 return actor.Team != target.Team;
             case Const.SkillTargetGroup.Self:
                 return actor == target;
+            case Const.SkillTargetGroup.All:
+                return true;
             default:
                 return false;
         }
