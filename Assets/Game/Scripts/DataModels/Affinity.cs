@@ -8,9 +8,11 @@ public class Affinity
 
     public double Healing { get { return this.GetAffinity(Const.Affinities.Healing); } }
 
-    public Affinity(double heal)
+    public Affinity(double physical, double heal, double lightning = 0d)
     {
+        _affinities.Add(Const.Affinities.Physical, physical);
         _affinities.Add(Const.Affinities.Healing, heal);
+        _affinities.Add(Const.Affinities.Lightning, lightning);
     }
 
     public List<KeyValuePair<Const.Affinities, double>> GetNonZeroAffinities()

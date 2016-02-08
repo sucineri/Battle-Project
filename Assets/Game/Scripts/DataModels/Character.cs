@@ -51,7 +51,7 @@ public class Character
         var mnd = random.Next(30, 50);
         character.Name = "Fighter";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd);
-        character.Resistances = new Affinity(2.0f);
+        character.Resistances = new Affinity(0d, 2d);
         character.PortraitPath = "Characters/Fighter/portrait";
         character.ModelPath = "Characters/Fighter/model";
         character.AttackDistance = 1.5f;
@@ -79,7 +79,7 @@ public class Character
         var mnd = random.Next(30, 50);
         character.Name = "Slime";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd);
-        character.Resistances = new Affinity(2.0f);
+        character.Resistances = new Affinity(0d, 2d);
         character.PortraitPath = "Characters/Slime/portrait";
         character.ModelPath = "Characters/Slime/model";
         character.AttackDistance = 2.5f;
@@ -105,9 +105,35 @@ public class Character
         var mnd = random.Next(30, 50);
         character.Name = "Slime King";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd);
-        character.Resistances = new Affinity(2.0f);
+        character.Resistances = new Affinity(0d, 2d);
         character.PortraitPath = "Characters/SlimeKing/portrait";
         character.ModelPath = "Characters/SlimeKing/model";
+        character.AttackDistance = 2.5f;
+        character.SizeOffset = 1.5f;
+        character.Skills.Add(Skill.ChainLightning());
+        character.Skills.Add(Skill.Squash());
+        character.Movement = 2;
+
+        character.PatternShape = Pattern.Square();
+        return character;
+    }
+
+    public static Character ZombieSlimeKing()
+    {
+        var random = new System.Random();
+        var character = new Character();
+        var maxHp = random.Next(5000, 7000);
+        var maxMp = random.Next(1000, 1500);
+        var atk = random.Next(500, 700);
+        var def = random.Next(100, 150);
+        var agi = random.Next(50, 100);
+        var wis = random.Next(200, 250);
+        var mnd = random.Next(30, 50);
+        character.Name = "Slime King";
+        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd);
+        character.Resistances = new Affinity(2d, -2d);
+        character.PortraitPath = "Characters/ZombieSlimeKing/portrait";
+        character.ModelPath = "Characters/ZombieSlimeKing/model";
         character.AttackDistance = 2.5f;
         character.SizeOffset = 1.5f;
         character.Skills.Add(Skill.ChainLightning());

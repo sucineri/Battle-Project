@@ -94,13 +94,14 @@ public class BattleModel
     public void SpawnCharactersOnMap()
     {
         // TODO: real character data
-        var layout = MapLayout.BossLayout();
+        var layout = MapLayout.TwoSlimesLayout();
         var id = 0;
 
-        foreach (var position in layout.positions)
+        foreach (var spawn in layout.spawns)
         {
+            var position = spawn.Position;
             var team = position.Team;
-            var character = team == Const.Team.Player ? Character.Fighter() : Character.SlimeKing();
+            var character = spawn.Character;
             var battleCharacter = new BattleCharacter(character, team);
             battleCharacter.BattleCharacterId = ++id;
 

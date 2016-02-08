@@ -43,7 +43,9 @@ public class Const
 
     public enum Affinities
     {
-        Healing
+        Physical,
+        Healing,
+        Lightning
     }
 
     public enum ActionType
