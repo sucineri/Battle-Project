@@ -21,6 +21,8 @@ public class BattleActionResult
         public double hpChange;
         public MapPosition positionChangeTo;
         public string effectPrefabPath;
+        public bool isSuccess = true;
+        public bool isCritical = false;
     }
 
     public Const.ActionType type;

@@ -10,6 +10,7 @@ public class ServiceFactory
     private static UnitNameService _unitNameService = new UnitNameService();
     private static EnmityService _enmityService = new EnmityService();
     private static TargetingService _targetingService = new TargetingService();
+    private static SkillService _skillService = new SkillService();
 
     public static AIService GetAIService()
     {
@@ -44,5 +45,10 @@ public class ServiceFactory
     public static TargetingService GetTargetingService()
     {
         return _targetingService;
+    }
+
+    public static SkillService GetSkillService()
+    {
+        return _skillService;
     }
 }

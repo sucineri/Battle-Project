@@ -16,7 +16,7 @@ public class SkillEffect
     public static SkillEffect MeleeAttackEffect()
     {
         var skillEffect = new SkillEffect();
-        skillEffect.StatsModifiers = new BasicStats(0d, 0d, 1d, 0d, 0d, 0d, 0d);
+        skillEffect.StatsModifiers = new BasicStats(0d, 0d, 1d, 0d, 0d, 0d, 0d, 0d, 0d, 0d);
         skillEffect.EffectTarget = Targeting.SingleOpponentTarget();
         skillEffect.Affinities = new Affinity(1d, 0d, 0d);
         skillEffect.BaseEnmity = 10;
@@ -27,7 +27,7 @@ public class SkillEffect
     public static SkillEffect CrossSlashEffect()
     {
         var skillEffect = new SkillEffect();
-        skillEffect.StatsModifiers = new BasicStats(0d, 0d, 2d, 0d, 0d, 0d, 0d);
+        skillEffect.StatsModifiers = new BasicStats(0d, 0d, 2d, 0d, 0d, 0d, 0d, 0d, 0d, 0d);
         skillEffect.EffectTarget = Targeting.CrossOpponentTarget();
         skillEffect.Affinities = new Affinity(1d, 0d, 0d);
         skillEffect.BaseEnmity = 15;
@@ -38,7 +38,7 @@ public class SkillEffect
     public static SkillEffect SquashEffect()
     {
         var skillEffect = new SkillEffect();
-        skillEffect.StatsModifiers = new BasicStats(0d, 0d, 0.5d, 0d, 0d, 0d, 0d);
+        skillEffect.StatsModifiers = new BasicStats(0d, 0d, 0.5d, 0d, 0d, 0d, 0d, 0d, 0d, 0d);
         skillEffect.EffectTarget = Targeting.SquashTarget();
         skillEffect.Affinities = new Affinity(1d, 0d, 0d);
         skillEffect.BaseEnmity = 30;
@@ -49,7 +49,7 @@ public class SkillEffect
     public static SkillEffect ChainLightning()
     {
         var skillEffect = new SkillEffect();
-        skillEffect.StatsModifiers = new BasicStats(0d, 0d, 2d, 0d, 0d, 0d, 0d);
+        skillEffect.StatsModifiers = new BasicStats(0d, 0d, 2d, 0d, 0d, 0d, 0d, 0d, 0d, 0d);
         skillEffect.EffectTarget = Targeting.ChainLightning();
         skillEffect.Affinities = new Affinity(0d, 0d, 1d);
         skillEffect.BaseEnmity = 40;
@@ -60,7 +60,7 @@ public class SkillEffect
     public static SkillEffect ChainLightningSecondary()
     {
         var skillEffect = new SkillEffect();
-        skillEffect.StatsModifiers = new BasicStats(0d, 0d, 1d, 0d, 0d, 0d, 0d);
+        skillEffect.StatsModifiers = new BasicStats(0d, 0d, 1d, 0d, 0d, 0d, 0d, 0d, 0d, 0d);
         skillEffect.EffectTarget = Targeting.ChainLightningSecondary();
         skillEffect.Affinities = new Affinity(0d, 0d, 1d);
         skillEffect.BaseEnmity = 20;
@@ -71,7 +71,7 @@ public class SkillEffect
     public static SkillEffect MinorHealEffect()
     {
         var skillEffect = new SkillEffect();
-        skillEffect.StatsModifiers = new BasicStats(0d, 0d, 0d, 0d, 0d, 0d, 3d);
+        skillEffect.StatsModifiers = new BasicStats(0d, 0d, 0d, 0d, 0d, 0d, 3d, 0d, 0d, 0d);
         skillEffect.EffectTarget = Targeting.SingleTarget();
         skillEffect.Affinities = new Affinity(0d, 1d);
         skillEffect.BaseEnmity = 40;

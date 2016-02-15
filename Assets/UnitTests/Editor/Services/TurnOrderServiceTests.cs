@@ -122,7 +122,7 @@ namespace BattleSaga.UnitTests
 
         private Character CreateCharacterWithAgi(double agi)
         {
-            var stats = new BasicStats(100d, 100d, 100d, 100d, agi, 100d, 100d);
+            var stats = new BasicStats(100d, 100d, 100d, 100d, agi, 100d, 100d, 0d, 1d, 0d);
             var character = new Character();
             character.BasicStats = stats;
             return character;

@@ -38,7 +38,10 @@ public class Const
         Defense,
         Agility,
         Wisdom,
-        Mind
+        Mind,
+        Critical,
+        Accuracy,
+        Evasion
     }
 
     public enum Affinities
@@ -70,6 +73,10 @@ public class Const
     public const string TileKey = "Tile";
 
     public const int DefaultSkillRank = 3;
+
+    public const double CriticalDamageMultiplier = 1.5d;
+
+    public const string MissedText = "Missed";
 
     public static string GetTileKey(Const.Team team, int x, int y)
     {

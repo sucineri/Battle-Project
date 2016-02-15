@@ -17,10 +17,17 @@ public class DamageText : MonoBehaviour
         label = this.GetComponent<Text>();
     }
 
-    public void ShowHpChange(double hpDelta)
+    public void ShowText(string text, bool negativeEffect, bool showCritical)
     {
-        label.text = hpDelta.ToString("F0");
-        label.color = hpDelta < 0 ? this.negativeEffectColor : this.positiveEffectColor;
+        label.text = text;
+        label.color = negativeEffect ? this.negativeEffectColor : this.positiveEffectColor;
+      
+        if (showCritical)
+        {
+            label.fontStyle = FontStyle.Bold;
+            label.fontSize = label.fontSize + 4;
+        }                     
+
         StartCoroutine(this.AnimateText());
     }
 

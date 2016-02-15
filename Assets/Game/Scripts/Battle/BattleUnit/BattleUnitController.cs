@@ -86,12 +86,12 @@ public class BattleUnitController : MonoBehaviour
         go.SetActive(true);
     }
 
-    public IEnumerator TakeDamage(double hpDelta, float hpPercentage)
+    public IEnumerator TakeEffect(BattleActionResult.EffectOnTarget effectOnTarget, float hpPercentage)
     {
-        this.ShowEffectText(hpDelta);
+        this.ShowEffectText(effectOnTarget);
 
         this.characterView.IsDead = hpPercentage <= 0f;
-        if (hpDelta < 0)
+        if (effectOnTarget.hpChange < 0)
         {
             this.characterView.CurrentAnimationState = BattleCharacterView.AnimationState.Damage;
         }
@@ -99,7 +99,7 @@ public class BattleUnitController : MonoBehaviour
         yield return StartCoroutine(this.AnimateHpChange(hpPercentage));
     }
 
-    private void ShowEffectText(double hpDelta)
+    private void ShowEffectText(BattleActionResult.EffectOnTarget effectOnTarget)
     {
         var go = Instantiate(this.damageTextPrefab) as GameObject;
         var damageText = go.GetComponent<DamageText>();
@@ -107,7 +107,24 @@ public class BattleUnitController : MonoBehaviour
         go.transform.localPosition = this.damageTextPrefab.transform.localPosition;
         go.transform.localScale = this.damageTextPrefab.transform.localScale;
         go.SetActive(true);
-        damageText.ShowHpChange(hpDelta);
+
+        var effectText = "";
+        var isNegativeEffect = true;
+        if (effectOnTarget.isSuccess)
+        {
+            var damage = effectOnTarget.hpChange;
+            if (damage > 0)
+            {
+                isNegativeEffect = false;
+            }
+            effectText = damage.ToString("F0");
+        }
+        else
+        {
+            effectText = Const.MissedText;
+        }
+
+        damageText.ShowText(effectText, isNegativeEffect, effectOnTarget.isCritical);
     }
 
     private IEnumerator AnimateHpChange(float hpPercentage)

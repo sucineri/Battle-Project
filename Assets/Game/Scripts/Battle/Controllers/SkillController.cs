@@ -63,7 +63,7 @@ public class SkillController: MonoBehaviour
     {
         unit.PlayEffect(effectOnTarget.effectPrefabPath);
         var hpPercentage = effectOnTarget.target.HpPercentage;
-        yield return StartCoroutine(unit.TakeDamage(effectOnTarget.hpChange, hpPercentage));
+        yield return StartCoroutine(unit.TakeEffect(effectOnTarget, hpPercentage));
     }
 
     protected IEnumerator WaitForFrames(int frames)

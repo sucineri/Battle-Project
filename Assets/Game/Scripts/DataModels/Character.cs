@@ -32,6 +32,12 @@ public class Character
 
     public double Mind { get { return this.BasicStats.GetStats(Const.BasicStats.Mind); } }
 
+    public double Critical { get { return this.BasicStats.GetStats(Const.BasicStats.Critical); } }
+
+    public double Accuracy { get { return this.BasicStats.GetStats(Const.BasicStats.Accuracy); } }
+
+    public double Evasion { get { return this.BasicStats.GetStats(Const.BasicStats.Evasion); } }
+
     public int Movement { get; set; }
 
     public List<Skill> Skills = new List<Skill>();
@@ -49,8 +55,11 @@ public class Character
         var agi = random.Next(50, 100);
         var wis = random.Next(30, 80);
         var mnd = random.Next(30, 50);
+        var crit = 0.05d;
+        var acc = 1d;
+        var eva = 0.1d;
         character.Name = "Fighter";
-        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd);
+        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
         character.Resistances = new Affinity(0d, 2d);
         character.PortraitPath = "Characters/Fighter/portrait";
         character.ModelPath = "Characters/Fighter/model";
@@ -77,8 +86,11 @@ public class Character
         var agi = random.Next(50, 100);
         var wis = random.Next(30, 80);
         var mnd = random.Next(30, 50);
+        var crit = 0.05d;
+        var acc = 0.8d;
+        var eva = 0.1d;
         character.Name = "Slime";
-        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd);
+        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
         character.Resistances = new Affinity(0d, 2d);
         character.PortraitPath = "Characters/Slime/portrait";
         character.ModelPath = "Characters/Slime/model";
@@ -103,8 +115,11 @@ public class Character
         var agi = random.Next(50, 100);
         var wis = random.Next(200, 250);
         var mnd = random.Next(30, 50);
+        var crit = 0.05d;
+        var acc = 1d;
+        var eva = 0.1d;
         character.Name = "Slime King";
-        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd);
+        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
         character.Resistances = new Affinity(0d, 2d);
         character.PortraitPath = "Characters/SlimeKing/portrait";
         character.ModelPath = "Characters/SlimeKing/model";
@@ -129,8 +144,11 @@ public class Character
         var agi = random.Next(50, 100);
         var wis = random.Next(200, 250);
         var mnd = random.Next(30, 50);
+        var crit = 0.05d;
+        var acc = 1d;
+        var eva = 0.1d;
         character.Name = "Slime King";
-        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd);
+        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
         character.Resistances = new Affinity(2d, -2d);
         character.PortraitPath = "Characters/ZombieSlimeKing/portrait";
         character.ModelPath = "Characters/ZombieSlimeKing/model";

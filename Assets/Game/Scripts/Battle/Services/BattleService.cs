@@ -84,6 +84,8 @@ public class BattleService
         var movementEffect = new BattleActionResult.EffectOnTarget();
         movementEffect.target = actor;
         movementEffect.positionChangeTo = moveTo;
+        movementEffect.isSuccess = true;
+        movementEffect.isCritical = false;
 
         var effectResult = new BattleActionResult.ActionEffectResult();
         effectResult.AddEffectOnTarget(movementEffect);
@@ -224,19 +226,39 @@ public class BattleService
 
     private BattleActionResult.EffectOnTarget ApplyEffect(BattleCharacter actor, BattleCharacter target, SkillEffect effect, string effectPrefabPath)
     {
+        var skillService = ServiceFactory.GetSkillService();
+
         // TODO: more effect types
         var effectOnTarget = new BattleActionResult.EffectOnTarget();
         effectOnTarget.target = target;
 
-        var damage = Math.Floor(DamageLogic.CalculateDamage(actor, target, effect));
-        effectOnTarget.hpChange = -damage;
+        var hpChange = 0d;
 
+        var shouldHit = skillService.ShouldHit(actor, target, effect);
+        if (shouldHit)
+        {
+            effectOnTarget.isSuccess = true;
+
+            var shouldCritical = skillService.ShouldCritical(actor, target, effect);
+            effectOnTarget.isCritical = shouldCritical;
+
+            var damage = Math.Floor(skillService.CalculateDamage(actor, target, effect, shouldCritical));
+            hpChange = -damage;
+
+            Debug.LogWarning(string.Format("{0}{1} takes {2} damage", shouldCritical ? "Critical! " : "", target.Name,  effectOnTarget.hpChange));
+        }
+        else
+        {
+            effectOnTarget.isSuccess = false;
+            Debug.LogWarning(actor.Name + " missed");
+        }
+
+        effectOnTarget.hpChange = hpChange;
         effectOnTarget.effectPrefabPath = effectPrefabPath;
 
         // Deduct Hp
         target.CurrentHp = Math.Min(target.MaxHp, Math.Max(0d, target.CurrentHp + effectOnTarget.hpChange));
 
-        Debug.LogWarning(target.Name + " takes " + effectOnTarget.hpChange + " damage");
         Debug.LogWarning(target.Name + " remaining hp " + target.CurrentHp);
 
         return effectOnTarget;
