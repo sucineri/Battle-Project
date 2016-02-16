@@ -1,18 +1,31 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class SkillService
 {
     public bool ShouldHit(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect)
     {
-        var hitChance = attacker.BaseCharacter.Accuracy - defender.BaseCharacter.Evasion;
+        var accBonuses = this.GetBonuesForStat(effect.StatsBonues, Const.BasicStats.Accuracy);
+        var finalValue = this.CalculateFinalStatValue(attacker.BaseCharacter.Accuracy, accBonuses);
+
+        var hitChance = 0d;
+        if (finalValue.isAbsolute)
+        {
+            hitChance = finalValue.value;
+        }
+        else
+        {
+            hitChance = finalValue.value - defender.BaseCharacter.Evasion;
+        }
         return this.IsRandomCheckSuccess(hitChance);
     }
 
     public bool ShouldCritical(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect)
     {
-        var criticalChance = attacker.BaseCharacter.Critical;
-        return this.IsRandomCheckSuccess(criticalChance);
+        var critBonuses = this.GetBonuesForStat(effect.StatsBonues, Const.BasicStats.Critical);
+        var finalValue = this.CalculateFinalStatValue(attacker.BaseCharacter.Critical, critBonuses);
+        return this.IsRandomCheckSuccess(finalValue.value);
     }
 
     public double CalculateDamage(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect, bool shouldCritical)
@@ -77,5 +90,59 @@ public class SkillService
             modifiedDamage += baseDamage * resistanceEffect * kv.Value;
         }
         return modifiedDamage;
+    }
+
+    private Dictionary<Const.StatBonusType, double> GetBonuesForStat(List<StatBonus> bonues, Const.BasicStats stat)
+    {
+        var dict = new Dictionary<Const.StatBonusType, double>();
+        foreach (var bonus in bonues)
+        {       
+            if (bonus.Stat == stat)
+            {
+                var type = bonus.Type;  
+                if(dict.ContainsKey(type))
+                {
+                    dict[type] += bonus.Magnitude;
+                }
+                else
+                {
+                    dict.Add(type, bonus.Magnitude);
+                }
+            }
+        }
+        return dict;
+    }
+
+    private FinalStatValue CalculateFinalStatValue(double baseValue, Dictionary<Const.StatBonusType, double> bonuses)
+    {
+        var value = baseValue;
+        var finalValue = new FinalStatValue();
+        if (bonuses.ContainsKey(Const.StatBonusType.Absolute))
+        {
+            finalValue.value = bonuses[Const.StatBonusType.Absolute];
+            finalValue.isAbsolute = true;
+        }
+        else
+        {
+            if (bonuses.ContainsKey(Const.StatBonusType.Multiply))
+            {
+                value *= bonuses[Const.StatBonusType.Multiply];
+            }
+
+            if (bonuses.ContainsKey(Const.StatBonusType.Addition))
+            {
+                value += bonuses[Const.StatBonusType.Addition];
+            }
+
+            finalValue.value = value;
+            finalValue.isAbsolute = false;
+        }
+        return finalValue;
+    }
+
+    private struct FinalStatValue
+    {
+        public double value;
+        public bool isAbsolute;
     }
 }

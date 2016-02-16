@@ -60,7 +60,7 @@ public class Character
         var eva = 0.1d;
         character.Name = "Fighter";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
-        character.Resistances = new Affinity(0d, 2d);
+        character.Resistances = new Affinity(0d, 2d, 0d);
         character.PortraitPath = "Characters/Fighter/portrait";
         character.ModelPath = "Characters/Fighter/model";
         character.AttackDistance = 1.5f;
@@ -91,7 +91,7 @@ public class Character
         var eva = 0.1d;
         character.Name = "Slime";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
-        character.Resistances = new Affinity(0d, 2d);
+        character.Resistances = new Affinity(0d, 2d, 0d);
         character.PortraitPath = "Characters/Slime/portrait";
         character.ModelPath = "Characters/Slime/model";
         character.AttackDistance = 2.5f;
@@ -120,7 +120,7 @@ public class Character
         var eva = 0.1d;
         character.Name = "Slime King";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
-        character.Resistances = new Affinity(0d, 2d);
+        character.Resistances = new Affinity(0d, 2d, 0d);
         character.PortraitPath = "Characters/SlimeKing/portrait";
         character.ModelPath = "Characters/SlimeKing/model";
         character.AttackDistance = 2.5f;
@@ -149,7 +149,7 @@ public class Character
         var eva = 0.1d;
         character.Name = "Slime King";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
-        character.Resistances = new Affinity(2d, -2d);
+        character.Resistances = new Affinity(2d, -2d, 0d);
         character.PortraitPath = "Characters/ZombieSlimeKing/portrait";
         character.ModelPath = "Characters/ZombieSlimeKing/model";
         character.AttackDistance = 2.5f;

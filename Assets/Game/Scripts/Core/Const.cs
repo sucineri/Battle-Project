@@ -70,6 +70,13 @@ public class Const
         All
     }
 
+    public enum StatBonusType
+    {
+        Addition,
+        Multiply,
+        Absolute
+    }
+
     public const string TileKey = "Tile";
 
     public const int DefaultSkillRank = 3;
