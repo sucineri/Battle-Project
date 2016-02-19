@@ -10,7 +10,7 @@ public class BattleCharacter
 
     public Const.Team Team { get; private set; }
 
-    public int Speed { get; private set; }
+    public int Weight { get; private set; }
 
     public double CurrentHp { get; set; }
 
@@ -60,7 +60,7 @@ public class BattleCharacter
         this.Team = team;
         this.CurrentHp = this.BaseCharacter.MaxHp;
         this.CurrentMp = this.BaseCharacter.MaxMp;
-        this.Speed = TickSpeed.GetTickSpeed(this.BaseCharacter.Agility);
+        this.Weight = CooldownWeight.GetWeight(this.BaseCharacter.Agility);
         this.Enmity = new BattleEnmity();
     }
 

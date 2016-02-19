@@ -39,11 +39,11 @@ public class BattleController : MonoBehaviour
     private void SetupEventListeners()
     {
         this._battleModel.onTileCreated += this._battleView.BindTileController;
-        this._battleModel.onTurnOrderChanged += this._turnOrderView.UpdateView;
+        this._battleModel.turnOrderModel.onTurnOrderChanged += this._turnOrderView.UpdateView;
         this._battleModel.onBattleCharacterCreated += this.OnCreateBattleUnit;
         this._battleModel.onProcessActionResult += this.ProcessActionResultQueue;
         this._battleModel.onBattlePhaseChange += this.OnBattlePhaseChange;
-        this._battleModel.onNextActionableEnemyChanged += this._enmityView.UpdateView;
+        this._battleModel.onNextEnemyActorChanged += this._enmityView.UpdateView;
     }
 
     private void OnTileClick(MapPosition tilePosition)
@@ -129,10 +129,10 @@ public class BattleController : MonoBehaviour
     void OnDestroy()
     {
         this._battleModel.onTileCreated -= this._battleView.BindTileController;
-        this._battleModel.onTurnOrderChanged -= this._turnOrderView.UpdateView;
+        this._battleModel.turnOrderModel.onTurnOrderChanged -= this._turnOrderView.UpdateView;
         this._battleModel.onBattleCharacterCreated -= this.OnCreateBattleUnit;
         this._battleModel.onProcessActionResult -= this.ProcessActionResultQueue;
         this._battleModel.onBattlePhaseChange -= this.OnBattlePhaseChange;
-        this._battleModel.onNextActionableEnemyChanged -= this._enmityView.UpdateView;
+        this._battleModel.onNextEnemyActorChanged -= this._enmityView.UpdateView;
     }
 }

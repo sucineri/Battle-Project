@@ -85,6 +85,10 @@ public class Const
 
     public const string MissedText = "Missed";
 
+    public const int PredictTurns = 5;
+
+    public const int DisplayTurns = 10;
+
     public static string GetTileKey(Const.Team team, int x, int y)
     {
         return string.Format("{0}_{1}_{2}_{3}", team, Const.TileKey, x, y);

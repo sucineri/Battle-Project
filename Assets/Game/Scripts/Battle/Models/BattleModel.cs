@@ -18,33 +18,20 @@ public class BattleModel
     private Dictionary<MapPosition, Tile> _mapTiles = new Dictionary<MapPosition, Tile>();
     private List<BattleCharacter> _battleCharacters = new List<BattleCharacter>();
 
+    public BattleTurnOrderModel turnOrderModel;
+
     public event Action<MapPosition, Tile> onTileCreated;
     public event Action<BattleCharacter> onBattleCharacterCreated;
-    public event Action<List<BattleCharacter>> onTurnOrderChanged;
-    public event Action<BattleCharacter> onNextActionableEnemyChanged;
+
+    public event Action<BattleCharacter> onNextEnemyActorChanged;
     public event Action<Queue<BattleActionResult>, Action> onProcessActionResult;
     public event Action<BattlePhase> onBattlePhaseChange;
     public event Action<int> onSkillSelected;
 
-    // For now this is only used for updating the enmity view
-    private BattleCharacter _nextActionableEnemy;
-    public BattleCharacter NextActionableEnemy
-    {
-        get
-        {
-            return this._nextActionableEnemy;
-        }
-        set
-        { 
-            this._nextActionableEnemy = value;
-            if (this.onNextActionableEnemyChanged != null)
-            {
-                this.onNextActionableEnemyChanged(this._nextActionableEnemy);
-            }
-        }
-    }
-
     public BattleCharacter CurrentActor { get; private set; }
+
+    // For now this is only used for updating the enmity view
+    private BattleCharacter _nextEnemyActor;
 
     public List<MapPosition> CurrentMovablePositions { get; private set; }
 
@@ -56,6 +43,7 @@ public class BattleModel
     {
         get
         {
+            // returns a copy to avoid bad stuff from happening
             return new List<BattleCharacter>(this._battleCharacters);
         }
     }
@@ -64,6 +52,7 @@ public class BattleModel
     {
         this.CurrentMovablePositions = new List<MapPosition>();
         this.ValidPositionsForSelectedSkill = new List<MapPosition>();
+        this.turnOrderModel = new BattleTurnOrderModel();
     }
 
     public void ChangePhase(BattlePhase newPhase)
@@ -259,14 +248,23 @@ public class BattleModel
 
     private void RefreshActionOrder()
     {
-        var orderList = ServiceFactory.GetTurnOrderService().GetActionOrder(this.AllBattleCharacters);
-        if (this.onTurnOrderChanged != null)
-        {
-            this.onTurnOrderChanged(orderList);
-        }
+        this.turnOrderModel.CalculateActionOrder(this.AllBattleCharacters);
+        this.CurrentActor = this.turnOrderModel.GetCurrentActor();
+        this._nextEnemyActor = this.turnOrderModel.GetNextEnemyActor();
 
-        this.CurrentActor = orderList.ElementAt(0);
-        this.NextActionableEnemy = orderList.First(x => x.Team == Const.Team.Enemy);
+        if (this.onNextEnemyActorChanged != null)
+        {
+            this.onNextEnemyActorChanged(this._nextEnemyActor);
+        }
+        //
+//        var orderList = ServiceFactory.GetTurnOrderService().GetActionOrder(this.AllBattleCharacters);
+//        if (this.onTurnOrderChanged != null)
+//        {
+//            this.onTurnOrderChanged(orderList);
+//        }
+
+//        this.CurrentActor = orderList.ElementAt(0);
+//        this.NextActionableEnemy = orderList.First(x => x.Team == Const.Team.Enemy);
     }
 
     private void CreateBattleGrid(int numberOfRows, int numberOfColumns, Const.Team team)

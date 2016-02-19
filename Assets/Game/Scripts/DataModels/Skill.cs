@@ -18,6 +18,8 @@ public class Skill
 
     public int Rank { get; set; }
 
+    public int CastingTime { get; set; }
+
     public static Skill MeleeAttack()
     {
         var skill = new Skill();
@@ -28,6 +30,7 @@ public class Skill
         skill.EffectPrefabPath = "Effects/Explosion";
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
         skill.Rank = 3;
+        skill.CastingTime = 0;
         return skill;
     }
 
@@ -41,6 +44,7 @@ public class Skill
         skill.EffectPrefabPath = "Effects/Explosion";
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
         skill.Rank = 4;
+        skill.CastingTime = 0;
         return skill;
     }
 
@@ -54,6 +58,7 @@ public class Skill
         skill.EffectPrefabPath = "Effects/Explosion";
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
         skill.Rank = 5;
+        skill.CastingTime = 1;
         return skill;
     }
 
@@ -68,6 +73,7 @@ public class Skill
         skill.EffectPrefabPath = "Effects/Explosion";
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
         skill.Rank = 5;
+        skill.CastingTime = 1;
         return skill;
     }
 
@@ -83,6 +89,7 @@ public class Skill
         skill.EffectPrefabPath = "Effects/Explosion";
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
         skill.Rank = 5;
+        skill.CastingTime = 1;
         return skill;
     }
 
@@ -96,6 +103,7 @@ public class Skill
         skill.EffectPrefabPath = "Effects/Healing";
         skill.SkillTargetArea = Targeting.HealTargetArea();
         skill.Rank = 3;
+        skill.CastingTime = 1;
         return skill;
     }
 }

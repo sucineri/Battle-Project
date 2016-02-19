@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using TurnOrderData = BattleTurnOrderModel.TurnOrderData;
 
 public class TurnOrderView : MonoBehaviour
 {
@@ -13,16 +14,16 @@ public class TurnOrderView : MonoBehaviour
 
     private List<TurnOrderCell> cells = new List<TurnOrderCell>();
 
-    public void UpdateView(List<BattleCharacter> actionList)
+    public void UpdateView(List<TurnOrderData> turnOrder)
     {
         // reuse cells
         for (int i = 0; i < cells.Count; ++i)
         {
             var cell = cells[i];
             BattleCharacter character = null;
-            if (i < actionList.Count)
+            if (i < turnOrder.Count)
             {
-                character = actionList[i];
+                character = turnOrder[i].character;
                 cell.Setup(character);
                 cell.gameObject.SetActive(true);
             }
@@ -33,11 +34,11 @@ public class TurnOrderView : MonoBehaviour
         }
 
         // create cells if we don't have enough
-        if (actionList.Count > cells.Count)
+        if (turnOrder.Count > cells.Count)
         {
-            for (int i = cells.Count; i < actionList.Count; ++i)
+            for (int i = cells.Count; i < turnOrder.Count; ++i)
             {
-                this.CreateCell(actionList[i]);
+                this.CreateCell(turnOrder[i].character);
             }
         }
     }

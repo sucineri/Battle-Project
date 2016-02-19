@@ -7,8 +7,8 @@ using UnityEngine;
 namespace BattleSaga.UnitTests
 {
     [TestFixture]
-    [Category("TickSpeedTests Tests")]
-    internal class TickSpeedTests
+    [Category("CooldownWeightTests Tests")]
+    internal class CooldownWeightTests
     {
         [TestCase(0d, Result=28)]
         [TestCase(1d, Result=26)]
@@ -21,17 +21,17 @@ namespace BattleSaga.UnitTests
         [TestCase(89d, Result=5)]
         [TestCase(100d, Result=4)]
         [TestCase(180d, Result=3)]
-        public int GetTickSpeed_PositionAndZeroAgility_ReturnsCorrectSpeed(double agility)
+        public int GetWeight_PositionAndZeroAgility_ReturnsCorrectSpeed(double agility)
         {
-            return TickSpeed.GetTickSpeed(agility);
+            return CooldownWeight.GetWeight(agility);
         }
 
         [Test]
-        public void GetTickSpeed_NegativeAgility_ReturnsZero()
+        public void GetWeight_NegativeAgility_ReturnsZero()
         {
             var negativeAgility = -1d;
 
-            var speed = TickSpeed.GetTickSpeed(negativeAgility);
+            var speed = CooldownWeight.GetWeight(negativeAgility);
 
             Assert.AreEqual(speed, 0);
         }

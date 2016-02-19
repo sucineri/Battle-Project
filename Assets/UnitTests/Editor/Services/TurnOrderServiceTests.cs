@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
@@ -16,10 +17,6 @@ namespace BattleSaga.UnitTests
         public void Setup()
         {
             this._battleCharacters = this.CreateTestBattleCharacters();
-            this._battleCharacters[0].ActionCooldown = 100;
-            this._battleCharacters[1].ActionCooldown = 500;
-            this._battleCharacters[2].ActionCooldown = 20;
-            this._battleCharacters[3].ActionCooldown = 80;
         }
 
         [TestCase(100d, 3, Result=12)]
@@ -54,41 +51,53 @@ namespace BattleSaga.UnitTests
         }
 
         [Test]
-        public void GetActionOrder_ReturnsListOrderedByCooldwon()
+        public void GetActionOrder_ReturnsListOrderedByCooldown()
         {
             var service = new TurnOrderService();
+            this.ApplyDefaultCooldown(this._battleCharacters);
             var orderedList = service.GetActionOrder(this._battleCharacters);
 
-            Assert.AreEqual(orderedList[0].BattleCharacterId, 3);
-            Assert.AreEqual(orderedList[1].BattleCharacterId, 4);
-            Assert.AreEqual(orderedList[2].BattleCharacterId, 1);
-            Assert.AreEqual(orderedList[3].BattleCharacterId, 2);
+            // 2 is first because of the BattleCharacterid...
+            Assert.AreEqual(orderedList[0].character.BattleCharacterId, 2);
+            Assert.AreEqual(orderedList[1].character.BattleCharacterId, 1);
+            Assert.AreEqual(orderedList[2].character.BattleCharacterId, 4);
+            Assert.AreEqual(orderedList[3].character.BattleCharacterId, 3);
         }
 
         [Test]
         public void GetActionOrder_MinCooldownSubtractedForAllCharacters()
         {
             var service = new TurnOrderService();
+            this.ApplyDefaultCooldown(this._battleCharacters);
             var orderedList = service.GetActionOrder(this._battleCharacters);
 
-            Assert.AreEqual(orderedList[0].ActionCooldown, 0);
-            Assert.AreEqual(orderedList[1].ActionCooldown, 60);
-            Assert.AreEqual(orderedList[2].ActionCooldown, 80);
-            Assert.AreEqual(orderedList[3].ActionCooldown, 480);
+            // default cooldown is 12, 12, 15, 21
+            // after ticking should be 0, 0, 3, 9
+            Assert.AreEqual(orderedList[0].character.ActionCooldown, 0);
+            Assert.AreEqual(orderedList[1].character.ActionCooldown, 0);
+            Assert.AreEqual(orderedList[2].character.ActionCooldown, 3);
+            Assert.AreEqual(orderedList[3].character.ActionCooldown, 9);
         }
 
         [Test]
         public void GetActionOrder_IgnoresDeadCharacter()
         {
             this._battleCharacters[0].CurrentHp = 0;
+            var deadId = this._battleCharacters[0].BattleCharacterId;
 
             var service = new TurnOrderService();
+            this.ApplyDefaultCooldown(this._battleCharacters);
             var orderedList = service.GetActionOrder(this._battleCharacters);
 
-            Assert.AreEqual(orderedList.Count, 3);
-            Assert.AreEqual(orderedList[0].BattleCharacterId, 3);
-            Assert.AreEqual(orderedList[1].BattleCharacterId, 4);
-            Assert.AreEqual(orderedList[2].BattleCharacterId, 2);
+            Assert.AreEqual(orderedList.Count, 10);
+            Assert.AreEqual(orderedList[0].character.BattleCharacterId, 2);
+            Assert.AreEqual(orderedList[1].character.BattleCharacterId, 4);
+            Assert.AreEqual(orderedList[2].character.BattleCharacterId, 3);
+
+            //make sure dead character does not exist
+
+            var deadCharacter = orderedList.Find(x => x.character.BattleCharacterId == deadId);
+            Assert.IsNull(deadCharacter);
         }
 
         private List<BattleCharacter> CreateTestBattleCharacters()
@@ -97,7 +106,7 @@ namespace BattleSaga.UnitTests
 
             var char1 = this.CreateCharacterWithAgi(100d);
             var char2 = this.CreateCharacterWithAgi(100d);
-            var char3 = this.CreateCharacterWithAgi(29d);
+            var char3 = this.CreateCharacterWithAgi(40d);
             var char4 = this.CreateCharacterWithAgi(62d);
 
             var battleChar1 = new BattleCharacter(char1, Const.Team.Player);
@@ -126,6 +135,15 @@ namespace BattleSaga.UnitTests
             var character = new Character();
             character.BasicStats = stats;
             return character;
+        }
+
+        private void ApplyDefaultCooldown(List<BattleCharacter> characters)
+        {
+            var service = new TurnOrderService();
+            foreach (var c in characters)
+            {
+                service.ApplyDefaultCooldownToCharacter(c);
+            }
         }
 
         private Skill CreateSkillWithRank(int rank)
