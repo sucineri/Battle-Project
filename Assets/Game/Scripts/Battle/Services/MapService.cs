@@ -40,15 +40,23 @@ public class MapService
 
         if (position.Team == actor.Team && actorPosition.GetDistance(position) <= movement)
         {
-            var tilesRequired = this.RequestPositions(actor.BaseCharacter.PatternShape.Shape, map, position, availablePositions);
+            var tilesRequired = this.RequestPositionsForCharacter(actor, map, position, availablePositions);
 
             return (tilesRequired.Count == actor.BaseCharacter.PatternShape.Shape.Count);
         }
         return false;
     }
 
-    public List<MapPosition> RequestPositions(List<Cordinate> shape, Dictionary<MapPosition, Tile> map, MapPosition basePosition, List<MapPosition> availableTiles)
+    public List<MapPosition> RequestPositionsForCharacter(BattleCharacter character, Dictionary<MapPosition, Tile> map, MapPosition basePosition, List<MapPosition> unOccupiedTiles)
     {
+        var shape = character.BaseCharacter.PatternShape.Shape;
+        var allAvailableTiles = new List<MapPosition>(unOccupiedTiles);
+
+        if (character.OccupiedMapPositions != null && character.OccupiedMapPositions.Count > 0)
+        {
+            allAvailableTiles = allAvailableTiles.Union(character.OccupiedMapPositions).ToList();
+        }
+
         var list = new List<MapPosition>();
         var team = basePosition.Team;
         foreach (var offset in shape)
@@ -56,7 +64,8 @@ public class MapService
             var newX = basePosition.X + offset.X;
             var newY = basePosition.Y + offset.Y;
             var newPosition = new MapPosition(newX, newY, team);
-            if (map.ContainsKey(newPosition) && availableTiles.Contains(newPosition))
+
+            if (map.ContainsKey(newPosition) && allAvailableTiles.Contains(newPosition))
             {
                 list.Add(new MapPosition(newX, newY, team));
             }

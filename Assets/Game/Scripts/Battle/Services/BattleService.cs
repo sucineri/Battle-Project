@@ -32,14 +32,14 @@ public class BattleService
         }
         return null;
     }
-        
-    public Queue<BattleActionResult> ProcessActionQueue(Queue<BattleAction> actionQueue, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
+
+    public Queue<BattleActionResult> GetActionResults(Queue<BattleAction> actionQueue, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
     {
         var resultQueue = new Queue<BattleActionResult>();
         while (actionQueue.Count > 0)
         {
             var action = actionQueue.Dequeue();
-            var actionResult = this.ProcessAction(action, map, characters);
+            var actionResult = this.GetActionResult(action, map, characters);
             if (actionResult != null)
             {
                 resultQueue.Enqueue(actionResult);
@@ -48,32 +48,23 @@ public class BattleService
         return resultQueue;
     }
 
-    private BattleActionResult ProcessAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
+    private BattleActionResult GetActionResult(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
     {
         switch (action.ActionType)
         {
             case Const.ActionType.Movement:
-                return this.ProcessMovementAction(action, map, characters);
+                return this.GetMovementActionResult(action, map, characters);
             case Const.ActionType.Skill:
-                return this.ProcessSkillAction(action, map, characters);
+                return this.GetSkillActionResult(action, map, characters);
             default:
                 return null;
         }
     }
 
-    private BattleActionResult ProcessMovementAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
+    private BattleActionResult GetMovementActionResult(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)
     {
         var actor = action.Actor;
         var moveTo = action.TargetPosition;
-
-        Debug.LogWarning(actor.Name + " moves to " + moveTo.ToString());
-
-        var mapService = ServiceFactory.GetMapService();
-        var unOccupiedPositions = mapService.GetUnoccupiedTiles(characters, map);
-        var newOccupiedPositions = mapService.RequestPositions(actor.BaseCharacter.PatternShape.Shape, map, moveTo, unOccupiedPositions);
-
-        // update character position
-        actor.OccupiedMapPositions = newOccupiedPositions;
 
         var actionResult = new BattleActionResult();
         actionResult.type = Const.ActionType.Movement;
@@ -95,10 +86,8 @@ public class BattleService
         return actionResult;
     }
         
-    private BattleActionResult ProcessSkillAction(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> allCharacters)
+    private BattleActionResult GetSkillActionResult(BattleAction action, Dictionary<MapPosition, Tile> map, List<BattleCharacter> allCharacters)
     {
-        Debug.LogWarning(action.Actor.Name + " uses " + action.SelectedSkill.Name);
-
         var actor = action.Actor;
         var skill = action.SelectedSkill;
 
@@ -123,7 +112,7 @@ public class BattleService
 
             foreach (var affectedCharacter in affectedCharacters)
             {
-                var resultOnTarget = this.ApplyEffect(actor, affectedCharacter, effect, skill.EffectPrefabPath);
+                var resultOnTarget = this.GetEffectResultOnTarget(actor, affectedCharacter, effect, skill.EffectPrefabPath);
                 actionEffectResult.AddEffectOnTarget(resultOnTarget);
             }
             skillActionResult.AddSkillEffectResult(actionEffectResult);
@@ -224,7 +213,7 @@ public class BattleService
         }
     }
 
-    private BattleActionResult.EffectOnTarget ApplyEffect(BattleCharacter actor, BattleCharacter target, SkillEffect effect, string effectPrefabPath)
+    private BattleActionResult.EffectOnTarget GetEffectResultOnTarget(BattleCharacter actor, BattleCharacter target, SkillEffect effect, string effectPrefabPath)
     {
         var skillService = ServiceFactory.GetSkillService();
 
@@ -244,22 +233,14 @@ public class BattleService
 
             var damage = Math.Floor(skillService.CalculateDamage(actor, target, effect, shouldCritical));
             hpChange = -damage;
-
-            Debug.LogWarning(string.Format("{0}{1} takes {2} damage", shouldCritical ? "Critical! " : "", target.Name,  effectOnTarget.hpChange));
         }
         else
         {
             effectOnTarget.isSuccess = false;
-            Debug.LogWarning(actor.Name + " missed");
         }
 
         effectOnTarget.hpChange = hpChange;
         effectOnTarget.effectPrefabPath = effectPrefabPath;
-
-        // Deduct Hp
-        target.CurrentHp = Math.Min(target.MaxHp, Math.Max(0d, target.CurrentHp + effectOnTarget.hpChange));
-
-        Debug.LogWarning(target.Name + " remaining hp " + target.CurrentHp);
 
         return effectOnTarget;
     }

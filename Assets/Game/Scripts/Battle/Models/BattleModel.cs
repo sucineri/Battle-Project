@@ -26,7 +26,6 @@ public class BattleModel
     public event Action<BattleCharacter> onNextEnemyActorChanged;
     public event Action<Queue<BattleActionResult>, Action> onProcessActionResult;
     public event Action<BattlePhase> onBattlePhaseChange;
-    public event Action<int> onSkillSelected;
 
     public BattleCharacter CurrentActor { get; private set; }
 
@@ -98,7 +97,7 @@ public class BattleModel
 
             var mapService = ServiceFactory.GetMapService();
             var availableTiles = mapService.GetUnoccupiedTiles(this._battleCharacters, this._mapTiles);
-            var tilesRequired = mapService.RequestPositions(battleCharacter.BaseCharacter.PatternShape.Shape, this._mapTiles, position, availableTiles);
+            var tilesRequired = mapService.RequestPositionsForCharacter(battleCharacter, this._mapTiles, position, availableTiles);
 
             if (tilesRequired.Count == battleCharacter.BaseCharacter.PatternShape.Shape.Count)
             {
@@ -154,8 +153,8 @@ public class BattleModel
                 var action = new BattleAction(this.CurrentActor, Const.ActionType.Movement, Const.TargetType.Tile, targetPosition, null);
                 var actionQueue = new Queue<BattleAction>();
                 actionQueue.Enqueue(action);
-                var resultQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharacters);
-                this.ProcessOutcome(resultQueue, BattlePhase.ActionSelect);
+                var resultQueue = ServiceFactory.GetBattleService().GetActionResults(actionQueue, this._mapTiles, this._battleCharacters);
+                this.ProcessActionResult(resultQueue, BattlePhase.ActionSelect);
             }
         }
     }
@@ -180,7 +179,7 @@ public class BattleModel
             actionQueue.Enqueue(action);
 
             var isValidAction = false;
-            var resultQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharacters);
+            var resultQueue = ServiceFactory.GetBattleService().GetActionResults(actionQueue, this._mapTiles, this._battleCharacters);
 
             foreach (var result in resultQueue)
             {
@@ -197,7 +196,7 @@ public class BattleModel
                 this.SetTileStateAtPositions(this.ValidPositionsForSelectedSkill, Tile.TileState.SkillRadius, false);
                 this.ValidPositionsForSelectedSkill.Clear();
 
-                this.ProcessOutcome(resultQueue, BattlePhase.NextRound, () =>{
+                this.ProcessActionResult(resultQueue, BattlePhase.NextRound, () =>{
                     this.SetTileStateAtPositions(affectedPositions, Tile.TileState.SkillHighlight, false);
                 });
             }
@@ -256,15 +255,6 @@ public class BattleModel
         {
             this.onNextEnemyActorChanged(this._nextEnemyActor);
         }
-        //
-//        var orderList = ServiceFactory.GetTurnOrderService().GetActionOrder(this.AllBattleCharacters);
-//        if (this.onTurnOrderChanged != null)
-//        {
-//            this.onTurnOrderChanged(orderList);
-//        }
-
-//        this.CurrentActor = orderList.ElementAt(0);
-//        this.NextActionableEnemy = orderList.First(x => x.Team == Const.Team.Enemy);
     }
 
     private void CreateBattleGrid(int numberOfRows, int numberOfColumns, Const.Team team)
@@ -284,8 +274,13 @@ public class BattleModel
         }
     }
 
-    private void ProcessOutcome(Queue<BattleActionResult> outcomeQueue, BattlePhase nextPhase, Action callback = null)
+    private void ProcessActionResult(Queue<BattleActionResult> resultQueue, BattlePhase nextPhase, Action callback = null)
     {
+        foreach (var result in resultQueue)
+        {
+            this.ApplyActionResult(result);
+        }
+
         Action onComplete = () =>{
             this.ChangePhase(nextPhase);
             if (callback != null)
@@ -297,11 +292,71 @@ public class BattleModel
         if (this.onProcessActionResult != null)
         {
             this.ChangePhase(BattlePhase.Animation);
-            this.onProcessActionResult(outcomeQueue, onComplete);
+            this.onProcessActionResult(resultQueue, onComplete);
         }
         else
         {
             onComplete();
+        }
+    }
+
+    private void ApplyActionResult(BattleActionResult result)
+    {
+        switch (result.type)
+        {
+            case Const.ActionType.Movement:
+                this.ApplyMovementActionResult(result);
+                break;
+            case Const.ActionType.Skill:
+                this.ApplySkillActionResult(result);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void ApplyMovementActionResult(BattleActionResult movementResult)
+    {
+        foreach (var effectResult in movementResult.allSkillEffectResult)
+        {
+            foreach (var effectOnTarget in effectResult.effectsOnTarget)
+            {
+                if (effectOnTarget.isSuccess)
+                {
+                    var actor = effectOnTarget.target;
+                    var moveTo = effectOnTarget.positionChangeTo;
+                    Debug.LogWarning(actor.Name + " moves to " + moveTo.ToString());
+
+                    var mapService = ServiceFactory.GetMapService();
+                    var unOccupiedPositions = mapService.GetUnoccupiedTiles(this._battleCharacters, this._mapTiles);
+                    var newOccupiedPositions = mapService.RequestPositionsForCharacter(actor, this._mapTiles, moveTo, unOccupiedPositions);
+
+                    // update character position
+                    actor.OccupiedMapPositions = newOccupiedPositions;
+                }
+            }
+        }
+    }
+
+    private void ApplySkillActionResult(BattleActionResult skillActionResult)
+    {
+        Debug.LogWarning(skillActionResult.actor.Name + " uses " + skillActionResult.skill.Name);
+
+        foreach (var effectResult in skillActionResult.allSkillEffectResult)
+        {
+            foreach (var effectOnTarget in effectResult.effectsOnTarget)
+            {
+                if (effectOnTarget.isSuccess)
+                {
+                    var shouldCritical = effectOnTarget.isCritical;
+                    var target = effectOnTarget.target;
+                    // Deduct Hp
+                    target.CurrentHp = Math.Min(target.MaxHp, Math.Max(0d, target.CurrentHp + effectOnTarget.hpChange));
+
+                    Debug.LogWarning(string.Format("{0}{1} takes {2} damage", shouldCritical ? "Critical! " : "", target.Name,  effectOnTarget.hpChange));
+                    Debug.LogWarning(target.Name + " remaining hp " + target.CurrentHp);
+                }
+            }
         }
     }
 
@@ -317,8 +372,8 @@ public class BattleModel
     private void RunAI(BattleCharacter actor)
     {
         var actionQueue = ServiceFactory.GetAIService().RunAI(actor, this._mapTiles, this._battleCharacters);
-        var outcomeQueue = ServiceFactory.GetBattleService().ProcessActionQueue(actionQueue, this._mapTiles, this._battleCharacters);
+        var outcomeQueue = ServiceFactory.GetBattleService().GetActionResults(actionQueue, this._mapTiles, this._battleCharacters);
 
-        this.ProcessOutcome(outcomeQueue, BattlePhase.NextRound);
+        this.ProcessActionResult(outcomeQueue, BattlePhase.NextRound);
     }
 }
