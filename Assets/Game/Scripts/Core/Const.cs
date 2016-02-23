@@ -18,6 +18,14 @@ public class Const
         All
     }
 
+    public enum SkillType
+    {
+        Attack,
+        Heal,
+        Buff,
+        Debuff
+    }
+
     public enum SkillTargetType
     {
         Unit,

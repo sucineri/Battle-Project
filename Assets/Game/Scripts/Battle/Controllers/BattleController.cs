@@ -51,10 +51,10 @@ public class BattleController : MonoBehaviour
         switch (this._battleModel.CurrentPhase)
         {
             case BattleModel.BattlePhase.ActionSelect:
-                this._battleModel.CurrentCharacterMoveAction(tilePosition);
+                this._battleModel.MoveCurrentCharacter(tilePosition);
                 break;
             case BattleModel.BattlePhase.TargetSelect:
-                this._battleModel.CurrentCharacterSkillAction(tilePosition);
+                this._battleModel.TriggerCurrentSelectedSkill(tilePosition);
                 break;
             default:
                 break;

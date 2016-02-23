@@ -20,6 +20,8 @@ public class Skill
 
     public int CastingTime { get; set; }
 
+    public Const.SkillType SkillType { get; set; }
+
     public static Skill MeleeAttack()
     {
         var skill = new Skill();
@@ -31,6 +33,7 @@ public class Skill
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
         skill.Rank = 3;
         skill.CastingTime = 0;
+        skill.SkillType = Const.SkillType.Attack;
         return skill;
     }
 
@@ -45,6 +48,7 @@ public class Skill
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
         skill.Rank = 4;
         skill.CastingTime = 0;
+        skill.SkillType = Const.SkillType.Attack;
         return skill;
     }
 
@@ -59,6 +63,7 @@ public class Skill
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
         skill.Rank = 5;
         skill.CastingTime = 1;
+        skill.SkillType = Const.SkillType.Attack;
         return skill;
     }
 
@@ -74,6 +79,7 @@ public class Skill
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
         skill.Rank = 5;
         skill.CastingTime = 1;
+        skill.SkillType = Const.SkillType.Attack;
         return skill;
     }
 
@@ -90,6 +96,7 @@ public class Skill
         skill.SkillTargetArea = Targeting.MeleeTargetArea();
         skill.Rank = 5;
         skill.CastingTime = 1;
+        skill.SkillType = Const.SkillType.Attack;
         return skill;
     }
 
@@ -104,6 +111,7 @@ public class Skill
         skill.SkillTargetArea = Targeting.HealTargetArea();
         skill.Rank = 3;
         skill.CastingTime = 1;
+        skill.SkillType = Const.SkillType.Heal;
         return skill;
     }
 }

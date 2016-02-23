@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -59,6 +60,46 @@ public class SkillService
         damage = ApplyAffinityBonuses(damage, defender.BaseCharacter.Resistances, effect.Affinities);
 
         return Math.Floor(damage);
+    }
+        
+    public MapPosition SelectDefaultTargetForSkill(BattleCharacter actor, Skill selectedSkill, List<MapPosition> skillRadius, List<BattleCharacter> characters, Dictionary<MapPosition, Tile> map)
+    {
+        // TODO: better select default target logic. Save last target maybe
+
+        var targetTeam = this.GetPreferredSkillTargetTeam(selectedSkill, actor.Team);
+
+        foreach (var character in characters.FindAll( x => x.Team == targetTeam))
+        {
+            var position = this.GetPositionToHitCharacterWithSkill(selectedSkill, skillRadius, character, actor.Team, map);
+            if (position != null)
+            {
+                return position;
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Gets a position to cast a skill on so that the skill can hit the target character
+    /// </summary>
+    /// <returns>The position to hit character with skill.</returns>
+    /// <param name="skill">Skill.</param>
+    /// <param name="skillRadius">Skill radius.</param>
+    /// <param name="target">Target.</param>
+    /// <param name="sourceTeam">Source team.</param>
+    /// <param name="map">The full map.</param>
+    private MapPosition GetPositionToHitCharacterWithSkill(Skill skill, List<MapPosition> skillRadius, BattleCharacter target, Const.Team sourceTeam, Dictionary<MapPosition, Tile> map)
+    {
+        foreach (var mapPosition in skillRadius)
+        {
+            var targeting = skill.Effects[0].EffectTarget;
+            var affectedPositions = ServiceFactory.GetMapService().GeMapPositionsForPattern(targeting.Pattern, targeting.TargetGroup, sourceTeam, map, mapPosition);
+            if (affectedPositions.Intersect(target.OccupiedMapPositions).Count() > 0)
+            {
+                return mapPosition;
+            }
+        }
+        return null;
     }
 
     private bool IsRandomCheckSuccess(double chance)
@@ -138,6 +179,30 @@ public class SkillService
             finalValue.isAbsolute = false;
         }
         return finalValue;
+    }
+
+    private Const.Team GetPreferredSkillTargetTeam(Skill skill, Const.Team actorTeam)
+    {
+        switch (skill.SkillType)
+        {
+            case Const.SkillType.Attack:
+            case Const.SkillType.Debuff:
+                return this.GetOpponentTeam(actorTeam);
+            case Const.SkillType.Buff:
+            case Const.SkillType.Heal:
+                return actorTeam;
+            default:
+                return this.GetOpponentTeam(actorTeam);
+        }
+    }
+
+    private Const.Team GetOpponentTeam(Const.Team actorTeam)
+    {
+        if (actorTeam == Const.Team.Player)
+        {
+            return Const.Team.Enemy;
+        }
+        return Const.Team.Player;
     }
 
     private struct FinalStatValue
