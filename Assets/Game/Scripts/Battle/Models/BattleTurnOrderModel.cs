@@ -9,6 +9,8 @@ public class BattleTurnOrderModel
 
     private List<TurnOrderData> _turnOrder = new List<TurnOrderData>();
 
+    private List<TurnOrderData> _updatedTurnOrder = new List<TurnOrderData>();
+
     public BattleCharacter GetCurrentActor()
     {
         if (this._turnOrder.Count > 0)
@@ -26,10 +28,30 @@ public class BattleTurnOrderModel
 
     public void CalculateActionOrder(List<BattleCharacter> allCharacters)
     {
-        this._turnOrder = ServiceFactory.GetTurnOrderService().GetActionOrder(allCharacters);
+        this._turnOrder = ServiceFactory.GetTurnOrderService().GetActionOrder(allCharacters, true);
+        this._updatedTurnOrder = null;
+        this.NotifyTurnOrderChanged();
+    }
+
+    public void UpdateTurnOrder(List<BattleCharacter> allCharacters, Queue<BattleActionResult> actionResults)
+    {
+        if (actionResults != null && actionResults.Count > 0)
+        {
+            this._updatedTurnOrder = ServiceFactory.GetTurnOrderService().GetActionOrder(allCharacters, false, actionResults);
+        }
+        else
+        {
+            this._updatedTurnOrder = null;
+        }
+        this.NotifyTurnOrderChanged();
+    }
+
+    private void NotifyTurnOrderChanged()
+    {
         if (this.onTurnOrderChanged != null)
         {
-            this.onTurnOrderChanged(this._turnOrder);
+            var orderToShow = (this._updatedTurnOrder != null) ? this._updatedTurnOrder : this._turnOrder;
+            this.onTurnOrderChanged(orderToShow);
         }
     }
 

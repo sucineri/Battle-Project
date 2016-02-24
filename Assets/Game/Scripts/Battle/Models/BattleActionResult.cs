@@ -20,6 +20,7 @@ public class BattleActionResult
         public BattleCharacter target;
         public double hpChange;
         public MapPosition positionChangeTo;
+        public SkillEffect skillEffect;
         public string effectPrefabPath;
         public bool isSuccess = true;
         public bool isCritical = false;

@@ -116,11 +116,7 @@ public class BattleService
                 actionEffectResult.AddEffectOnTarget(resultOnTarget);
             }
             skillActionResult.AddSkillEffectResult(actionEffectResult);
-
-            ServiceFactory.GetEnmityService().ApplyEnmityForSkillEffect(actor, effect, affectedCharacters, allCharacters);
         }
-            
-        ServiceFactory.GetTurnOrderService().ApplySkillCooldownToCharacter(actor, skill);
 
         return skillActionResult;
     }
@@ -240,6 +236,7 @@ public class BattleService
         }
 
         effectOnTarget.hpChange = hpChange;
+        effectOnTarget.skillEffect = effect;
         effectOnTarget.effectPrefabPath = effectPrefabPath;
 
         return effectOnTarget;

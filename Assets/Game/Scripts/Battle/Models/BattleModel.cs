@@ -157,6 +157,7 @@ public class BattleModel
         this._validPositionsForSelectedSkill.Clear();
         this._currentActionResults.Clear();
         this.ChangePhase(BattlePhase.ActionSelect);
+        this.turnOrderModel.UpdateTurnOrder(this.AllBattleCharacters, null);
     }
 
     public void MoveCurrentCharacter(MapPosition targetPosition)
@@ -225,6 +226,7 @@ public class BattleModel
             actionQueue.Enqueue(action);
 
             this._currentActionResults = ServiceFactory.GetBattleService().GetActionResults(actionQueue, this._mapTiles, this._battleCharacters);
+            this.turnOrderModel.UpdateTurnOrder(this.AllBattleCharacters, this._currentActionResults);
 
             var isValidResult = false;
             foreach (var result in this._currentActionResults)
@@ -400,16 +402,22 @@ public class BattleModel
 
     private void ApplySkillActionResult(BattleActionResult skillActionResult)
     {
-        Debug.LogWarning(skillActionResult.actor.Name + " uses " + skillActionResult.skill.Name);
+        var actor = skillActionResult.actor;
+        var skill = skillActionResult.skill;
+        Debug.LogWarning(actor.Name + " uses " + skill.Name);
 
         foreach (var effectResult in skillActionResult.allSkillEffectResult)
         {
+            var affectedCharacters = new List<BattleCharacter>();
+
             foreach (var effectOnTarget in effectResult.effectsOnTarget)
             {
                 if (effectOnTarget.isSuccess)
                 {
                     var shouldCritical = effectOnTarget.isCritical;
                     var target = effectOnTarget.target;
+                    affectedCharacters.Add(target);
+
                     // Deduct Hp
                     target.CurrentHp = Math.Min(target.MaxHp, Math.Max(0d, target.CurrentHp + effectOnTarget.hpChange));
 
@@ -417,7 +425,11 @@ public class BattleModel
                     Debug.LogWarning(target.Name + " remaining hp " + target.CurrentHp);
                 }
             }
+
+            var effect = effectResult.effectsOnTarget.ElementAt(0).skillEffect;
+            ServiceFactory.GetEnmityService().ApplyEnmityForSkillEffect(actor, effect, affectedCharacters, this._battleCharacters);
         }
+        ServiceFactory.GetTurnOrderService().ApplySkillCooldownToCharacter(actor, skill);
     }
 
     private void SetTileStateAtPositions(List<MapPosition> positions, Tile.TileState state, bool flag)
