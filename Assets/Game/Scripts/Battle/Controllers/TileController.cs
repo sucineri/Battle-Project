@@ -5,7 +5,7 @@ using System.Collections;
 
 public class TileController : MonoBehaviour
 {
-
+    [SerializeField] private GameObject _targetIndicator;
     [SerializeField] private Image _tileSprite;
     [SerializeField] private Color _defaultColor;
     [SerializeField] private Color _selectedColor;
@@ -45,6 +45,8 @@ public class TileController : MonoBehaviour
         {
             this._tileSprite.color = _defaultColor;
         }
+
+        this._targetIndicator.SetActive((state & Tile.TileState.Target) == Tile.TileState.Target);
     }
 
     public void OnClick()

@@ -36,6 +36,8 @@ public class BattleCharacter
 
     public BattleEnmity Enmity { get; set; }
 
+    public MapPosition SkillTargetPosition { get; set; }
+
     public string Name
     {
         get

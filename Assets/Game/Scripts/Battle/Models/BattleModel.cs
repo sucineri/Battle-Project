@@ -35,15 +35,9 @@ public class BattleModel
     // stores the pre calculated action result when a skill is first selected and use for both determining turn order updates and the actual character update when the action is confirmed
     private Queue<BattleActionResult> _currentActionResults = new Queue<BattleActionResult>();
 
-    // stores the affected positions for the pre calculated result
-    private List<MapPosition> _currentActionAffectedPositions = new List<MapPosition>();
+    private List<MapPosition> _currentMovablePositions;
 
-    // stores the target position of the current skill
-    private MapPosition _currentActionTargetPosition;
-
-    public List<MapPosition> CurrentMovablePositions { get; private set; }
-
-    public List<MapPosition> ValidPositionsForSelectedSkill { get; private set; }
+    private List<MapPosition> _validPositionsForSelectedSkill;
 
     public BattlePhase CurrentPhase { get; private set; }
 
@@ -58,8 +52,8 @@ public class BattleModel
 
     public BattleModel()
     {
-        this.CurrentMovablePositions = new List<MapPosition>();
-        this.ValidPositionsForSelectedSkill = new List<MapPosition>();
+        this._currentMovablePositions = new List<MapPosition>();
+        this._validPositionsForSelectedSkill = new List<MapPosition>();
         this.turnOrderModel = new BattleTurnOrderModel();
     }
 
@@ -139,11 +133,11 @@ public class BattleModel
                 this.CurrentActor.SelectedSkill = skill;
                 this.ChangePhase(BattlePhase.TargetSelect);
 
-                this.ValidPositionsForSelectedSkill = ServiceFactory.GetMapService().GetValidMapPositionsForSkill(skill, this.CurrentActor, this._mapTiles, this._battleCharacters);
-                this.SetTileStateAtPositions(this.ValidPositionsForSelectedSkill, Tile.TileState.SkillRadius, true);
+                this._validPositionsForSelectedSkill = ServiceFactory.GetMapService().GetValidMapPositionsForSkill(skill, this.CurrentActor, this._mapTiles, this._battleCharacters);
+                this.SetTileStateAtPositions(this._validPositionsForSelectedSkill, Tile.TileState.SkillRadius, true);
 
                 // selects default target if there's any
-                var defaultTargetPosition = ServiceFactory.GetSkillService().SelectDefaultTargetForSkill(this.CurrentActor, skill, this.ValidPositionsForSelectedSkill, this._battleCharacters, this._mapTiles);
+                var defaultTargetPosition = ServiceFactory.GetSkillService().SelectDefaultTargetForSkill(this.CurrentActor, skill, this._validPositionsForSelectedSkill, this._battleCharacters, this._mapTiles);
                 if (defaultTargetPosition != null)
                 {
                     this.PreCalculateActionResults(defaultTargetPosition);
@@ -155,20 +149,21 @@ public class BattleModel
     public void CancelLastSelection()
     {
         // TODO: this might require some major refactoring to know what the previous action was
-        this.SetTileStateAtPositions(this.ValidPositionsForSelectedSkill, Tile.TileState.SkillRadius, false);
-        this.SetTileStateAtPositions(this._currentActionAffectedPositions, Tile.TileState.SkillHighlight, false);
-        this.ValidPositionsForSelectedSkill.Clear();
-        this._currentActionAffectedPositions.Clear();
+        var allMapPositions = this._mapTiles.Keys.ToList();
+
+        this.SetTileStateAtPositions(allMapPositions, Tile.TileState.SkillRadius, false);
+        this.SetTileStateAtPositions(allMapPositions, Tile.TileState.SkillHighlight, false);
+        this.UnsetCharacterSelectedSkillTarget(this.CurrentActor);
+        this._validPositionsForSelectedSkill.Clear();
         this._currentActionResults.Clear();
-        this._currentActionTargetPosition = null;
         this.ChangePhase(BattlePhase.ActionSelect);
     }
 
     public void MoveCurrentCharacter(MapPosition targetPosition)
     {
-        if (this.CurrentActor != null && this.CurrentMovablePositions != null)
+        if (this.CurrentActor != null && this._currentMovablePositions != null)
         {
-            if (this.CurrentMovablePositions.Contains(targetPosition))
+            if (this._currentMovablePositions.Contains(targetPosition))
             {
                 var action = new BattleAction(this.CurrentActor, Const.ActionType.Movement, Const.TargetType.Tile, targetPosition, null);
                 var actionQueue = new Queue<BattleAction>();
@@ -181,14 +176,14 @@ public class BattleModel
 
     public void TriggerCurrentSelectedSkill(MapPosition targetPosition)
     {
-        if (!this.ValidPositionsForSelectedSkill.Contains(targetPosition))
+        if (!this._validPositionsForSelectedSkill.Contains(targetPosition))
         {
             return;
         }
 
         if(this.CurrentActor != null && this.CurrentActor.SelectedSkill != null)
         {
-            if (targetPosition.Equals(this._currentActionTargetPosition))
+            if (targetPosition.Equals(this.CurrentActor.SkillTargetPosition))
             {
                 // fire off skill
                 var isValidAction = false;
@@ -203,22 +198,18 @@ public class BattleModel
 
                 if (isValidAction)
                 {
-                    this.SetTileStateAtPositions(this.ValidPositionsForSelectedSkill, Tile.TileState.SkillRadius, false);
-                    this.ValidPositionsForSelectedSkill.Clear();
+                    this.SetTileStateAtPositions(this._validPositionsForSelectedSkill, Tile.TileState.SkillRadius, false);
+                    this._validPositionsForSelectedSkill.Clear();
 
-                    this.ProcessActionResult(this._currentActionResults, BattlePhase.NextRound, () =>{
-                        this.SetTileStateAtPositions(this._currentActionAffectedPositions, Tile.TileState.SkillHighlight, false);
-                        this._currentActionAffectedPositions.Clear();
-                        this._currentActionTargetPosition = null;
+                    this.ProcessActionResult(this._currentActionResults, BattlePhase.NextRound, () => {
+                        this.UnsetCharacterSelectedSkillTarget(this.CurrentActor);
                     });
                 }
             }
             else
             {
                 // update the target position and visual
-                this.SetTileStateAtPositions(this._currentActionAffectedPositions, Tile.TileState.SkillHighlight, false);
                 this.PreCalculateActionResults(targetPosition);
-                this.SetTileStateAtPositions(this._currentActionAffectedPositions, Tile.TileState.SkillHighlight, true);
             }
         }
     }
@@ -247,16 +238,11 @@ public class BattleModel
 
             if (isValidResult)
             {
-                var targeting = selectedSkill.Effects[0].EffectTarget;
-                this._currentActionAffectedPositions = this.GetMapPositionsForPattern(targeting.Pattern, targeting.TargetGroup, this.CurrentActor.Team, targetPosition);
-                this._currentActionTargetPosition = targetPosition; 
-                this.SetTileStateAtPositions(this._currentActionAffectedPositions, Tile.TileState.SkillHighlight, true);
+                this.SetCharacterSelectedSkillTarget(this.CurrentActor, targetPosition);
             }
             else
             {
-                this.SetTileStateAtPositions(this._currentActionAffectedPositions, Tile.TileState.SkillHighlight, false);
-                this._currentActionAffectedPositions.Clear();
-                this._currentActionTargetPosition = null;
+                this.UnsetCharacterSelectedSkillTarget(this.CurrentActor);
             }
         }
     }
@@ -266,6 +252,22 @@ public class BattleModel
         return ServiceFactory.GetMapService().GeMapPositionsForPattern(pattern, targetGroup, sourceTeam, this._mapTiles, basePosition);
     }
 
+    private List<MapPosition> GetPositionsAffectsByCharacterSelectedSkill(BattleCharacter character)
+    {
+        var result = new List<MapPosition>();
+        if (character != null)
+        {
+            var skill = character.SelectedSkill;
+            var targetPosition = character.SkillTargetPosition;
+            if (skill != null && targetPosition != null)
+            {
+                var targeting = skill.Effects[0].EffectTarget;
+                result = this.GetMapPositionsForPattern(targeting.Pattern, targeting.TargetGroup, character.Team, targetPosition);
+            }
+        }
+        return result;
+    }
+
     private bool AllCharactersDefeated(Const.Team team)
     {
         return this.AllBattleCharacters.Find(x => x.Team == team && !x.IsDead) == null;
@@ -273,7 +275,7 @@ public class BattleModel
 
     private void NextRound()
     {
-        this.SetTileStateAtPositions(this.CurrentMovablePositions, Tile.TileState.MovementHighlight, false);
+        this.SetTileStateAtPositions(this._currentMovablePositions, Tile.TileState.MovementHighlight, false);
 
         if (this.AllCharactersDefeated(Const.Team.Enemy))
         {
@@ -288,9 +290,9 @@ public class BattleModel
 
         this.RefreshActionOrder();
 
-        this.CurrentMovablePositions = ServiceFactory.GetMapService().GetMovablePositions(this.CurrentActor, this._battleCharacters, this._mapTiles);
+        this._currentMovablePositions = ServiceFactory.GetMapService().GetMovablePositions(this.CurrentActor, this._battleCharacters, this._mapTiles);
 
-        this.SetTileStateAtPositions(this.CurrentMovablePositions, Tile.TileState.MovementHighlight, true);
+        this.SetTileStateAtPositions(this._currentMovablePositions, Tile.TileState.MovementHighlight, true);
 
         if (this.CurrentActor.Team == Const.Team.Enemy)
         {
@@ -339,12 +341,12 @@ public class BattleModel
             this.ApplyActionResult(result);
         }
 
-        Action onComplete = () =>{
-            this.ChangePhase(nextPhase);
+        Action onComplete = () =>{            
             if (callback != null)
             {
                 callback();
             }
+            this.ChangePhase(nextPhase);
         };
 
         if (this.onProcessActionResult != null)
@@ -422,9 +424,35 @@ public class BattleModel
     {
         foreach (var position in positions)
         {
-            var tile = this._mapTiles[position];
-            tile.AddOrRemoveState(state, flag);
+            this.SetTileStateAtPosition(position, state, flag);
         }
+    }
+
+    private void SetTileStateAtPosition(MapPosition position, Tile.TileState state, bool flag)
+    {
+        if (position != null && this._mapTiles.ContainsKey(position))
+        {
+            this._mapTiles[position].AddOrRemoveState(state, flag);
+        }
+    }
+
+    private void ShowSelectedSkillTarget(BattleCharacter character, bool show)
+    {
+        this.SetTileStateAtPositions(this.GetPositionsAffectsByCharacterSelectedSkill(character), Tile.TileState.SkillHighlight, show);
+        this.SetTileStateAtPosition(character.SkillTargetPosition, Tile.TileState.Target, show);
+    }
+
+    private void SetCharacterSelectedSkillTarget(BattleCharacter character, MapPosition target)
+    {
+        this.ShowSelectedSkillTarget(character, false);
+        character.SkillTargetPosition = target;
+        this.ShowSelectedSkillTarget(character, true);
+    }
+
+    private void UnsetCharacterSelectedSkillTarget(BattleCharacter character)
+    {
+        this.ShowSelectedSkillTarget(character, false);
+        character.SkillTargetPosition = null;
     }
 
     private void RunAI(BattleCharacter actor)
