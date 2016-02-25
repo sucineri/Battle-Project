@@ -11,6 +11,7 @@ public class BattleController : MonoBehaviour
     [SerializeField] private TurnOrderView _turnOrderView;
     [SerializeField] private BattleView _battleView;
     [SerializeField] private EnmityView _enmityView;
+    [SerializeField] private CharacterStatsView _statsView;
 
     private BattleModel _battleModel;
 
@@ -134,5 +135,13 @@ public class BattleController : MonoBehaviour
         this._battleModel.onProcessActionResult -= this.ProcessActionResultQueue;
         this._battleModel.onBattlePhaseChange -= this.OnBattlePhaseChange;
         this._battleModel.onNextEnemyActorChanged -= this._enmityView.UpdateView;
+    }
+
+    void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            this._statsView.Init(this._battleModel.CurrentActor);
+        }
     }
 }
