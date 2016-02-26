@@ -47,18 +47,36 @@ public class BattleController : MonoBehaviour
         this._battleModel.onNextEnemyActorChanged += this._enmityView.UpdateView;
     }
 
-    private void OnTileClick(MapPosition tilePosition)
+    private void OnTileClick(MapPosition tilePosition, bool isLongTap)
     {
-        switch (this._battleModel.CurrentPhase)
+        var handleNormalTap = !isLongTap;
+        if (!handleNormalTap)
         {
-            case BattleModel.BattlePhase.ActionSelect:
-                this._battleModel.MoveCurrentCharacter(tilePosition);
-                break;
-            case BattleModel.BattlePhase.TargetSelect:
-                this._battleModel.TriggerCurrentSelectedSkill(tilePosition);
-                break;
-            default:
-                break;
+            var character = this._battleModel.GetCharacterAtPosition(tilePosition);
+            handleNormalTap = character == null;
+            if (character != null)
+            {
+                this._statsView.Init(character);
+            }
+            else
+            {
+                handleNormalTap = true;
+            }
+        }
+
+        if (handleNormalTap)
+        {
+            switch (this._battleModel.CurrentPhase)
+            {
+                case BattleModel.BattlePhase.ActionSelect:
+                    this._battleModel.MoveCurrentCharacter(tilePosition);
+                    break;
+                case BattleModel.BattlePhase.TargetSelect:
+                    this._battleModel.TriggerCurrentSelectedSkill(tilePosition);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

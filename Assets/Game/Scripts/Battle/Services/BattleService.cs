@@ -23,14 +23,9 @@ public class BattleService
 
     public BattleCharacter GetCharacterAtPosition(List<BattleCharacter> characters, MapPosition targetPosition)
     {
-        foreach (var character in characters)
-        {
-            if (character.OccupiedMapPositions.Contains(targetPosition))
-            {
-                return character;
-            }
-        }
-        return null;
+        return characters.Find( x =>{
+            return x.OccupiedMapPositions.Contains(targetPosition);
+        });
     }
 
     public Queue<BattleActionResult> GetActionResults(Queue<BattleAction> actionQueue, Dictionary<MapPosition, Tile> map, List<BattleCharacter> characters)

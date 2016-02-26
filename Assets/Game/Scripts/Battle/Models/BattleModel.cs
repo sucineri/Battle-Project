@@ -254,6 +254,11 @@ public class BattleModel
         return ServiceFactory.GetMapService().GeMapPositionsForPattern(pattern, targetGroup, sourceTeam, this._mapTiles, basePosition);
     }
 
+    public BattleCharacter GetCharacterAtPosition(MapPosition position)
+    {
+        return ServiceFactory.GetBattleService().GetCharacterAtPosition(this._battleCharacters, position);
+    }
+
     private List<MapPosition> GetPositionsAffectsByCharacterSelectedSkill(BattleCharacter character)
     {
         var result = new List<MapPosition>();

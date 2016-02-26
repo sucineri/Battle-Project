@@ -2,9 +2,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections;
+using UniRx;
 
 public class TileController : MonoBehaviour
 {
+    [SerializeField] private LongTapObservableTrigger _longTapTrigger;
     [SerializeField] private GameObject _targetIndicator;
     [SerializeField] private Image _tileSprite;
     [SerializeField] private Color _defaultColor;
@@ -15,12 +17,17 @@ public class TileController : MonoBehaviour
 
     private MapPosition _mapPosition;
 
-    private event Action<MapPosition> _onTileClick;
+    private event Action<MapPosition, bool> _onTileClick;
 
-    public void Init(MapPosition position, Action<MapPosition> onClick)
+    public void Init(MapPosition position, Action<MapPosition, bool> onClick)
     {
         this._mapPosition = position;
         this._onTileClick = onClick;
+
+        this._longTapTrigger.OnPointerUpAsObserable()
+            .Subscribe(isLongTap =>{
+                this.OnTileTap(isLongTap);
+            });
     }
 
     public void OnTileStateChange(Tile.TileState state)
@@ -49,11 +56,11 @@ public class TileController : MonoBehaviour
         this._targetIndicator.SetActive((state & Tile.TileState.Target) == Tile.TileState.Target);
     }
 
-    public void OnClick()
+    private void OnTileTap(bool isLongTap)
     {
         if (this._onTileClick != null)
         {
-            this._onTileClick(this._mapPosition);
+            this._onTileClick(this._mapPosition, isLongTap);
         }
     }
 }

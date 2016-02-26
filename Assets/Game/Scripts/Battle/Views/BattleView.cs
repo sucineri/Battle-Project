@@ -10,7 +10,7 @@ public class BattleView : MonoBehaviour
     private Dictionary<BattleCharacter, BattleUnitController> _battleUnits = new Dictionary<BattleCharacter, BattleUnitController>();
     private Dictionary<MapPosition, TileController> _mapTiles = new Dictionary<MapPosition, TileController>();
 
-    public void InitMap(int numberOfRows, int numberOfColumns, Action<MapPosition> onTileClick)
+    public void InitMap(int numberOfRows, int numberOfColumns, Action<MapPosition, bool> onTileClick)
     {
         foreach (var kv in this._mapView.InitGrids(numberOfRows, numberOfColumns, onTileClick))
         {

@@ -10,7 +10,7 @@ public class MapView : MonoBehaviour
     [SerializeField] private GridLayoutGroup _playerGrid;
     [SerializeField] private GridLayoutGroup _enemyGrid;
 
-    public IEnumerable<KeyValuePair<MapPosition, TileController>> InitGrids(int numberOfRows, int numberOfColumns, Action<MapPosition> onTileClick)
+    public IEnumerable<KeyValuePair<MapPosition, TileController>> InitGrids(int numberOfRows, int numberOfColumns, Action<MapPosition, bool> onTileClick)
     {
         foreach (var kv in this.InitGrid (this._playerGrid, numberOfRows, numberOfColumns, Const.Team.Player, onTileClick))
         {
@@ -22,7 +22,7 @@ public class MapView : MonoBehaviour
         }
     }
 
-    private IEnumerable<KeyValuePair<MapPosition, TileController>> InitGrid(GridLayoutGroup grid, int numberOfRows, int numberOfColumns, Const.Team team, Action<MapPosition> onTileClick)
+    private IEnumerable<KeyValuePair<MapPosition, TileController>> InitGrid(GridLayoutGroup grid, int numberOfRows, int numberOfColumns, Const.Team team, Action<MapPosition, bool> onTileClick)
     {
         grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         grid.constraintCount = numberOfColumns;
