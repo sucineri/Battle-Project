@@ -7,49 +7,44 @@ public class SkillService
 {
     public bool ShouldHit(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect)
     {
-        var accBonuses = this.GetBonuesForStat(effect.StatsBonues, Const.BasicStats.Accuracy);
-        var finalValue = this.CalculateFinalStatValue(attacker.BaseCharacter.Accuracy, accBonuses);
+        var accModifiers = this.GetStatModifier(effect.StatsModifiers, Const.BasicStats.Accuracy);
+        var finalValue = this.CalculateModifiedValue(attacker.BaseCharacter.Accuracy, accModifiers);
 
-        var hitChance = 0d;
-        if (finalValue.isAbsolute)
-        {
-            hitChance = finalValue.value;
-        }
-        else
-        {
-            hitChance = finalValue.value - defender.BaseCharacter.Evasion;
-        }
+        var hitChance = this.GetStatEffect(attacker.BaseCharacter.Accuracy, accModifiers, defender.BaseCharacter.Evasion); 
+
         return this.IsRandomCheckSuccess(hitChance);
     }
 
     public bool ShouldCritical(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect)
     {
-        var critBonuses = this.GetBonuesForStat(effect.StatsBonues, Const.BasicStats.Critical);
-        var finalValue = this.CalculateFinalStatValue(attacker.BaseCharacter.Critical, critBonuses);
+        var critModifiers = this.GetStatModifier(effect.StatsModifiers, Const.BasicStats.Critical);
+        var finalValue = this.CalculateModifiedValue(attacker.BaseCharacter.Critical, critModifiers);
+
+        // TODO: critical resistance?
+        var hitChance = this.GetStatEffect(attacker.BaseCharacter.Critical, critModifiers, 0d); 
         return this.IsRandomCheckSuccess(finalValue.value);
     }
 
-    public double CalculateDamage(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect, bool shouldCritical)
+    public double GetStatEffect(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect, bool shouldCritical)
     {
-        // TODO: Real damage logic, Resistance
-        var strMod = effect.StatsModifiers.GetStats(Const.BasicStats.Attack);
-        var wisMod = effect.StatsModifiers.GetStats(Const.BasicStats.Wisdom);
-        var mndMod = effect.StatsModifiers.GetStats(Const.BasicStats.Mind);
+        var strModifier = this.GetStatModifier(effect.StatsModifiers, Const.BasicStats.Attack);
+        var wisModifier = this.GetStatModifier(effect.StatsModifiers, Const.BasicStats.Wisdom);
+        var mndModifier = this.GetStatModifier(effect.StatsModifiers, Const.BasicStats.Mind);
 
         var damage = 0d;
-        if (strMod != 0d)
+        if (strModifier.Count > 0)
         {
-            damage += attacker.BaseCharacter.Attack * strMod - defender.BaseCharacter.Defense;
+            damage += this.GetStatEffect(attacker.BaseCharacter.Attack, strModifier, defender.BaseCharacter.Defense);
         }
 
-        if (wisMod != 0d)
+        if (wisModifier.Count > 0)
         {
-            damage += attacker.BaseCharacter.Wisdom * wisMod - defender.BaseCharacter.Mind;
+            damage += this.GetStatEffect(attacker.BaseCharacter.Wisdom, wisModifier, defender.BaseCharacter.Mind);
         }
 
-        if (mndMod != 0d)
+        if (mndModifier.Count > 0)
         {
-            damage += attacker.BaseCharacter.Mind * mndMod;
+            damage += this.GetStatEffect(attacker.BaseCharacter.Mind, mndModifier, 0d);
         }
 
         if (shouldCritical)
@@ -60,6 +55,16 @@ public class SkillService
         damage = ApplyAffinityBonuses(damage, defender.BaseCharacter.Resistances, effect.Affinities);
 
         return Math.Floor(damage);
+    }
+
+    private double GetStatEffect(double attackerBaseValue, Dictionary<Const.ModifierType, double> attackerModifiers, double defenderBaseValue)
+    {
+        var finalAttackValue = this.CalculateModifiedValue(attackerBaseValue, attackerModifiers);
+        if (finalAttackValue.isAbsolute)
+        {
+            return finalAttackValue.value;
+        }
+        return finalAttackValue.value - defenderBaseValue;
     }
         
     public MapPosition SelectDefaultTargetForSkill(BattleCharacter actor, Skill selectedSkill, List<MapPosition> skillRadius, List<BattleCharacter> characters, Dictionary<MapPosition, Tile> map)
@@ -133,9 +138,9 @@ public class SkillService
         return modifiedDamage;
     }
 
-    private Dictionary<Const.StatBonusType, double> GetBonuesForStat(List<StatBonus> bonues, Const.BasicStats stat)
+    private Dictionary<Const.ModifierType, double> GetStatModifier(List<StatModifier> bonues, Const.BasicStats stat)
     {
-        var dict = new Dictionary<Const.StatBonusType, double>();
+        var dict = new Dictionary<Const.ModifierType, double>();
         foreach (var bonus in bonues)
         {       
             if (bonus.Stat == stat)
@@ -154,25 +159,25 @@ public class SkillService
         return dict;
     }
 
-    private FinalStatValue CalculateFinalStatValue(double baseValue, Dictionary<Const.StatBonusType, double> bonuses)
+    private ModifiedValue CalculateModifiedValue(double baseValue, Dictionary<Const.ModifierType, double> bonuses)
     {
         var value = baseValue;
-        var finalValue = new FinalStatValue();
-        if (bonuses.ContainsKey(Const.StatBonusType.Absolute))
+        var finalValue = new ModifiedValue();
+        if (bonuses.ContainsKey(Const.ModifierType.Absolute))
         {
-            finalValue.value = bonuses[Const.StatBonusType.Absolute];
+            finalValue.value = bonuses[Const.ModifierType.Absolute];
             finalValue.isAbsolute = true;
         }
         else
         {
-            if (bonuses.ContainsKey(Const.StatBonusType.Multiply))
+            if (bonuses.ContainsKey(Const.ModifierType.Multiply))
             {
-                value *= bonuses[Const.StatBonusType.Multiply];
+                value *= bonuses[Const.ModifierType.Multiply];
             }
 
-            if (bonuses.ContainsKey(Const.StatBonusType.Addition))
+            if (bonuses.ContainsKey(Const.ModifierType.Addition))
             {
-                value += bonuses[Const.StatBonusType.Addition];
+                value += bonuses[Const.ModifierType.Addition];
             }
 
             finalValue.value = value;
@@ -205,7 +210,7 @@ public class SkillService
         return Const.Team.Player;
     }
 
-    private struct FinalStatValue
+    private struct ModifiedValue
     {
         public double value;
         public bool isAbsolute;

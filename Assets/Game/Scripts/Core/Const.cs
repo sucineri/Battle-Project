@@ -78,7 +78,7 @@ public class Const
         All
     }
 
-    public enum StatBonusType
+    public enum ModifierType
     {
         Addition,
         Multiply,
