@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -18,9 +19,9 @@ public class BattleCharacter
 
     public int ActionCooldown { get; set; }
 
-    public double MaxHp { get { return this.BaseCharacter.MaxHp; } }
+    public double MaxHp { get { return this.GetStat(Const.Stats.MaxHp); } }
 
-    public double MaxMp { get { return this.BaseCharacter.MaxMp; } }
+    public double MaxMp { get { return this.GetStat(Const.Stats.MaxMp); } }
 
     public bool IsDead { get { return this.CurrentHp <= 0d; } }
 
@@ -60,14 +61,39 @@ public class BattleCharacter
     {
         this.BaseCharacter = baseCharacter;
         this.Team = team;
-        this.CurrentHp = this.BaseCharacter.MaxHp;
-        this.CurrentMp = this.BaseCharacter.MaxMp;
-        this.Weight = CooldownWeight.GetWeight(this.BaseCharacter.Agility);
+        this.CurrentHp = this.MaxHp;
+        this.CurrentMp = this.MaxMp;
+        this.Weight = CooldownWeight.GetWeight(this.GetStat(Const.Stats.Agility));
         this.Enmity = new BattleEnmity();
+    }
+
+    public double GetStat(Const.Stats stat)
+    {
+        // TODO: buffs
+        return this.BaseCharacter.BaseStats.GetStats(stat);
+    }
+
+    public double GetAffinityResistance(Const.Affinities affinity)
+    {
+        return this.GetResistance((int)affinity);
+    }
+
+    public double GetStatusEffectResistance()
+    {
+        return 0;
     }
 
     public void Tick(int ticks)
     {
         this.ActionCooldown -= ticks;
+    }
+
+    private double GetResistance(int enumValue)
+    {
+        if (Enum.IsDefined(typeof (Const.Stats), enumValue))
+        {
+            return this.GetStat((Const.Stats)enumValue);
+        }
+        return 0d;
     }
 }

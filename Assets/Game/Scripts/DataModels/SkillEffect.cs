@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class SkillEffect
 {
     // Skill effect's affinities
-    public Affinities Affinities { get; set; }
+    public SkillEffectAffinities Affinities { get; set; }
 
     // Targeting information
     public Targeting EffectTarget { get; set; }
@@ -41,7 +41,7 @@ public class SkillEffect
 
         skillEffect.EffectTarget = Targeting.SingleOpponentTarget();
 
-        var affinities = new Affinities();
+        var affinities = new SkillEffectAffinities();
         affinities.SetAffinity(Const.Affinities.Physical, 1d);
         skillEffect.Affinities = affinities;
 
@@ -58,7 +58,7 @@ public class SkillEffect
 
         skillEffect.EffectTarget = Targeting.CrossOpponentTarget();
 
-        var affinities = new Affinities();
+        var affinities = new SkillEffectAffinities();
         affinities.SetAffinity(Const.Affinities.Physical, 1d);
         skillEffect.Affinities = affinities;
 
@@ -74,7 +74,7 @@ public class SkillEffect
 
         skillEffect.EffectTarget = Targeting.SquashTarget();
 
-        var affinities = new Affinities();
+        var affinities = new SkillEffectAffinities();
         affinities.SetAffinity(Const.Affinities.Physical, 1d);
         skillEffect.Affinities = affinities;
 
@@ -90,7 +90,7 @@ public class SkillEffect
 
         skillEffect.EffectTarget = Targeting.ChainLightning();
 
-        var affinities = new Affinities();
+        var affinities = new SkillEffectAffinities();
         affinities.SetAffinity(Const.Affinities.Lightning, 1d);
         skillEffect.Affinities = affinities;
 
@@ -108,7 +108,7 @@ public class SkillEffect
 
         skillEffect.EffectTarget = Targeting.ChainLightningSecondary();
 
-        var affinities = new Affinities();
+        var affinities = new SkillEffectAffinities();
         affinities.SetAffinity(Const.Affinities.Lightning, 1d);
         skillEffect.Affinities = affinities;
 
@@ -126,7 +126,7 @@ public class SkillEffect
 
         skillEffect.EffectTarget = Targeting.SingleTarget();
 
-        var affinities = new Affinities();
+        var affinities = new SkillEffectAffinities();
         affinities.SetAffinity(Const.Affinities.Healing, 1d);
         skillEffect.Affinities = affinities;
 

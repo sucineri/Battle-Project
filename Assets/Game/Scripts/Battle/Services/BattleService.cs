@@ -222,7 +222,7 @@ public class BattleService
             var shouldCritical = skillService.ShouldCritical(actor, target, effect);
             effectOnTarget.isCritical = shouldCritical;
 
-            var damage = Math.Floor(skillService.GetStatEffect(actor, target, effect, shouldCritical));
+            var damage = Math.Floor(skillService.CalculateDamage(actor, target, effect, shouldCritical));
             hpChange = -damage;
         }
         else

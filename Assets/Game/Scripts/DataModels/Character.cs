@@ -4,9 +4,7 @@ using System.Collections.Generic;
 
 public class Character
 {
-    public BasicStats BasicStats { get; set; }
-
-    public Affinities Resistances { get; set; }
+    public CharacterStats BaseStats { get; set; }
 
     public string Name { get; set; }
 
@@ -18,25 +16,25 @@ public class Character
 
     public float SizeOffset { get; set; }
 
-    public double MaxHp { get { return this.BasicStats.GetStats(Const.Stats.MaxHp); } }
-
-    public double MaxMp { get { return this.BasicStats.GetStats(Const.Stats.MaxMp); } }
-
-    public double Attack { get { return this.BasicStats.GetStats(Const.Stats.Attack); } }
-
-    public double Defense { get { return this.BasicStats.GetStats(Const.Stats.Defense); } }
-
-    public double Wisdom{ get { return this.BasicStats.GetStats(Const.Stats.Wisdom); } }
-
-    public double Agility { get { return this.BasicStats.GetStats(Const.Stats.Agility); } }
-
-    public double Mind { get { return this.BasicStats.GetStats(Const.Stats.Mind); } }
-
-    public double Critical { get { return this.BasicStats.GetStats(Const.Stats.Critical); } }
-
-    public double Accuracy { get { return this.BasicStats.GetStats(Const.Stats.Accuracy); } }
-
-    public double Evasion { get { return this.BasicStats.GetStats(Const.Stats.Evasion); } }
+//    public double MaxHp { get { return this.BaseStats.GetStats(Const.Stats.MaxHp); } }
+//
+//    public double MaxMp { get { return this.BaseStats.GetStats(Const.Stats.MaxMp); } }
+//
+//    public double Attack { get { return this.BaseStats.GetStats(Const.Stats.Attack); } }
+//
+//    public double Defense { get { return this.BaseStats.GetStats(Const.Stats.Defense); } }
+//
+//    public double Wisdom{ get { return this.BaseStats.GetStats(Const.Stats.Wisdom); } }
+//
+//    public double Agility { get { return this.BaseStats.GetStats(Const.Stats.Agility); } }
+//
+//    public double Mind { get { return this.BaseStats.GetStats(Const.Stats.Mind); } }
+//
+//    public double Critical { get { return this.BaseStats.GetStats(Const.Stats.Critical); } }
+//
+//    public double Accuracy { get { return this.BaseStats.GetStats(Const.Stats.Accuracy); } }
+//
+//    public double Evasion { get { return this.BaseStats.GetStats(Const.Stats.Evasion); } }
 
     public int Movement { get; set; }
 
@@ -46,21 +44,23 @@ public class Character
 
     public static Character Fighter()
     {
-        var random = new System.Random();
         var character = new Character();
-        var maxHp = random.Next(500, 700);
-        var maxMp = random.Next(100, 150);
-        var atk = random.Next(200, 300);
-        var def = random.Next(100, 150);
-        var agi = random.Next(50, 100);
-        var wis = random.Next(30, 80);
-        var mnd = random.Next(30, 50);
-        var crit = 0.05d;
-        var acc = 1d;
-        var eva = 0.1d;
+
+        var baseStats = new CharacterStats();
+        baseStats.SetStat(Const.Stats.MaxHp, 700d);
+        baseStats.SetStat(Const.Stats.MaxMp, 150d);
+        baseStats.SetStat(Const.Stats.Attack, 300d);
+        baseStats.SetStat(Const.Stats.Defense, 150d);
+        baseStats.SetStat(Const.Stats.Wisdom, 70d);
+        baseStats.SetStat(Const.Stats.Agility, 100d);
+        baseStats.SetStat(Const.Stats.Mind, 50d);
+        baseStats.SetStat(Const.Stats.Critical, 0.05d);
+        baseStats.SetStat(Const.Stats.Accuracy, 1d);
+        baseStats.SetStat(Const.Stats.Evasion, 0.1d);
+
         character.Name = "Fighter";
-        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
-        character.Resistances = new Affinities(0d, 2d, 0d);
+        character.BaseStats = baseStats;
+
         character.PortraitPath = "Characters/Fighter/portrait";
         character.ModelPath = "Characters/Fighter/model";
         character.AttackDistance = 1.5f;
@@ -77,21 +77,23 @@ public class Character
 
     public static Character Slime()
     {
-        var random = new System.Random();
         var character = new Character();
-        var maxHp = random.Next(500, 700);
-        var maxMp = random.Next(100, 150);
-        var atk = random.Next(200, 300);
-        var def = random.Next(100, 150);
-        var agi = random.Next(50, 100);
-        var wis = random.Next(30, 80);
-        var mnd = random.Next(30, 50);
-        var crit = 0.05d;
-        var acc = 0.8d;
-        var eva = 0.1d;
+
+        var baseStats = new CharacterStats();
+        baseStats.SetStat(Const.Stats.MaxHp, 700d);
+        baseStats.SetStat(Const.Stats.MaxMp, 150d);
+        baseStats.SetStat(Const.Stats.Attack, 300d);
+        baseStats.SetStat(Const.Stats.Defense, 150d);
+        baseStats.SetStat(Const.Stats.Wisdom, 70d);
+        baseStats.SetStat(Const.Stats.Agility, 100d);
+        baseStats.SetStat(Const.Stats.Mind, 50d);
+        baseStats.SetStat(Const.Stats.Critical, 0.05d);
+        baseStats.SetStat(Const.Stats.Accuracy, 0.8d);
+        baseStats.SetStat(Const.Stats.Evasion, 0.1d);
+
         character.Name = "Slime";
-        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
-        character.Resistances = new Affinities(0d, 2d, 0d);
+        character.BaseStats = baseStats;
+
         character.PortraitPath = "Characters/Slime/portrait";
         character.ModelPath = "Characters/Slime/model";
         character.AttackDistance = 2.5f;
@@ -106,21 +108,23 @@ public class Character
 
     public static Character SlimeKing()
     {
-        var random = new System.Random();
         var character = new Character();
-        var maxHp = random.Next(5000, 7000);
-        var maxMp = random.Next(1000, 1500);
-        var atk = random.Next(500, 700);
-        var def = random.Next(100, 150);
-        var agi = random.Next(50, 100);
-        var wis = random.Next(200, 250);
-        var mnd = random.Next(30, 50);
-        var crit = 0.05d;
-        var acc = 1d;
-        var eva = 0.1d;
+
+        var baseStats = new CharacterStats();
+        baseStats.SetStat(Const.Stats.MaxHp, 6000d);
+        baseStats.SetStat(Const.Stats.MaxMp, 1500d);
+        baseStats.SetStat(Const.Stats.Attack, 600d);
+        baseStats.SetStat(Const.Stats.Defense, 150d);
+        baseStats.SetStat(Const.Stats.Wisdom, 250d);
+        baseStats.SetStat(Const.Stats.Agility, 110d);
+        baseStats.SetStat(Const.Stats.Mind, 50d);
+        baseStats.SetStat(Const.Stats.Critical, 0.05d);
+        baseStats.SetStat(Const.Stats.Accuracy, 1d);
+        baseStats.SetStat(Const.Stats.Evasion, 0.1d);
+
         character.Name = "Slime King";
-        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
-        character.Resistances = new Affinities(0d, 2d, 0d);
+        character.BaseStats = baseStats;
+
         character.PortraitPath = "Characters/SlimeKing/portrait";
         character.ModelPath = "Characters/SlimeKing/model";
         character.AttackDistance = 2.5f;
@@ -135,21 +139,26 @@ public class Character
 
     public static Character ZombieSlimeKing()
     {
-        var random = new System.Random();
         var character = new Character();
-        var maxHp = random.Next(5000, 7000);
-        var maxMp = random.Next(1000, 1500);
-        var atk = random.Next(500, 700);
-        var def = random.Next(100, 150);
-        var agi = random.Next(50, 100);
-        var wis = random.Next(200, 250);
-        var mnd = random.Next(30, 50);
-        var crit = 0.05d;
-        var acc = 1d;
-        var eva = 0.1d;
-        character.Name = "Slime King";
-        character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
-        character.Resistances = new Affinities(1d, -2d, 0d);
+
+        var baseStats = new CharacterStats();
+        baseStats.SetStat(Const.Stats.MaxHp, 6000d);
+        baseStats.SetStat(Const.Stats.MaxMp, 1500d);
+        baseStats.SetStat(Const.Stats.Attack, 600d);
+        baseStats.SetStat(Const.Stats.Defense, 150d);
+        baseStats.SetStat(Const.Stats.Wisdom, 250d);
+        baseStats.SetStat(Const.Stats.Agility, 110d);
+        baseStats.SetStat(Const.Stats.Mind, 50d);
+        baseStats.SetStat(Const.Stats.Critical, 0.05d);
+        baseStats.SetStat(Const.Stats.Accuracy, 1d);
+        baseStats.SetStat(Const.Stats.Evasion, 0.1d);
+
+        baseStats.SetStat(Const.Stats.HealingResistance, -2d);
+        baseStats.SetStat(Const.Stats.PhysicalResistance, 1d);
+
+        character.Name = "Zombie Slime King";
+        character.BaseStats = baseStats;
+
         character.PortraitPath = "Characters/ZombieSlimeKing/portrait";
         character.ModelPath = "Characters/ZombieSlimeKing/model";
         character.AttackDistance = 2.5f;

@@ -100,9 +100,12 @@ public class TurnOrderService
             {
                 return x.cooldown.CompareTo(y.cooldown);
             }
-            if(x.character.BaseCharacter.Agility != y.character.BaseCharacter.Agility ) 
+
+            var xAgility = x.character.GetStat(Const.Stats.Agility);
+            var yAgility = y.character.GetStat(Const.Stats.Agility);
+            if(xAgility != yAgility) 
             {
-                return y.character.BaseCharacter.Agility.CompareTo(x.character.BaseCharacter.Agility);
+                return yAgility.CompareTo(xAgility);
             }
             return y.character.BattleCharacterId.CompareTo(x.character.BattleCharacterId);
         });

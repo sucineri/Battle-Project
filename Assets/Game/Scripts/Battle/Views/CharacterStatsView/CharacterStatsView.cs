@@ -23,16 +23,16 @@ public class CharacterStatsView : MonoBehaviour {
 
         this._hpLabel.text = string.Format("{0}/{1}", character.CurrentHp, character.MaxHp);
 
-        this.CreateStatsCell(Const.Stats.Attack, character.BaseCharacter.Attack.ToString());
-        this.CreateStatsCell(Const.Stats.Defense, character.BaseCharacter.Defense.ToString());
-        this.CreateStatsCell(Const.Stats.Wisdom, character.BaseCharacter.Wisdom.ToString());
-        this.CreateStatsCell(Const.Stats.Agility, character.BaseCharacter.Agility.ToString());
-        this.CreateStatsCell(Const.Stats.Mind, character.BaseCharacter.Mind.ToString());
+        this.CreateStatsCell(Const.Stats.Attack, character.GetStat(Const.Stats.Attack).ToString());
+        this.CreateStatsCell(Const.Stats.Defense, character.GetStat(Const.Stats.Defense).ToString());
+        this.CreateStatsCell(Const.Stats.Wisdom, character.GetStat(Const.Stats.Wisdom).ToString());
+        this.CreateStatsCell(Const.Stats.Agility, character.GetStat(Const.Stats.Agility).ToString());
+        this.CreateStatsCell(Const.Stats.Mind, character.GetStat(Const.Stats.Mind).ToString());
         this.CreateEmptyCell();
 
-        this.CreateStatsCell(Const.Stats.Accuracy, string.Format("{0}%", character.BaseCharacter.Accuracy * 100d));
-        this.CreateStatsCell(Const.Stats.Evasion, string.Format("{0}%", character.BaseCharacter.Evasion * 100d));
-        this.CreateStatsCell(Const.Stats.Critical, string.Format("{0}%", character.BaseCharacter.Critical * 100d));
+        this.CreateStatsCell(Const.Stats.Accuracy, string.Format("{0}%", character.GetStat(Const.Stats.Accuracy) * 100d));
+        this.CreateStatsCell(Const.Stats.Evasion, string.Format("{0}%", character.GetStat(Const.Stats.Evasion) * 100d));
+        this.CreateStatsCell(Const.Stats.Critical, string.Format("{0}%", character.GetStat(Const.Stats.Critical) * 100d));
 
         this.gameObject.SetActive(true);
     }

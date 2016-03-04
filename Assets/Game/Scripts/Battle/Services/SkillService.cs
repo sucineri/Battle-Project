@@ -9,7 +9,7 @@ public class SkillService
     {
         var accModifiers = this.GetStatModifier(effect.StatsModifiers, Const.Stats.Accuracy);
 
-        var hitChance = this.GetStatEffect(attacker.BaseCharacter.Accuracy, accModifiers, defender.BaseCharacter.Evasion); 
+        var hitChance = this.GetStatEffect(attacker.GetStat(Const.Stats.Accuracy), accModifiers, defender.GetStat(Const.Stats.Evasion)); 
 
         return this.IsRandomCheckSuccess(hitChance);
     }
@@ -19,11 +19,11 @@ public class SkillService
         var critModifiers = this.GetStatModifier(effect.StatsModifiers, Const.Stats.Critical);
 
         // TODO: critical resistance?
-        var critChance = this.GetStatEffect(attacker.BaseCharacter.Critical, critModifiers, 0d); 
+        var critChance = this.GetStatEffect(attacker.GetStat(Const.Stats.Critical), critModifiers, 0d); 
         return this.IsRandomCheckSuccess(critChance);
     }
 
-    public double GetStatEffect(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect, bool shouldCritical)
+    public double CalculateDamage(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect, bool shouldCritical)
     {
         var strModifier = this.GetStatModifier(effect.StatsModifiers, Const.Stats.Attack);
         var wisModifier = this.GetStatModifier(effect.StatsModifiers, Const.Stats.Wisdom);
@@ -32,17 +32,17 @@ public class SkillService
         var damage = 0d;
         if (strModifier.Count > 0)
         {
-            damage += this.GetStatEffect(attacker.BaseCharacter.Attack, strModifier, defender.BaseCharacter.Defense);
+            damage += this.GetStatEffect(attacker.GetStat(Const.Stats.Attack), strModifier, defender.GetStat(Const.Stats.Defense));
         }
 
         if (wisModifier.Count > 0)
         {
-            damage += this.GetStatEffect(attacker.BaseCharacter.Wisdom, wisModifier, defender.BaseCharacter.Mind);
+            damage += this.GetStatEffect(attacker.GetStat(Const.Stats.Wisdom), wisModifier, defender.GetStat(Const.Stats.Mind));
         }
 
         if (mndModifier.Count > 0)
         {
-            damage += this.GetStatEffect(attacker.BaseCharacter.Mind, mndModifier, 0d);
+            damage += this.GetStatEffect(attacker.GetStat(Const.Stats.Mind), mndModifier, 0d);
         }
 
         if (shouldCritical)
@@ -50,7 +50,7 @@ public class SkillService
             damage *= Const.CriticalDamageMultiplier;
         }
 
-        damage = ApplyAffinityBonuses(damage, defender.BaseCharacter.Resistances, effect.Affinities);
+        damage = ApplyAffinityBonuses(damage, defender, effect.Affinities);
 
         return Math.Floor(damage);
     }
@@ -112,13 +112,8 @@ public class SkillService
         return random.NextDouble() >= (1d - chance);
     }
 
-    private double ApplyAffinityBonuses(double baseDamage, Affinities resistances, Affinities effectAffinities)
+    private double ApplyAffinityBonuses(double baseDamage, BattleCharacter defender, SkillEffectAffinities effectAffinities)
     {
-        if (resistances == null || effectAffinities == null)
-        {
-            return baseDamage;
-        }
-
         var nonZeroAffinities = effectAffinities.GetNonZeroAffinities();
 
         if (nonZeroAffinities.Count == 0)
@@ -130,7 +125,7 @@ public class SkillService
 
         foreach (var kv in nonZeroAffinities)
         {
-            var resistanceEffect = 1d - resistances.GetAffinity(kv.Key);
+            var resistanceEffect = 1d - defender.GetAffinityResistance(kv.Key);
             modifiedDamage += baseDamage * resistanceEffect * kv.Value;
         }
         return modifiedDamage;

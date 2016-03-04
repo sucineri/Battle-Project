@@ -40,23 +40,47 @@ public class Const
 
     public enum Stats
     {
-        MaxHp,
-        MaxMp,
-        Attack,
-        Defense,
-        Agility,
-        Wisdom,
-        Mind,
-        Critical,
-        Accuracy,
-        Evasion
+        Invalid = -999,
+        MaxHp = 1,
+        MaxMp = 2,
+        Attack = 3,
+        Defense = 4,
+        Agility = 5,
+        Wisdom = 6,
+        Mind = 7,
+        Critical = 8,
+        Accuracy = 9,
+        Evasion = 10,
+        PhysicalResistance = 101,
+        HealingResistance = 102,
+        FireResistance = 103,
+        IceResistance = 104,
+        WaterResistance = 105,
+        WindResistance = 106,
+        EarthResistance = 107,
+        LightningResistance = 108,
+        HolyResistance = 109,
+        DarkResistance = 110,
+        BlindResistance = 201,
+        ParalyzeResistance = 202,
+        SlowResistance = 203,
+        HasteResistance = 204,
+        StopResistance = 205,
+        ZombieResistance = 206
     }
 
     public enum Affinities
     {
-        Physical,
-        Healing,
-        Lightning
+        Physical = 101,
+        Healing = 102,
+        Fire = 103,
+        Ice = 104,
+        Water = 105,
+        Wind = 106,
+        Earth = 107,
+        Lightning = 108,
+        Holy = 109,
+        Dark = 110
     }
 
     public enum ActionType

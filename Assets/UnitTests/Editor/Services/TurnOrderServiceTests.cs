@@ -8,7 +8,7 @@ using UnityEngine;
 namespace BattleSaga.UnitTests
 {
     [TestFixture]
-    [Category("TurnOrderServiceTests Tests")]
+    [Category("TurnOrderService Tests")]
     internal class TurnOrderServiceTests
     {
         private List<BattleCharacter> _battleCharacters;
@@ -131,9 +131,11 @@ namespace BattleSaga.UnitTests
 
         private Character CreateCharacterWithAgi(double agi)
         {
-            var stats = new BasicStats(100d, 100d, 100d, 100d, agi, 100d, 100d, 0d, 1d, 0d);
+            var stats = new CharacterStats();
+            stats.SetStat(Const.Stats.MaxHp, 100d);
+            stats.SetStat(Const.Stats.Agility, agi);
             var character = new Character();
-            character.BasicStats = stats;
+            character.BaseStats = stats;
             return character;
         }
 
