@@ -4,38 +4,38 @@ using System.Collections.Generic;
 
 public class BasicStats
 {
-    private Dictionary<Const.BasicStats, double> _stats = new Dictionary<Const.BasicStats, double>();
+    private Dictionary<Const.Stats, double> _stats = new Dictionary<Const.Stats, double>();
 
     public BasicStats()
     {
-        _stats.Add(Const.BasicStats.MaxHp, 0d);
-        _stats.Add(Const.BasicStats.MaxMp, 0d);
-        _stats.Add(Const.BasicStats.Attack, 0d);
-        _stats.Add(Const.BasicStats.Defense, 0d);
-        _stats.Add(Const.BasicStats.Agility, 0d);
-        _stats.Add(Const.BasicStats.Wisdom, 0d);
-        _stats.Add(Const.BasicStats.Mind, 0d);
-        _stats.Add(Const.BasicStats.Critical, 0d);
-        _stats.Add(Const.BasicStats.Accuracy, 0d);
-        _stats.Add(Const.BasicStats.Evasion, 0d);
+        _stats.Add(Const.Stats.MaxHp, 0d);
+        _stats.Add(Const.Stats.MaxMp, 0d);
+        _stats.Add(Const.Stats.Attack, 0d);
+        _stats.Add(Const.Stats.Defense, 0d);
+        _stats.Add(Const.Stats.Agility, 0d);
+        _stats.Add(Const.Stats.Wisdom, 0d);
+        _stats.Add(Const.Stats.Mind, 0d);
+        _stats.Add(Const.Stats.Critical, 0d);
+        _stats.Add(Const.Stats.Accuracy, 0d);
+        _stats.Add(Const.Stats.Evasion, 0d);
     }
 
     public BasicStats(double maxHp, double maxMp, double atk, double def, double agi, double wis, double mnd, double crit, double acc, double eva)
     {
-        _stats.Add(Const.BasicStats.MaxHp, maxHp);
-        _stats.Add(Const.BasicStats.MaxMp, maxMp);
-        _stats.Add(Const.BasicStats.Attack, atk);
-        _stats.Add(Const.BasicStats.Defense, def);
-        _stats.Add(Const.BasicStats.Agility, agi);
-        _stats.Add(Const.BasicStats.Wisdom, wis);
-        _stats.Add(Const.BasicStats.Mind, mnd);
-        _stats.Add(Const.BasicStats.Critical, crit);
-        _stats.Add(Const.BasicStats.Accuracy, acc);
-        _stats.Add(Const.BasicStats.Evasion, eva);
+        _stats.Add(Const.Stats.MaxHp, maxHp);
+        _stats.Add(Const.Stats.MaxMp, maxMp);
+        _stats.Add(Const.Stats.Attack, atk);
+        _stats.Add(Const.Stats.Defense, def);
+        _stats.Add(Const.Stats.Agility, agi);
+        _stats.Add(Const.Stats.Wisdom, wis);
+        _stats.Add(Const.Stats.Mind, mnd);
+        _stats.Add(Const.Stats.Critical, crit);
+        _stats.Add(Const.Stats.Accuracy, acc);
+        _stats.Add(Const.Stats.Evasion, eva);
 
     }
 
-    public void SetStat(Const.BasicStats stat, double value)
+    public void SetStat(Const.Stats stat, double value)
     {
         if (_stats.ContainsKey(stat))
         {
@@ -47,7 +47,7 @@ public class BasicStats
         }
     }
 
-    public double GetStats(Const.BasicStats key)
+    public double GetStats(Const.Stats key)
     {
         return _stats[key];
     }

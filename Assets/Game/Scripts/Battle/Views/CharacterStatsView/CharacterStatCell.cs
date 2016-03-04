@@ -7,7 +7,7 @@ public class CharacterStatCell : MonoBehaviour {
     [SerializeField] private Text _name;
     [SerializeField] private Text _value;
 
-    public void Init(Const.BasicStats stat, string value)
+    public void Init(Const.Stats stat, string value)
     {
         this._name.text = stat.ToString() + ":";
         this._value.text = value;

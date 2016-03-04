@@ -23,16 +23,16 @@ public class CharacterStatsView : MonoBehaviour {
 
         this._hpLabel.text = string.Format("{0}/{1}", character.CurrentHp, character.MaxHp);
 
-        this.CreateStatsCell(Const.BasicStats.Attack, character.BaseCharacter.Attack.ToString());
-        this.CreateStatsCell(Const.BasicStats.Defense, character.BaseCharacter.Defense.ToString());
-        this.CreateStatsCell(Const.BasicStats.Wisdom, character.BaseCharacter.Wisdom.ToString());
-        this.CreateStatsCell(Const.BasicStats.Agility, character.BaseCharacter.Agility.ToString());
-        this.CreateStatsCell(Const.BasicStats.Mind, character.BaseCharacter.Mind.ToString());
+        this.CreateStatsCell(Const.Stats.Attack, character.BaseCharacter.Attack.ToString());
+        this.CreateStatsCell(Const.Stats.Defense, character.BaseCharacter.Defense.ToString());
+        this.CreateStatsCell(Const.Stats.Wisdom, character.BaseCharacter.Wisdom.ToString());
+        this.CreateStatsCell(Const.Stats.Agility, character.BaseCharacter.Agility.ToString());
+        this.CreateStatsCell(Const.Stats.Mind, character.BaseCharacter.Mind.ToString());
         this.CreateEmptyCell();
 
-        this.CreateStatsCell(Const.BasicStats.Accuracy, string.Format("{0}%", character.BaseCharacter.Accuracy * 100d));
-        this.CreateStatsCell(Const.BasicStats.Evasion, string.Format("{0}%", character.BaseCharacter.Evasion * 100d));
-        this.CreateStatsCell(Const.BasicStats.Critical, string.Format("{0}%", character.BaseCharacter.Critical * 100d));
+        this.CreateStatsCell(Const.Stats.Accuracy, string.Format("{0}%", character.BaseCharacter.Accuracy * 100d));
+        this.CreateStatsCell(Const.Stats.Evasion, string.Format("{0}%", character.BaseCharacter.Evasion * 100d));
+        this.CreateStatsCell(Const.Stats.Critical, string.Format("{0}%", character.BaseCharacter.Critical * 100d));
 
         this.gameObject.SetActive(true);
     }
@@ -44,7 +44,7 @@ public class CharacterStatsView : MonoBehaviour {
         cell.Empty();
     }
 
-    private void CreateStatsCell(Const.BasicStats stat, string value)
+    private void CreateStatsCell(Const.Stats stat, string value)
     {
         var go = this.CreateCell();
 

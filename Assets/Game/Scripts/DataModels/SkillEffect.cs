@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class SkillEffect
 {
     // Skill effect's affinities
-    public Affinity Affinities { get; set; }
+    public Affinities Affinities { get; set; }
 
     // Targeting information
     public Targeting EffectTarget { get; set; }
@@ -24,7 +24,7 @@ public class SkillEffect
         StatsModifiers = new List<StatModifier>();
     }
 
-    private void AddStatModifier(Const.BasicStats stat, double magnitude, Const.ModifierType bonusType)
+    private void AddStatModifier(Const.Stats stat, double magnitude, Const.ModifierType bonusType)
     {
         if (this.StatsModifiers == null)
         {
@@ -41,14 +41,14 @@ public class SkillEffect
 
         skillEffect.EffectTarget = Targeting.SingleOpponentTarget();
 
-        var affinities = new Affinity();
+        var affinities = new Affinities();
         affinities.SetAffinity(Const.Affinities.Physical, 1d);
         skillEffect.Affinities = affinities;
 
         skillEffect.BaseEnmity = 10;
         skillEffect.EnmityType = Const.EnmityTargetType.Target;
 
-        skillEffect.AddStatModifier(Const.BasicStats.Attack, 1d, Const.ModifierType.Multiply);
+        skillEffect.AddStatModifier(Const.Stats.Attack, 1d, Const.ModifierType.Multiply);
         return skillEffect;
     }
 
@@ -58,13 +58,13 @@ public class SkillEffect
 
         skillEffect.EffectTarget = Targeting.CrossOpponentTarget();
 
-        var affinities = new Affinity();
+        var affinities = new Affinities();
         affinities.SetAffinity(Const.Affinities.Physical, 1d);
         skillEffect.Affinities = affinities;
 
         skillEffect.BaseEnmity = 15;
         skillEffect.EnmityType = Const.EnmityTargetType.Target;
-        skillEffect.AddStatModifier(Const.BasicStats.Attack, 2d, Const.ModifierType.Multiply);
+        skillEffect.AddStatModifier(Const.Stats.Attack, 2d, Const.ModifierType.Multiply);
         return skillEffect;
     }
 
@@ -74,13 +74,13 @@ public class SkillEffect
 
         skillEffect.EffectTarget = Targeting.SquashTarget();
 
-        var affinities = new Affinity();
+        var affinities = new Affinities();
         affinities.SetAffinity(Const.Affinities.Physical, 1d);
         skillEffect.Affinities = affinities;
 
         skillEffect.BaseEnmity = 30;
         skillEffect.EnmityType = Const.EnmityTargetType.Target;
-        skillEffect.AddStatModifier(Const.BasicStats.Attack, 0.5d, Const.ModifierType.Multiply);
+        skillEffect.AddStatModifier(Const.Stats.Attack, 0.5d, Const.ModifierType.Multiply);
         return skillEffect;
     }
 
@@ -90,15 +90,15 @@ public class SkillEffect
 
         skillEffect.EffectTarget = Targeting.ChainLightning();
 
-        var affinities = new Affinity();
+        var affinities = new Affinities();
         affinities.SetAffinity(Const.Affinities.Lightning, 1d);
         skillEffect.Affinities = affinities;
 
         skillEffect.BaseEnmity = 40;
         skillEffect.EnmityType = Const.EnmityTargetType.Target;
 
-        skillEffect.AddStatModifier(Const.BasicStats.Accuracy, 1d, Const.ModifierType.Absolute);
-        skillEffect.AddStatModifier(Const.BasicStats.Wisdom, 1.5d, Const.ModifierType.Multiply);
+        skillEffect.AddStatModifier(Const.Stats.Accuracy, 1d, Const.ModifierType.Absolute);
+        skillEffect.AddStatModifier(Const.Stats.Wisdom, 1.5d, Const.ModifierType.Multiply);
         return skillEffect;
     }
 
@@ -108,15 +108,15 @@ public class SkillEffect
 
         skillEffect.EffectTarget = Targeting.ChainLightningSecondary();
 
-        var affinities = new Affinity();
+        var affinities = new Affinities();
         affinities.SetAffinity(Const.Affinities.Lightning, 1d);
         skillEffect.Affinities = affinities;
 
         skillEffect.BaseEnmity = 20;
         skillEffect.EnmityType = Const.EnmityTargetType.Target;
 
-        skillEffect.AddStatModifier(Const.BasicStats.Accuracy, 1d, Const.ModifierType.Absolute);
-        skillEffect.AddStatModifier(Const.BasicStats.Wisdom, 1d, Const.ModifierType.Multiply);
+        skillEffect.AddStatModifier(Const.Stats.Accuracy, 1d, Const.ModifierType.Absolute);
+        skillEffect.AddStatModifier(Const.Stats.Wisdom, 1d, Const.ModifierType.Multiply);
         return skillEffect;
     }
 
@@ -126,15 +126,15 @@ public class SkillEffect
 
         skillEffect.EffectTarget = Targeting.SingleTarget();
 
-        var affinities = new Affinity();
+        var affinities = new Affinities();
         affinities.SetAffinity(Const.Affinities.Healing, 1d);
         skillEffect.Affinities = affinities;
 
         skillEffect.BaseEnmity = 40;
         skillEffect.EnmityType = Const.EnmityTargetType.All;
 
-        skillEffect.AddStatModifier(Const.BasicStats.Accuracy, 1d, Const.ModifierType.Absolute);
-        skillEffect.AddStatModifier(Const.BasicStats.Mind, 3d, Const.ModifierType.Multiply);
+        skillEffect.AddStatModifier(Const.Stats.Accuracy, 1d, Const.ModifierType.Absolute);
+        skillEffect.AddStatModifier(Const.Stats.Mind, 3d, Const.ModifierType.Multiply);
         return skillEffect;
     }
 }

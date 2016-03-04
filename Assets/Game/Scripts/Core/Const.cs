@@ -38,7 +38,7 @@ public class Const
         Nearest
     }
 
-    public enum BasicStats
+    public enum Stats
     {
         MaxHp,
         MaxMp,

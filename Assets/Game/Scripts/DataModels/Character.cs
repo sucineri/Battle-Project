@@ -6,7 +6,7 @@ public class Character
 {
     public BasicStats BasicStats { get; set; }
 
-    public Affinity Resistances { get; set; }
+    public Affinities Resistances { get; set; }
 
     public string Name { get; set; }
 
@@ -18,25 +18,25 @@ public class Character
 
     public float SizeOffset { get; set; }
 
-    public double MaxHp { get { return this.BasicStats.GetStats(Const.BasicStats.MaxHp); } }
+    public double MaxHp { get { return this.BasicStats.GetStats(Const.Stats.MaxHp); } }
 
-    public double MaxMp { get { return this.BasicStats.GetStats(Const.BasicStats.MaxMp); } }
+    public double MaxMp { get { return this.BasicStats.GetStats(Const.Stats.MaxMp); } }
 
-    public double Attack { get { return this.BasicStats.GetStats(Const.BasicStats.Attack); } }
+    public double Attack { get { return this.BasicStats.GetStats(Const.Stats.Attack); } }
 
-    public double Defense { get { return this.BasicStats.GetStats(Const.BasicStats.Defense); } }
+    public double Defense { get { return this.BasicStats.GetStats(Const.Stats.Defense); } }
 
-    public double Wisdom{ get { return this.BasicStats.GetStats(Const.BasicStats.Wisdom); } }
+    public double Wisdom{ get { return this.BasicStats.GetStats(Const.Stats.Wisdom); } }
 
-    public double Agility { get { return this.BasicStats.GetStats(Const.BasicStats.Agility); } }
+    public double Agility { get { return this.BasicStats.GetStats(Const.Stats.Agility); } }
 
-    public double Mind { get { return this.BasicStats.GetStats(Const.BasicStats.Mind); } }
+    public double Mind { get { return this.BasicStats.GetStats(Const.Stats.Mind); } }
 
-    public double Critical { get { return this.BasicStats.GetStats(Const.BasicStats.Critical); } }
+    public double Critical { get { return this.BasicStats.GetStats(Const.Stats.Critical); } }
 
-    public double Accuracy { get { return this.BasicStats.GetStats(Const.BasicStats.Accuracy); } }
+    public double Accuracy { get { return this.BasicStats.GetStats(Const.Stats.Accuracy); } }
 
-    public double Evasion { get { return this.BasicStats.GetStats(Const.BasicStats.Evasion); } }
+    public double Evasion { get { return this.BasicStats.GetStats(Const.Stats.Evasion); } }
 
     public int Movement { get; set; }
 
@@ -60,7 +60,7 @@ public class Character
         var eva = 0.1d;
         character.Name = "Fighter";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
-        character.Resistances = new Affinity(0d, 2d, 0d);
+        character.Resistances = new Affinities(0d, 2d, 0d);
         character.PortraitPath = "Characters/Fighter/portrait";
         character.ModelPath = "Characters/Fighter/model";
         character.AttackDistance = 1.5f;
@@ -91,7 +91,7 @@ public class Character
         var eva = 0.1d;
         character.Name = "Slime";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
-        character.Resistances = new Affinity(0d, 2d, 0d);
+        character.Resistances = new Affinities(0d, 2d, 0d);
         character.PortraitPath = "Characters/Slime/portrait";
         character.ModelPath = "Characters/Slime/model";
         character.AttackDistance = 2.5f;
@@ -120,7 +120,7 @@ public class Character
         var eva = 0.1d;
         character.Name = "Slime King";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
-        character.Resistances = new Affinity(0d, 2d, 0d);
+        character.Resistances = new Affinities(0d, 2d, 0d);
         character.PortraitPath = "Characters/SlimeKing/portrait";
         character.ModelPath = "Characters/SlimeKing/model";
         character.AttackDistance = 2.5f;
@@ -149,7 +149,7 @@ public class Character
         var eva = 0.1d;
         character.Name = "Slime King";
         character.BasicStats = new BasicStats(maxHp, maxMp, atk, def, agi, wis, mnd, crit, acc, eva);
-        character.Resistances = new Affinity(2d, -2d, 0d);
+        character.Resistances = new Affinities(1d, -2d, 0d);
         character.PortraitPath = "Characters/ZombieSlimeKing/portrait";
         character.ModelPath = "Characters/ZombieSlimeKing/model";
         character.AttackDistance = 2.5f;

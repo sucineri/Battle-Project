@@ -7,8 +7,7 @@ public class SkillService
 {
     public bool ShouldHit(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect)
     {
-        var accModifiers = this.GetStatModifier(effect.StatsModifiers, Const.BasicStats.Accuracy);
-        var finalValue = this.CalculateModifiedValue(attacker.BaseCharacter.Accuracy, accModifiers);
+        var accModifiers = this.GetStatModifier(effect.StatsModifiers, Const.Stats.Accuracy);
 
         var hitChance = this.GetStatEffect(attacker.BaseCharacter.Accuracy, accModifiers, defender.BaseCharacter.Evasion); 
 
@@ -17,19 +16,18 @@ public class SkillService
 
     public bool ShouldCritical(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect)
     {
-        var critModifiers = this.GetStatModifier(effect.StatsModifiers, Const.BasicStats.Critical);
-        var finalValue = this.CalculateModifiedValue(attacker.BaseCharacter.Critical, critModifiers);
+        var critModifiers = this.GetStatModifier(effect.StatsModifiers, Const.Stats.Critical);
 
         // TODO: critical resistance?
-        var hitChance = this.GetStatEffect(attacker.BaseCharacter.Critical, critModifiers, 0d); 
-        return this.IsRandomCheckSuccess(finalValue.value);
+        var critChance = this.GetStatEffect(attacker.BaseCharacter.Critical, critModifiers, 0d); 
+        return this.IsRandomCheckSuccess(critChance);
     }
 
     public double GetStatEffect(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect, bool shouldCritical)
     {
-        var strModifier = this.GetStatModifier(effect.StatsModifiers, Const.BasicStats.Attack);
-        var wisModifier = this.GetStatModifier(effect.StatsModifiers, Const.BasicStats.Wisdom);
-        var mndModifier = this.GetStatModifier(effect.StatsModifiers, Const.BasicStats.Mind);
+        var strModifier = this.GetStatModifier(effect.StatsModifiers, Const.Stats.Attack);
+        var wisModifier = this.GetStatModifier(effect.StatsModifiers, Const.Stats.Wisdom);
+        var mndModifier = this.GetStatModifier(effect.StatsModifiers, Const.Stats.Mind);
 
         var damage = 0d;
         if (strModifier.Count > 0)
@@ -114,7 +112,7 @@ public class SkillService
         return random.NextDouble() >= (1d - chance);
     }
 
-    private double ApplyAffinityBonuses(double baseDamage, Affinity resistances, Affinity effectAffinities)
+    private double ApplyAffinityBonuses(double baseDamage, Affinities resistances, Affinities effectAffinities)
     {
         if (resistances == null || effectAffinities == null)
         {
@@ -138,7 +136,7 @@ public class SkillService
         return modifiedDamage;
     }
 
-    private Dictionary<Const.ModifierType, double> GetStatModifier(List<StatModifier> bonues, Const.BasicStats stat)
+    private Dictionary<Const.ModifierType, double> GetStatModifier(List<StatModifier> bonues, Const.Stats stat)
     {
         var dict = new Dictionary<Const.ModifierType, double>();
         foreach (var bonus in bonues)

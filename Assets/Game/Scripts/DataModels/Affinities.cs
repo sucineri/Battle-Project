@@ -2,20 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Affinity 
+public class Affinities 
 {
     private Dictionary<Const.Affinities, double> _affinities = new Dictionary<Const.Affinities, double>();
 
     public double Healing { get { return this.GetAffinity(Const.Affinities.Healing); } }
 
-    public Affinity()
+    public Affinities()
     {
         _affinities.Add(Const.Affinities.Physical, 0d);
         _affinities.Add(Const.Affinities.Healing, 0d);
         _affinities.Add(Const.Affinities.Lightning, 0d);
     }
 
-    public Affinity(double physical, double heal, double lightning)
+    public Affinities(double physical, double heal, double lightning)
     {
         _affinities.Add(Const.Affinities.Physical, physical);
         _affinities.Add(Const.Affinities.Healing, heal);
