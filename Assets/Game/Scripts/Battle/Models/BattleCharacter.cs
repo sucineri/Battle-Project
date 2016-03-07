@@ -39,6 +39,10 @@ public class BattleCharacter
 
     public MapPosition SkillTargetPosition { get; set; }
 
+    public Dictionary<Const.StatusEffectTypes, CharacterStatusEffectStatModifier> StatusEffectStatModifiers { get; set; }
+
+    public CharacterStats ModifierStats { get; set; }
+
     public string Name
     {
         get
@@ -52,14 +56,21 @@ public class BattleCharacter
         get
         {
             return this.OccupiedMapPositions[0];
-        }
+        } 
     }
 
-    public BattleCharacter() {}
+    public BattleCharacter()
+    {
+        this.ModifierStats = new CharacterStats();
+        this.StatusEffectStatModifiers = new Dictionary<Const.StatusEffectTypes, CharacterStatusEffectStatModifier>();
+    }
 
     public BattleCharacter(Character baseCharacter, Const.Team team)
     {
         this.BaseCharacter = baseCharacter;
+        this.StatusEffectStatModifiers = new Dictionary<Const.StatusEffectTypes, CharacterStatusEffectStatModifier>();
+        this.RecalculateModifiedStats();
+
         this.Team = team;
         this.CurrentHp = this.MaxHp;
         this.CurrentMp = this.MaxMp;
@@ -67,10 +78,14 @@ public class BattleCharacter
         this.Enmity = new BattleEnmity();
     }
 
+    public double GetBaseStat(Const.Stats stat)
+    {
+        return this.BaseCharacter.BaseStats.GetStat(stat);
+    }
+
     public double GetStat(Const.Stats stat)
     {
-        // TODO: buffs
-        return this.BaseCharacter.BaseStats.GetStats(stat);
+        return this.ModifierStats.GetStat(stat);
     }
 
     public double GetAffinityResistance(Const.Affinities affinity)
@@ -78,14 +93,39 @@ public class BattleCharacter
         return this.GetResistance((int)affinity);
     }
 
-    public double GetStatusEffectResistance()
+    public double GetStatusEffectResistance(Const.StatusEffectTypes statusEffectType)
     {
-        return 0;
+        return this.GetResistance((int)statusEffectType);
     }
 
     public void Tick(int ticks)
     {
         this.ActionCooldown -= ticks;
+    }
+
+    public bool ApplyStatusEffect(StatusEffect statusEffect)
+    {
+        var type = statusEffect.StatusEffectType;
+        var newMod = new CharacterStatusEffectStatModifier(statusEffect);
+        if (this.StatusEffectStatModifiers.ContainsKey(type))
+        {
+            if (newMod.Rank < this.StatusEffectStatModifiers[type].Rank)
+            {
+                return false;
+            }
+            else
+            {
+                this.StatusEffectStatModifiers[type] = newMod;
+                this.RecalculateModifiedStats();
+                return true;
+            }
+        }
+        else
+        {
+            this.StatusEffectStatModifiers.Add(type, newMod);
+            this.RecalculateModifiedStats();
+            return true;
+        }
     }
 
     private double GetResistance(int enumValue)
@@ -95,5 +135,79 @@ public class BattleCharacter
             return this.GetStat((Const.Stats)enumValue);
         }
         return 0d;
+    }
+
+    private void RecalculateModifiedStats()
+    {
+        var stats = this.BaseCharacter.BaseStats.Clone();
+        foreach (var modifier in this.StatusEffectStatModifiers.Values)
+        {
+            var stat = modifier.StatModifier.Stat;
+            var baseStat = this.GetBaseStat(stat);
+
+            var statModifiers = new Dictionary<Const.ModifierType, double>();
+            statModifiers.Add(modifier.StatModifier.Type, modifier.StatModifier.Magnitude);
+
+            var modifiedValue = this.CalculateStat(baseStat, statModifiers);
+            stats.SetStat(stat, modifiedValue);
+        }
+        this.ModifierStats = stats;
+    }
+
+    public double GetStatWithModifiers(Const.Stats stat, List<StatModifier> modifiers)
+    {
+        var baseStat = this.GetStat(stat);
+        var statModifiers = this.GetModifiersForStat(modifiers, stat);
+        return this.CalculateStat(baseStat, statModifiers);
+    }
+
+    private double CalculateStat(double baseValue, Dictionary<Const.ModifierType, double> statModifiers)
+    {
+        if (statModifiers.Count == 0)
+        {
+            return baseValue;
+        }
+
+        var value = baseValue;
+
+        if (statModifiers.ContainsKey(Const.ModifierType.Absolute))
+        {
+            return statModifiers[Const.ModifierType.Absolute];
+        }
+        else
+        {
+            if (statModifiers.ContainsKey(Const.ModifierType.Multiply))
+            {
+                value *= statModifiers[Const.ModifierType.Multiply];
+            }
+
+            if (statModifiers.ContainsKey(Const.ModifierType.Addition))
+            {
+                value += statModifiers[Const.ModifierType.Addition];
+            }
+
+            return value;
+        }
+    }
+
+    private Dictionary<Const.ModifierType, double> GetModifiersForStat(List<StatModifier> modifiers, Const.Stats stat)
+    {
+        var dict = new Dictionary<Const.ModifierType, double>();
+        foreach (var bonus in modifiers)
+        {       
+            if (bonus.Stat == stat)
+            {
+                var type = bonus.Type;  
+                if(dict.ContainsKey(type))
+                {
+                    dict[type] += bonus.Magnitude;
+                }
+                else
+                {
+                    dict.Add(type, bonus.Magnitude);
+                }
+            }
+        }
+        return dict;
     }
 }

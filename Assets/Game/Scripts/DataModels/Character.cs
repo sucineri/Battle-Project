@@ -16,26 +16,6 @@ public class Character
 
     public float SizeOffset { get; set; }
 
-//    public double MaxHp { get { return this.BaseStats.GetStats(Const.Stats.MaxHp); } }
-//
-//    public double MaxMp { get { return this.BaseStats.GetStats(Const.Stats.MaxMp); } }
-//
-//    public double Attack { get { return this.BaseStats.GetStats(Const.Stats.Attack); } }
-//
-//    public double Defense { get { return this.BaseStats.GetStats(Const.Stats.Defense); } }
-//
-//    public double Wisdom{ get { return this.BaseStats.GetStats(Const.Stats.Wisdom); } }
-//
-//    public double Agility { get { return this.BaseStats.GetStats(Const.Stats.Agility); } }
-//
-//    public double Mind { get { return this.BaseStats.GetStats(Const.Stats.Mind); } }
-//
-//    public double Critical { get { return this.BaseStats.GetStats(Const.Stats.Critical); } }
-//
-//    public double Accuracy { get { return this.BaseStats.GetStats(Const.Stats.Accuracy); } }
-//
-//    public double Evasion { get { return this.BaseStats.GetStats(Const.Stats.Evasion); } }
-
     public int Movement { get; set; }
 
     public List<Skill> Skills = new List<Skill>();

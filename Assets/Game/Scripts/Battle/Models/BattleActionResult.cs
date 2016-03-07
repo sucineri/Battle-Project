@@ -5,6 +5,14 @@ using System.Collections.Generic;
 // TODO: rewrite these crap
 public class BattleActionResult
 {
+    public enum StatusEffectResultType
+    {
+        None,
+        Landed,
+        Resisted,
+        Ineffetive
+    }
+
     public class ActionEffectResult
     {
         public List<EffectOnTarget> effectsOnTarget = new List<EffectOnTarget>();
@@ -24,6 +32,13 @@ public class BattleActionResult
         public string effectPrefabPath;
         public bool isSuccess = true;
         public bool isCritical = false;
+        public StatusEffectResult statusEffectResult;
+    }
+
+    public class StatusEffectResult
+    {
+        public StatusEffectResultType resultType;
+        public List<StatusEffect> landedEffects;
     }
 
     public Const.ActionType type;

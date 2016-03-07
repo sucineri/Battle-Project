@@ -18,7 +18,7 @@ public class Const
         All
     }
 
-    public enum SkillType
+    public enum SkillEffectType
     {
         Attack,
         Heal,
@@ -40,7 +40,6 @@ public class Const
 
     public enum Stats
     {
-        Invalid = -999,
         MaxHp = 1,
         MaxMp = 2,
         Attack = 3,
@@ -61,12 +60,7 @@ public class Const
         LightningResistance = 108,
         HolyResistance = 109,
         DarkResistance = 110,
-        BlindResistance = 201,
-        ParalyzeResistance = 202,
-        SlowResistance = 203,
-        HasteResistance = 204,
-        StopResistance = 205,
-        ZombieResistance = 206
+        BlindResistance = 201
     }
 
     public enum Affinities
@@ -81,6 +75,12 @@ public class Const
         Lightning = 108,
         Holy = 109,
         Dark = 110
+    }
+
+    public enum StatusEffectTypes
+    {
+        Blind = 201,
+        LightningResistanceUp = 301,
     }
 
     public enum ActionType

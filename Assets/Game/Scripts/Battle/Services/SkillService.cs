@@ -5,44 +5,39 @@ using System.Collections.Generic;
 
 public class SkillService
 {
+    private Random _random = new Random();
+
     public bool ShouldHit(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect)
     {
-        var accModifiers = this.GetStatModifier(effect.StatsModifiers, Const.Stats.Accuracy);
-
-        var hitChance = this.GetStatEffect(attacker.GetStat(Const.Stats.Accuracy), accModifiers, defender.GetStat(Const.Stats.Evasion)); 
-
-        return this.IsRandomCheckSuccess(hitChance);
+        var hitChance = attacker.GetStatWithModifiers(Const.Stats.Accuracy, effect.StatsModifiers);
+        var evaChance = defender.GetStat(Const.Stats.Evasion);
+        return this.IsRandomCheckSuccess(hitChance - evaChance);
     }
 
     public bool ShouldCritical(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect)
     {
-        var critModifiers = this.GetStatModifier(effect.StatsModifiers, Const.Stats.Critical);
-
-        // TODO: critical resistance?
-        var critChance = this.GetStatEffect(attacker.GetStat(Const.Stats.Critical), critModifiers, 0d); 
+        var critChance = attacker.GetStatWithModifiers(Const.Stats.Critical, effect.StatsModifiers);
         return this.IsRandomCheckSuccess(critChance);
     }
 
     public double CalculateDamage(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect, bool shouldCritical)
     {
-        var strModifier = this.GetStatModifier(effect.StatsModifiers, Const.Stats.Attack);
-        var wisModifier = this.GetStatModifier(effect.StatsModifiers, Const.Stats.Wisdom);
-        var mndModifier = this.GetStatModifier(effect.StatsModifiers, Const.Stats.Mind);
-
         var damage = 0d;
-        if (strModifier.Count > 0)
+        if (effect.HasStatModifier(Const.Stats.Attack))
         {
-            damage += this.GetStatEffect(attacker.GetStat(Const.Stats.Attack), strModifier, defender.GetStat(Const.Stats.Defense));
+            var atkValue = attacker.GetStatWithModifiers(Const.Stats.Attack, effect.StatsModifiers);
+            damage += atkValue - defender.GetStat(Const.Stats.Defense);
         }
 
-        if (wisModifier.Count > 0)
+        if (effect.HasStatModifier(Const.Stats.Wisdom))
         {
-            damage += this.GetStatEffect(attacker.GetStat(Const.Stats.Wisdom), wisModifier, defender.GetStat(Const.Stats.Mind));
+            var wisValue = attacker.GetStatWithModifiers(Const.Stats.Wisdom, effect.StatsModifiers);
+            damage += wisValue - defender.GetStat(Const.Stats.Mind);
         }
 
-        if (mndModifier.Count > 0)
+        if (effect.HasStatModifier(Const.Stats.Mind))
         {
-            damage += this.GetStatEffect(attacker.GetStat(Const.Stats.Mind), mndModifier, 0d);
+            damage += attacker.GetStatWithModifiers(Const.Stats.Mind, effect.StatsModifiers);
         }
 
         if (shouldCritical)
@@ -50,26 +45,19 @@ public class SkillService
             damage *= Const.CriticalDamageMultiplier;
         }
 
+        // damage value needs to be positive or zero at this point so a low atk doesn't heal a high def without going thru affinities 
+        damage = Math.Max(0d, damage);
+
         damage = ApplyAffinityBonuses(damage, defender, effect.Affinities);
 
         return Math.Floor(damage);
-    }
-
-    private double GetStatEffect(double attackerBaseValue, Dictionary<Const.ModifierType, double> attackerModifiers, double defenderBaseValue)
-    {
-        var finalAttackValue = this.CalculateModifiedValue(attackerBaseValue, attackerModifiers);
-        if (finalAttackValue.isAbsolute)
-        {
-            return finalAttackValue.value;
-        }
-        return finalAttackValue.value - defenderBaseValue;
     }
         
     public MapPosition SelectDefaultTargetForSkill(BattleCharacter actor, Skill selectedSkill, List<MapPosition> skillRadius, List<BattleCharacter> characters, Dictionary<MapPosition, Tile> map)
     {
         // TODO: better select default target logic. Save last target maybe
 
-        var targetTeam = this.GetPreferredSkillTargetTeam(selectedSkill, actor.Team);
+        var targetTeam = this.GetPreferredSkillTargetTeam(selectedSkill.Effects[0], actor.Team);
 
         foreach (var character in characters.FindAll( x => x.Team == targetTeam))
         {
@@ -108,8 +96,7 @@ public class SkillService
     private bool IsRandomCheckSuccess(double chance)
     {
         // range of random.NextDouble() is [0, 0.99999999999999978];
-        var random = new Random();
-        return random.NextDouble() >= (1d - chance);
+        return _random.NextDouble() >= (1d - chance);
     }
 
     private double ApplyAffinityBonuses(double baseDamage, BattleCharacter defender, SkillEffectAffinities effectAffinities)
@@ -131,10 +118,10 @@ public class SkillService
         return modifiedDamage;
     }
 
-    private Dictionary<Const.ModifierType, double> GetStatModifier(List<StatModifier> bonues, Const.Stats stat)
+    private Dictionary<Const.ModifierType, double> GetStatModifier(List<StatModifier> modifiers, Const.Stats stat)
     {
         var dict = new Dictionary<Const.ModifierType, double>();
-        foreach (var bonus in bonues)
+        foreach (var bonus in modifiers)
         {       
             if (bonus.Stat == stat)
             {
@@ -152,42 +139,15 @@ public class SkillService
         return dict;
     }
 
-    private ModifiedValue CalculateModifiedValue(double baseValue, Dictionary<Const.ModifierType, double> bonuses)
+    private Const.Team GetPreferredSkillTargetTeam(SkillEffect skillEffect, Const.Team actorTeam)
     {
-        var value = baseValue;
-        var finalValue = new ModifiedValue();
-        if (bonuses.ContainsKey(Const.ModifierType.Absolute))
+        switch (skillEffect.EffectType)
         {
-            finalValue.value = bonuses[Const.ModifierType.Absolute];
-            finalValue.isAbsolute = true;
-        }
-        else
-        {
-            if (bonuses.ContainsKey(Const.ModifierType.Multiply))
-            {
-                value *= bonuses[Const.ModifierType.Multiply];
-            }
-
-            if (bonuses.ContainsKey(Const.ModifierType.Addition))
-            {
-                value += bonuses[Const.ModifierType.Addition];
-            }
-
-            finalValue.value = value;
-            finalValue.isAbsolute = false;
-        }
-        return finalValue;
-    }
-
-    private Const.Team GetPreferredSkillTargetTeam(Skill skill, Const.Team actorTeam)
-    {
-        switch (skill.SkillType)
-        {
-            case Const.SkillType.Attack:
-            case Const.SkillType.Debuff:
+            case Const.SkillEffectType.Attack:
+            case Const.SkillEffectType.Debuff:
                 return this.GetOpponentTeam(actorTeam);
-            case Const.SkillType.Buff:
-            case Const.SkillType.Heal:
+            case Const.SkillEffectType.Buff:
+            case Const.SkillEffectType.Heal:
                 return actorTeam;
             default:
                 return this.GetOpponentTeam(actorTeam);

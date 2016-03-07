@@ -218,12 +218,20 @@ public class BattleService
         if (shouldHit)
         {
             effectOnTarget.isSuccess = true;
+            if (effect.HasStatusEffect)
+            {
+                var statusEffectService = ServiceFactory.GetStatusEffectService();
+                effectOnTarget.statusEffectResult = statusEffectService.GetStatusEffectResult(target, effect.StatusEffects);
+            }
 
-            var shouldCritical = skillService.ShouldCritical(actor, target, effect);
-            effectOnTarget.isCritical = shouldCritical;
+            if (effect.HasDamageEffect)
+            {
+                var shouldCritical = skillService.ShouldCritical(actor, target, effect);
+                effectOnTarget.isCritical = shouldCritical;
 
-            var damage = Math.Floor(skillService.CalculateDamage(actor, target, effect, shouldCritical));
-            hpChange = -damage;
+                var damage = Math.Floor(skillService.CalculateDamage(actor, target, effect, shouldCritical));
+                hpChange = -damage;
+            }                
         }
         else
         {

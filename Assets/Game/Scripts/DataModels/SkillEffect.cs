@@ -19,20 +19,36 @@ public class SkillEffect
     // Modifiers used to calculate skill effects 
     public List<StatModifier> StatsModifiers { get; set; }
 
+    public List<StatusEffect> StatusEffects { get; set; }
+
+    public Const.SkillEffectType EffectType { get; set; }
+
+    public bool HasDamageEffect { get { return this.Affinities != null; } }
+
+    public bool HasStatusEffect { get { return this.StatusEffects.Count > 0; } }
+
     public SkillEffect()
     {
         StatsModifiers = new List<StatModifier>();
+        StatusEffects = new List<StatusEffect>();
+    }
+
+    public bool HasStatModifier(Const.Stats stat)
+    {
+        var mod = this.StatsModifiers.Find(x =>{
+            return stat == x.Stat;
+        });
+        return mod != null;
     }
 
     private void AddStatModifier(Const.Stats stat, double magnitude, Const.ModifierType bonusType)
     {
-        if (this.StatsModifiers == null)
-        {
-            this.StatsModifiers = new List<StatModifier>();
-        }
-
-        // Let's not think about stacking this for now
         this.StatsModifiers.Add(new StatModifier(stat, magnitude, bonusType));
+    }
+
+    private void AddStatusEffect(StatusEffect effect)
+    {
+        this.StatusEffects.Add(effect);
     }
 
     public static SkillEffect MeleeAttackEffect()
@@ -48,7 +64,11 @@ public class SkillEffect
         skillEffect.BaseEnmity = 10;
         skillEffect.EnmityType = Const.EnmityTargetType.Target;
 
+        skillEffect.EffectType = Const.SkillEffectType.Attack;
+
         skillEffect.AddStatModifier(Const.Stats.Attack, 1d, Const.ModifierType.Multiply);
+
+        skillEffect.AddStatusEffect(StatusEffect.Blind());
         return skillEffect;
     }
 
@@ -64,6 +84,9 @@ public class SkillEffect
 
         skillEffect.BaseEnmity = 15;
         skillEffect.EnmityType = Const.EnmityTargetType.Target;
+
+        skillEffect.EffectType = Const.SkillEffectType.Attack;
+
         skillEffect.AddStatModifier(Const.Stats.Attack, 2d, Const.ModifierType.Multiply);
         return skillEffect;
     }
@@ -80,6 +103,9 @@ public class SkillEffect
 
         skillEffect.BaseEnmity = 30;
         skillEffect.EnmityType = Const.EnmityTargetType.Target;
+
+        skillEffect.EffectType = Const.SkillEffectType.Attack;
+
         skillEffect.AddStatModifier(Const.Stats.Attack, 0.5d, Const.ModifierType.Multiply);
         return skillEffect;
     }
@@ -96,6 +122,8 @@ public class SkillEffect
 
         skillEffect.BaseEnmity = 40;
         skillEffect.EnmityType = Const.EnmityTargetType.Target;
+
+        skillEffect.EffectType = Const.SkillEffectType.Attack;
 
         skillEffect.AddStatModifier(Const.Stats.Accuracy, 1d, Const.ModifierType.Absolute);
         skillEffect.AddStatModifier(Const.Stats.Wisdom, 1.5d, Const.ModifierType.Multiply);
@@ -115,6 +143,8 @@ public class SkillEffect
         skillEffect.BaseEnmity = 20;
         skillEffect.EnmityType = Const.EnmityTargetType.Target;
 
+        skillEffect.EffectType = Const.SkillEffectType.Attack;
+
         skillEffect.AddStatModifier(Const.Stats.Accuracy, 1d, Const.ModifierType.Absolute);
         skillEffect.AddStatModifier(Const.Stats.Wisdom, 1d, Const.ModifierType.Multiply);
         return skillEffect;
@@ -133,8 +163,27 @@ public class SkillEffect
         skillEffect.BaseEnmity = 40;
         skillEffect.EnmityType = Const.EnmityTargetType.All;
 
+        skillEffect.EffectType = Const.SkillEffectType.Heal;
+
         skillEffect.AddStatModifier(Const.Stats.Accuracy, 1d, Const.ModifierType.Absolute);
         skillEffect.AddStatModifier(Const.Stats.Mind, 3d, Const.ModifierType.Multiply);
+        return skillEffect;
+    }
+
+    public static SkillEffect BlindEffect()
+    {
+        var skillEffect = new SkillEffect();
+
+        skillEffect.EffectTarget = Targeting.SingleTarget();
+
+        skillEffect.BaseEnmity = 40;
+        skillEffect.EnmityType = Const.EnmityTargetType.Target;
+
+        skillEffect.EffectType = Const.SkillEffectType.Debuff;
+
+        skillEffect.AddStatModifier(Const.Stats.Accuracy, 1d, Const.ModifierType.Absolute);
+        skillEffect.AddStatusEffect(StatusEffect.Blind());
+
         return skillEffect;
     }
 }

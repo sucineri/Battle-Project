@@ -11,6 +11,7 @@ public class ServiceFactory
     private static EnmityService _enmityService = new EnmityService();
     private static TargetingService _targetingService = new TargetingService();
     private static SkillService _skillService = new SkillService();
+    private static StatusEffectService _statusEffectService = new StatusEffectService();
 
     public static AIService GetAIService()
     {
@@ -50,5 +51,10 @@ public class ServiceFactory
     public static SkillService GetSkillService()
     {
         return _skillService;
+    }
+
+    public static StatusEffectService GetStatusEffectService()
+    {
+        return _statusEffectService;
     }
 }
