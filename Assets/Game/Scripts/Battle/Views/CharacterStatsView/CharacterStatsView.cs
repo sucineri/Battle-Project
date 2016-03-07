@@ -23,16 +23,16 @@ public class CharacterStatsView : MonoBehaviour {
 
         this._hpLabel.text = string.Format("{0}/{1}", character.CurrentHp, character.MaxHp);
 
-        this.CreateStatsCell(Const.Stats.Attack, character.GetStat(Const.Stats.Attack).ToString());
-        this.CreateStatsCell(Const.Stats.Defense, character.GetStat(Const.Stats.Defense).ToString());
-        this.CreateStatsCell(Const.Stats.Wisdom, character.GetStat(Const.Stats.Wisdom).ToString());
-        this.CreateStatsCell(Const.Stats.Agility, character.GetStat(Const.Stats.Agility).ToString());
-        this.CreateStatsCell(Const.Stats.Mind, character.GetStat(Const.Stats.Mind).ToString());
+        this.CreateCellWithDecimalValue(character, Const.Stats.Attack);
+        this.CreateCellWithDecimalValue(character, Const.Stats.Defense);
+        this.CreateCellWithDecimalValue(character, Const.Stats.Wisdom);
+        this.CreateCellWithDecimalValue(character, Const.Stats.Agility);
+        this.CreateCellWithDecimalValue(character, Const.Stats.Mind);
         this.CreateEmptyCell();
 
-        this.CreateStatsCell(Const.Stats.Accuracy, string.Format("{0}%", character.GetStat(Const.Stats.Accuracy) * 100d));
-        this.CreateStatsCell(Const.Stats.Evasion, string.Format("{0}%", character.GetStat(Const.Stats.Evasion) * 100d));
-        this.CreateStatsCell(Const.Stats.Critical, string.Format("{0}%", character.GetStat(Const.Stats.Critical) * 100d));
+        this.CreateCellWithPercentageValue(character, Const.Stats.Accuracy);
+        this.CreateCellWithPercentageValue(character, Const.Stats.Evasion);
+        this.CreateCellWithPercentageValue(character, Const.Stats.Critical);
 
         this.gameObject.SetActive(true);
     }
@@ -44,12 +44,22 @@ public class CharacterStatsView : MonoBehaviour {
         cell.Empty();
     }
 
-    private void CreateStatsCell(Const.Stats stat, string value)
+    private void CreateCellWithDecimalValue(BattleCharacter character, Const.Stats stat)
+    {
+        this.CreateStatsCell(stat, character.GetStat(stat).ToString(), character.GetStatBuffState(stat));
+    }
+
+    private void CreateCellWithPercentageValue(BattleCharacter character, Const.Stats stat)
+    {
+        this.CreateStatsCell(stat, string.Format("{0}%", character.GetStat(stat) * 100d), character.GetStatBuffState(stat));
+    }
+
+    private void CreateStatsCell(Const.Stats stat, string value, CharacterStatBuffState state)
     {
         var go = this.CreateCell();
 
         var cell = go.GetComponent<CharacterStatCell>();
-        cell.Init(stat, value);
+        cell.Init(stat, value, state);
     }
 
     private GameObject CreateCell()

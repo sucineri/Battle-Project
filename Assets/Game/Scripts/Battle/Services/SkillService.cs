@@ -9,15 +9,17 @@ public class SkillService
 
     public bool ShouldHit(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect)
     {
-        var hitChance = attacker.GetStatWithModifiers(Const.Stats.Accuracy, effect.StatsModifiers);
-        var evaChance = defender.GetStat(Const.Stats.Evasion);
+        var modifiedStat = attacker.GetStatWithModifiers(Const.Stats.Accuracy, effect.StatsModifiers);
+        var hitChance = modifiedStat.Value;
+        var evaChance = modifiedStat.IsAbsolute ? 0d :defender.GetStat(Const.Stats.Evasion);
+
         return this.IsRandomCheckSuccess(hitChance - evaChance);
     }
 
     public bool ShouldCritical(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect)
     {
         var critChance = attacker.GetStatWithModifiers(Const.Stats.Critical, effect.StatsModifiers);
-        return this.IsRandomCheckSuccess(critChance);
+        return this.IsRandomCheckSuccess(critChance.Value);
     }
 
     public double CalculateDamage(BattleCharacter attacker, BattleCharacter defender, SkillEffect effect, bool shouldCritical)
@@ -25,19 +27,19 @@ public class SkillService
         var damage = 0d;
         if (effect.HasStatModifier(Const.Stats.Attack))
         {
-            var atkValue = attacker.GetStatWithModifiers(Const.Stats.Attack, effect.StatsModifiers);
-            damage += atkValue - defender.GetStat(Const.Stats.Defense);
+            var modifiedAtk = attacker.GetStatWithModifiers(Const.Stats.Attack, effect.StatsModifiers);
+            damage += modifiedAtk.Value - defender.GetStat(Const.Stats.Defense);
         }
 
         if (effect.HasStatModifier(Const.Stats.Wisdom))
         {
-            var wisValue = attacker.GetStatWithModifiers(Const.Stats.Wisdom, effect.StatsModifiers);
-            damage += wisValue - defender.GetStat(Const.Stats.Mind);
+            var modifiedWis = attacker.GetStatWithModifiers(Const.Stats.Wisdom, effect.StatsModifiers);
+            damage += modifiedWis.Value - defender.GetStat(Const.Stats.Mind);
         }
 
         if (effect.HasStatModifier(Const.Stats.Mind))
         {
-            damage += attacker.GetStatWithModifiers(Const.Stats.Mind, effect.StatsModifiers);
+            damage += attacker.GetStatWithModifiers(Const.Stats.Mind, effect.StatsModifiers).Value;
         }
 
         if (shouldCritical)
@@ -162,10 +164,4 @@ public class SkillService
         }
         return Const.Team.Player;
     }
-
-    private struct ModifiedValue
-    {
-        public double value;
-        public bool isAbsolute;
-    }
-}
+}  

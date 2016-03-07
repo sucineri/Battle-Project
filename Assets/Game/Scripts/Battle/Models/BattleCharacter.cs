@@ -3,6 +3,13 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
+public enum CharacterStatBuffState
+{
+    UnBuffed,
+    Debuffed,
+    Buffed
+}
+
 public class BattleCharacter
 {
     public Character BaseCharacter { get; private set; }
@@ -128,6 +135,45 @@ public class BattleCharacter
         }
     }
 
+    public void UpateStatusEffectTurns()
+    {
+        var expiredEffects = new List<Const.StatusEffectTypes>();
+        foreach (var kv in this.StatusEffectStatModifiers)
+        {
+            kv.Value.UpdateTurn();
+            if (kv.Value.Expired)
+            {
+                expiredEffects.Add(kv.Key);
+            }
+        }
+
+        if (expiredEffects.Count > 0)
+        {
+            foreach (var expiredEffect in expiredEffects)
+            {
+                this.StatusEffectStatModifiers.Remove(expiredEffect);
+            }
+            this.RecalculateModifiedStats();
+        }
+    }
+
+    public CharacterStatBuffState GetStatBuffState(Const.Stats stat)
+    {
+        var baseValue = this.GetBaseStat(stat);
+        var actualValue = this.GetStat(stat);
+
+        if (actualValue > baseValue)
+        {
+            return CharacterStatBuffState.Buffed;
+        }
+        else if (actualValue < baseValue)
+        {
+            return CharacterStatBuffState.Debuffed;
+        }
+
+        return CharacterStatBuffState.UnBuffed;
+    }
+
     private double GetResistance(int enumValue)
     {
         if (Enum.IsDefined(typeof (Const.Stats), enumValue))
@@ -143,36 +189,36 @@ public class BattleCharacter
         foreach (var modifier in this.StatusEffectStatModifiers.Values)
         {
             var stat = modifier.StatModifier.Stat;
-            var baseStat = this.GetBaseStat(stat);
+            var baseStatValue = this.GetBaseStat(stat);
 
             var statModifiers = new Dictionary<Const.ModifierType, double>();
             statModifiers.Add(modifier.StatModifier.Type, modifier.StatModifier.Magnitude);
 
-            var modifiedValue = this.CalculateStat(baseStat, statModifiers);
-            stats.SetStat(stat, modifiedValue);
+            var modifiedValue = this.CalculateStat(stat, baseStatValue, statModifiers);
+            stats.SetStat(stat, modifiedValue.Value);
         }
         this.ModifierStats = stats;
     }
 
-    public double GetStatWithModifiers(Const.Stats stat, List<StatModifier> modifiers)
+    public ModifiedStat GetStatWithModifiers(Const.Stats stat, List<StatModifier> modifiers)
     {
         var baseStat = this.GetStat(stat);
         var statModifiers = this.GetModifiersForStat(modifiers, stat);
-        return this.CalculateStat(baseStat, statModifiers);
+        return this.CalculateStat(stat, baseStat, statModifiers);
     }
 
-    private double CalculateStat(double baseValue, Dictionary<Const.ModifierType, double> statModifiers)
+    private ModifiedStat CalculateStat(Const.Stats stat, double baseValue, Dictionary<Const.ModifierType, double> statModifiers)
     {
         if (statModifiers.Count == 0)
         {
-            return baseValue;
+            return new ModifiedStat(stat, baseValue, false);
         }
 
         var value = baseValue;
 
         if (statModifiers.ContainsKey(Const.ModifierType.Absolute))
         {
-            return statModifiers[Const.ModifierType.Absolute];
+            return new ModifiedStat(stat, statModifiers[Const.ModifierType.Absolute], true);
         }
         else
         {
@@ -186,7 +232,7 @@ public class BattleCharacter
                 value += statModifiers[Const.ModifierType.Addition];
             }
 
-            return value;
+            return new ModifiedStat(stat, value, false);
         }
     }
 

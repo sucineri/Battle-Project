@@ -204,6 +204,7 @@ public class BattleModel
 
                     this.ProcessActionResult(this._currentActionResults, BattlePhase.NextRound, () => {
                         this.UnsetCharacterSelectedSkillTarget(this.CurrentActor);
+                        this.CurrentActor.UpateStatusEffectTurns();
                     });
                 }
             }
