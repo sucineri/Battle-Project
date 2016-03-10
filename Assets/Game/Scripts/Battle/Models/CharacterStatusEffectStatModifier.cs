@@ -5,7 +5,8 @@ public class CharacterStatusEffectStatModifier
 {
     public int RemainingTurns { get; private set; }
     public int Rank { get; private set; }
-    public Const.StatusEffectTypes StatusEffectType { get; private set; }
+    public StatusEffect.Category StatusEffectCategory { get; private set; }
+    public StatusEffect.Type StatusEffectType { get; private set; }
     public StatModifier StatModifier { get; private set; }
 
     public bool Expired { get { return this.RemainingTurns <= 0; } }
@@ -14,6 +15,7 @@ public class CharacterStatusEffectStatModifier
     {
         this.RemainingTurns = statusEffect.EffectDuration;
         this.Rank = statusEffect.EffectRank;
+        this.StatusEffectCategory = statusEffect.StatusEffectCategory;
         this.StatusEffectType = statusEffect.StatusEffectType;
         this.StatModifier = new StatModifier((Const.Stats)statusEffect.AffectedFieldId, statusEffect.EffectMagnitude, statusEffect.ModifierType); 
     }

@@ -39,6 +39,33 @@ public class StatusEffectService
         return result;
     }
 
+    public List<BattleActionResult.EffectOnTarget> GetPostActionEffectOnTarget(BattleCharacter target)
+    {
+        var allEffects = new List<BattleActionResult.EffectOnTarget>();
+        foreach (var specialStateEffect in target.SpecialStateModifiers)
+        {
+            switch (specialStateEffect.Key)
+            {
+                case StatusEffect.Type.Poison:
+                    allEffects.Add(this.GetPoisonEffect(target, specialStateEffect.Value.StatModifier.Magnitude));
+                    break;
+                default:
+                    break;
+                        
+            }
+        }
+        return allEffects;
+    }
+
+    private BattleActionResult.EffectOnTarget GetPoisonEffect(BattleCharacter target, double magnitude)
+    {
+        var effectOnTarget = new BattleActionResult.EffectOnTarget();
+        effectOnTarget.target = target;
+        effectOnTarget.isSuccess = true;
+        effectOnTarget.hpChange = -target.CurrentHp * magnitude;
+        return effectOnTarget;
+    }
+
     private BattleActionResult.StatusEffectResultType GetStatusResultType(int totalEffectCount, int resistedCount, int ineffectiveCount)
     {
         if (totalEffectCount == 0)

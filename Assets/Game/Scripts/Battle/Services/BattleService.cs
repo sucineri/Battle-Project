@@ -113,6 +113,13 @@ public class BattleService
             skillActionResult.AddSkillEffectResult(actionEffectResult);
         }
 
+        var postActionEffects = ServiceFactory.GetStatusEffectService().GetPostActionEffectOnTarget(actor);
+        if (postActionEffects.Count > 0)
+        {
+            var postActionEffectResult = new BattleActionResult.ActionEffectResult();
+            postActionEffectResult.AddEffecstOnTarget(postActionEffects);
+            skillActionResult.SetPostActionEffectResult(postActionEffectResult);
+        } 
         return skillActionResult;
     }
 

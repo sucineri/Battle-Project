@@ -21,6 +21,11 @@ public class BattleActionResult
         {
             this.effectsOnTarget.Add(effectOnTarget);
         }
+
+        public void AddEffecstOnTarget(List<EffectOnTarget> effects)
+        {
+            this.effectsOnTarget.AddRange(effects);
+        }
     }
 
     public class EffectOnTarget
@@ -48,6 +53,8 @@ public class BattleActionResult
     public Skill skill;
     public List<ActionEffectResult> allSkillEffectResult = new List<ActionEffectResult>();
 
+    public ActionEffectResult PostActionEffectResult { get; private set; }
+
     public bool HasResult
     {
         get
@@ -61,9 +68,14 @@ public class BattleActionResult
         this.allSkillEffectResult.Add(effectResult);
     }
 
+    public void SetPostActionEffectResult(ActionEffectResult effectResult)
+    {
+        this.PostActionEffectResult = effectResult;
+    }
+
     public bool IsCharacterAffected(BattleCharacter character)
     {
-        foreach (var effectResult  in this.allSkillEffectResult)
+        foreach (var effectResult in this.allSkillEffectResult)
         {
             foreach (var targetResult in effectResult.effectsOnTarget)
             {

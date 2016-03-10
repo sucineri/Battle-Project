@@ -38,25 +38,44 @@ public class SkillController: MonoBehaviour
 
             var skillEffectResult = actionResult.allSkillEffectResult[i];
 
-            for (int j = 0; j < skillEffectResult.effectsOnTarget.Count; ++j)
-            {
-                var effectOnTarget = skillEffectResult.effectsOnTarget[j];
-                var unit = battleView.GetBattleUnit(effectOnTarget.target);
-
-                if (j != skillEffectResult.effectsOnTarget.Count - 1)
-                {
-                    StartCoroutine(PlayEffectOnTarget(unit, effectOnTarget));
-                }
-                else
-                {
-                    yield return StartCoroutine(PlayEffectOnTarget(unit, effectOnTarget));
-                }
-            }
+            yield return this.PlayEffects(skillEffectResult.effectsOnTarget, battleView);
+//            for (int j = 0; j < skillEffectResult.effectsOnTarget.Count; ++j)
+//            {
+//                var effectOnTarget = skillEffectResult.effectsOnTarget[j];
+//                var unit = battleView.GetBattleUnit(effectOnTarget.target);
+//
+//                if (j != skillEffectResult.effectsOnTarget.Count - 1)
+//                {
+//                    StartCoroutine(PlayEffectOnTarget(unit, effectOnTarget));
+//                }
+//                else
+//                {
+//                    yield return StartCoroutine(PlayEffectOnTarget(unit, effectOnTarget));
+//                }
+//            }
         }
 
         yield return StartCoroutine(actor.ReturnToPosition(actorOrigPosition));
 
         Destroy(this.gameObject);
+    }
+
+    public IEnumerator PlayEffects(List<BattleActionResult.EffectOnTarget> effectsOnTarget, BattleView battleView)
+    {
+        for (int i = 0; i < effectsOnTarget.Count; ++i)
+        {
+            var effectOnTarget = effectsOnTarget[i];
+            var unit = battleView.GetBattleUnit(effectOnTarget.target);
+
+            if (i != effectsOnTarget.Count - 1)
+            {
+                StartCoroutine(PlayEffectOnTarget(unit, effectOnTarget));
+            }
+            else
+            {
+                yield return StartCoroutine(PlayEffectOnTarget(unit, effectOnTarget));
+            }
+        }
     }
 
     protected IEnumerator PlayEffectOnTarget(BattleUnitController unit, BattleActionResult.EffectOnTarget effectOnTarget)

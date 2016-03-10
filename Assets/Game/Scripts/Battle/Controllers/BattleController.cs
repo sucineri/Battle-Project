@@ -133,7 +133,28 @@ public class BattleController : MonoBehaviour
 
     private IEnumerator ProcessSkillActionResult(BattleActionResult actionResult)
     {
-        yield return StartCoroutine(this._battleView.PlaySkillAnimation(actionResult));
+        var skillController = SkillControllerFactory.CreateSkillController(actionResult.skill);
+        if (skillController != null)
+        {
+            var actor = actionResult.actor;
+            var actorController = this._battleView.GetBattleUnit(actor);
+            yield return StartCoroutine(skillController.PlaySkillSequence(actorController, this._battleView, actionResult));
+        }
+
+        yield return this.ProcessPostActionResult(actionResult);
+    }
+
+    private IEnumerator ProcessPostActionResult(BattleActionResult actionResult)
+    {
+        var postActionResult = actionResult.PostActionEffectResult;
+        if (postActionResult != null)
+        {
+            // TODO: different type
+            var controller = SkillControllerFactory.CreatePostEffectController(StatusEffect.Type.Poison);
+            yield return StartCoroutine(controller.PlayEffects(postActionResult.effectsOnTarget, this._battleView));
+            Destroy(controller.gameObject);
+        }
+        yield return null;
     }
 
     private void OnBattlePhaseChange(BattleModel.BattlePhase battlePhase)

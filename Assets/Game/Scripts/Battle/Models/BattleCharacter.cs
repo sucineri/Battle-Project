@@ -46,7 +46,9 @@ public class BattleCharacter
 
     public MapPosition SkillTargetPosition { get; set; }
 
-    public Dictionary<Const.StatusEffectTypes, CharacterStatusEffectStatModifier> StatusEffectStatModifiers { get; set; }
+    public Dictionary<StatusEffect.Type, CharacterStatusEffectStatModifier> StatusEffectStatModifiers { get; private set; }
+
+    public Dictionary<StatusEffect.Type, CharacterStatusEffectStatModifier> SpecialStateModifiers { get; private set; }
 
     public CharacterStats ModifierStats { get; set; }
 
@@ -66,16 +68,27 @@ public class BattleCharacter
         } 
     }
 
+    public bool IsPoisoned
+    {
+        get
+        {
+            return this.HasSpecialState(StatusEffect.Type.Poison);
+        }
+    }
+
     public BattleCharacter()
     {
         this.ModifierStats = new CharacterStats();
-        this.StatusEffectStatModifiers = new Dictionary<Const.StatusEffectTypes, CharacterStatusEffectStatModifier>();
+        this.StatusEffectStatModifiers = new Dictionary<StatusEffect.Type, CharacterStatusEffectStatModifier>();
+        this.SpecialStateModifiers = new Dictionary<StatusEffect.Type, CharacterStatusEffectStatModifier>();
+        this.RecalculateModifiedStats();
     }
 
     public BattleCharacter(Character baseCharacter, Const.Team team)
     {
         this.BaseCharacter = baseCharacter;
-        this.StatusEffectStatModifiers = new Dictionary<Const.StatusEffectTypes, CharacterStatusEffectStatModifier>();
+        this.StatusEffectStatModifiers = new Dictionary<StatusEffect.Type, CharacterStatusEffectStatModifier>();
+        this.SpecialStateModifiers = new Dictionary<StatusEffect.Type, CharacterStatusEffectStatModifier>();
         this.RecalculateModifiedStats();
 
         this.Team = team;
@@ -100,7 +113,7 @@ public class BattleCharacter
         return this.GetResistance((int)affinity);
     }
 
-    public double GetStatusEffectResistance(Const.StatusEffectTypes statusEffectType)
+    public double GetStatusEffectResistance(StatusEffect.Type statusEffectType)
     {
         return this.GetResistance((int)statusEffectType);
     }
@@ -114,22 +127,25 @@ public class BattleCharacter
     {
         var type = statusEffect.StatusEffectType;
         var newMod = new CharacterStatusEffectStatModifier(statusEffect);
-        if (this.StatusEffectStatModifiers.ContainsKey(type))
+
+        var dictionary = statusEffect.StatusEffectCategory == StatusEffect.Category.CharacterStatChange ? this.StatusEffectStatModifiers : this.SpecialStateModifiers;
+
+        if (dictionary.ContainsKey(type))
         {
-            if (newMod.Rank < this.StatusEffectStatModifiers[type].Rank)
+            if (newMod.Rank < dictionary[type].Rank)
             {
                 return false;
             }
             else
             {
-                this.StatusEffectStatModifiers[type] = newMod;
+                dictionary[type] = newMod;
                 this.RecalculateModifiedStats();
                 return true;
             }
         }
         else
         {
-            this.StatusEffectStatModifiers.Add(type, newMod);
+            dictionary.Add(type, newMod);
             this.RecalculateModifiedStats();
             return true;
         }
@@ -137,8 +153,18 @@ public class BattleCharacter
 
     public void UpateStatusEffectTurns()
     {
-        var expiredEffects = new List<Const.StatusEffectTypes>();
-        foreach (var kv in this.StatusEffectStatModifiers)
+        var hasExpiredStatEffect = this.UpdateStatusEffectTurns(this.StatusEffectStatModifiers);
+        var hasExpiredSpecialEffect = this.UpdateStatusEffectTurns(this.SpecialStateModifiers);
+        if (hasExpiredStatEffect || hasExpiredSpecialEffect)
+        {
+            this.RecalculateModifiedStats();
+        }
+    }
+
+    private bool UpdateStatusEffectTurns(Dictionary<StatusEffect.Type, CharacterStatusEffectStatModifier> effects)
+    {
+        var expiredEffects = new List<StatusEffect.Type>();
+        foreach (var kv in effects)
         {
             kv.Value.UpdateTurn();
             if (kv.Value.Expired)
@@ -151,10 +177,10 @@ public class BattleCharacter
         {
             foreach (var expiredEffect in expiredEffects)
             {
-                this.StatusEffectStatModifiers.Remove(expiredEffect);
+                effects.Remove(expiredEffect);
             }
-            this.RecalculateModifiedStats();
         }
+        return expiredEffects.Count > 0;
     }
 
     public CharacterStatBuffState GetStatBuffState(Const.Stats stat)
@@ -207,6 +233,15 @@ public class BattleCharacter
         return this.CalculateStat(stat, baseStat, statModifiers);
     }
 
+    public CharacterStatusEffectStatModifier GetSpecialStateModifier(StatusEffect.Type type)
+    {
+        if (this.SpecialStateModifiers.ContainsKey(type))
+        {
+            return this.SpecialStateModifiers[type];
+        }
+        return null;
+    }
+
     private ModifiedStat CalculateStat(Const.Stats stat, double baseValue, Dictionary<Const.ModifierType, double> statModifiers)
     {
         if (statModifiers.Count == 0)
@@ -255,5 +290,10 @@ public class BattleCharacter
             }
         }
         return dict;
+    }
+
+    private bool HasSpecialState(StatusEffect.Type type)
+    {
+        return this.SpecialStateModifiers.ContainsKey(type);
     }
 }

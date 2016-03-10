@@ -77,10 +77,9 @@ public class Const
         Dark = 110
     }
 
-    public enum StatusEffectTypes
+    public enum SpecialState
     {
-        Blind = 201,
-        LightningResistanceUp = 301,
+        Poison = 401
     }
 
     public enum ActionType

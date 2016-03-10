@@ -78,12 +78,15 @@ public class BattleUnitController : MonoBehaviour
 
     public void PlayEffect(string path)
     {
-        var prefab = Resources.Load(path);
-        var go = Instantiate(prefab) as GameObject;
-        go.transform.SetParent(this.transform);
-        go.transform.localScale = Vector3.one;
-        go.transform.localPosition = Vector3.zero;
-        go.SetActive(true);
+        if (!string.IsNullOrEmpty(path))
+        {
+            var prefab = Resources.Load(path);
+            var go = Instantiate(prefab) as GameObject;
+            go.transform.SetParent(this.transform);
+            go.transform.localScale = Vector3.one;
+            go.transform.localPosition = Vector3.zero;
+            go.SetActive(true); 
+        }
     }
 
     public IEnumerator TakeEffect(BattleActionResult.EffectOnTarget effectOnTarget, float hpPercentage)

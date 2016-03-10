@@ -107,6 +107,7 @@ public class SkillEffect
         skillEffect.EffectType = Const.SkillEffectType.Attack;
 
         skillEffect.AddStatModifier(Const.Stats.Attack, 0.5d, Const.ModifierType.Multiply);
+        skillEffect.AddStatusEffect(StatusEffect.Poison());
         return skillEffect;
     }
 
@@ -167,23 +168,6 @@ public class SkillEffect
 
         skillEffect.AddStatModifier(Const.Stats.Accuracy, 1d, Const.ModifierType.Absolute);
         skillEffect.AddStatModifier(Const.Stats.Mind, 3d, Const.ModifierType.Multiply);
-        return skillEffect;
-    }
-
-    public static SkillEffect BlindEffect()
-    {
-        var skillEffect = new SkillEffect();
-
-        skillEffect.EffectTarget = Targeting.SingleTarget();
-
-        skillEffect.BaseEnmity = 40;
-        skillEffect.EnmityType = Const.EnmityTargetType.Target;
-
-        skillEffect.EffectType = Const.SkillEffectType.Debuff;
-
-        skillEffect.AddStatModifier(Const.Stats.Accuracy, 1d, Const.ModifierType.Absolute);
-        skillEffect.AddStatusEffect(StatusEffect.Blind());
-
         return skillEffect;
     }
 }
