@@ -106,4 +106,18 @@ public class Skill
         skill.CastingTime = 1;
         return skill;
     }
+
+    public static Skill Wait()
+    {
+        var skill = new Skill();
+        skill.Name = "Wait";
+        skill.Effects.Add(SkillEffect.WaitEffect());
+        skill.NumberOfTriggers = 1;
+        skill.PrefabPath = "Skills/Wait";
+        skill.EffectPrefabPath = "";
+        skill.SkillTargetArea = Targeting.SelfTargetArea();
+        skill.Rank = 1;
+        skill.CastingTime = 1;
+        return skill;
+    }
 }

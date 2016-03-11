@@ -414,28 +414,47 @@ public class BattleModel
 
         foreach (var effectResult in skillActionResult.allSkillEffectResult)
         {
-            var affectedCharacters = new List<BattleCharacter>();
-
-            foreach (var effectOnTarget in effectResult.effectsOnTarget)
-            {
-                if (effectOnTarget.isSuccess)
-                {
-                    var shouldCritical = effectOnTarget.isCritical;
-                    var target = effectOnTarget.target;
-                    affectedCharacters.Add(target);
-
-                    // Deduct Hp
-                    target.CurrentHp = Math.Min(target.MaxHp, Math.Max(0d, target.CurrentHp + effectOnTarget.hpChange));
-
-                    Debug.LogWarning(string.Format("{0}{1} takes {2} damage", shouldCritical ? "Critical! " : "", target.Name,  effectOnTarget.hpChange));
-                    Debug.LogWarning(target.Name + " remaining hp " + target.CurrentHp);
-                }
-            }
+            var affectedCharacters = this.ApplyActionEffectResult(effectResult);
 
             var effect = effectResult.effectsOnTarget.ElementAt(0).skillEffect;
             ServiceFactory.GetEnmityService().ApplyEnmityForSkillEffect(actor, effect, affectedCharacters, this._battleCharacters);
         }
+
+        if (skillActionResult.PostActionEffectResult != null)
+        {
+            this.ApplyActionEffectResult(skillActionResult.PostActionEffectResult);
+        }
+
         ServiceFactory.GetTurnOrderService().ApplySkillCooldownToCharacter(actor, skill);
+    }
+
+    private List<BattleCharacter> ApplyActionEffectResult(BattleActionResult.ActionEffectResult actionEffectResult)
+    {
+        var affectedCharacters = new List<BattleCharacter>();
+        foreach (var effectOnTarget in actionEffectResult.effectsOnTarget)
+        {
+            var target = effectOnTarget.target;
+
+            if (effectOnTarget.isEmptyEffect)
+            {
+                affectedCharacters.Add(target);
+                continue;
+            }
+
+            if (effectOnTarget.isSuccess)
+            {
+                var shouldCritical = effectOnTarget.isCritical;
+
+                // Deduct Hp
+                target.CurrentHp = Math.Min(target.MaxHp, Math.Max(0d, target.CurrentHp + effectOnTarget.hpChange));
+
+                Debug.LogWarning(string.Format("{0}{1} takes {2} damage", shouldCritical ? "Critical! " : "", target.Name,  effectOnTarget.hpChange));
+                Debug.LogWarning(target.Name + " remaining hp " + target.CurrentHp);
+
+                affectedCharacters.Add(target);
+            }
+        }
+        return affectedCharacters;
     }
 
     private void SetTileStateAtPositions(List<MapPosition> positions, Tile.TileState state, bool flag)

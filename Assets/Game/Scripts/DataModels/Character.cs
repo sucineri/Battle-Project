@@ -48,6 +48,7 @@ public class Character
         character.Skills.Add(Skill.MeleeAttack());
         character.Skills.Add(Skill.CrossSlash());
         character.Skills.Add(Skill.MinorHeal());
+        character.Skills.Add(Skill.Wait());
         character.Movement = 2;
 
         character.PatternShape = Pattern.Single();
@@ -111,6 +112,7 @@ public class Character
         character.SizeOffset = 1.5f;
         character.Skills.Add(Skill.ChainLightning());
         character.Skills.Add(Skill.Squash());
+        character.Skills.Add(Skill.Wait());
         character.Movement = 2;
 
         character.PatternShape = Pattern.Square();
@@ -145,6 +147,7 @@ public class Character
         character.SizeOffset = 1.5f;
         character.Skills.Add(Skill.ChainLightning());
         character.Skills.Add(Skill.Squash());
+        character.Skills.Add(Skill.Wait());
         character.Movement = 2;
 
         character.PatternShape = Pattern.Square();

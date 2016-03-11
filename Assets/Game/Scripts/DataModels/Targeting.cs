@@ -113,5 +113,15 @@ public class Targeting
         targeting.Pattern = Pattern.Cross();
         return targeting;
     }
+
+    public static Targeting SelfTargetArea()
+    {
+        var targeting = new Targeting();
+        targeting.TargetGroup = Const.SkillTargetGroup.Self;
+        targeting.TargetType = Const.SkillTargetType.Unit;
+
+        targeting.Pattern = Pattern.Single();
+        return targeting;
+    }
     #endregion
 }

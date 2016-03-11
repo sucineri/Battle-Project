@@ -113,13 +113,8 @@ public class BattleService
             skillActionResult.AddSkillEffectResult(actionEffectResult);
         }
 
-        var postActionEffects = ServiceFactory.GetStatusEffectService().GetPostActionEffectOnTarget(actor);
-        if (postActionEffects.Count > 0)
-        {
-            var postActionEffectResult = new BattleActionResult.ActionEffectResult();
-            postActionEffectResult.AddEffecstOnTarget(postActionEffects);
-            skillActionResult.SetPostActionEffectResult(postActionEffectResult);
-        } 
+        ServiceFactory.GetStatusEffectService().AddPostActionEffect(skillActionResult, actor);
+
         return skillActionResult;
     }
 
@@ -239,6 +234,8 @@ public class BattleService
                 var damage = Math.Floor(skillService.CalculateDamage(actor, target, effect, shouldCritical));
                 hpChange = -damage;
             }                
+
+            effectOnTarget.isEmptyEffect = effect.IsEmptyEffect;
         }
         else
         {

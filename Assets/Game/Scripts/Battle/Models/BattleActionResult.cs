@@ -22,9 +22,17 @@ public class BattleActionResult
             this.effectsOnTarget.Add(effectOnTarget);
         }
 
-        public void AddEffecstOnTarget(List<EffectOnTarget> effects)
+        public double GetTotalHpChangeOnTarget(BattleCharacter target)
         {
-            this.effectsOnTarget.AddRange(effects);
+            var total = 0d;
+            foreach (var effectOnTarget in this.effectsOnTarget)
+            {
+                if (effectOnTarget.target == target)
+                {
+                    total += effectOnTarget.hpChange;
+                }
+            }
+            return total;
         }
     }
 
@@ -37,6 +45,7 @@ public class BattleActionResult
         public string effectPrefabPath;
         public bool isSuccess = true;
         public bool isCritical = false;
+        public bool isEmptyEffect = false;
         public StatusEffectResult statusEffectResult;
     }
 
@@ -68,9 +77,13 @@ public class BattleActionResult
         this.allSkillEffectResult.Add(effectResult);
     }
 
-    public void SetPostActionEffectResult(ActionEffectResult effectResult)
+    public void AddPostActionEffectResult(EffectOnTarget postActionEffectOnTarget)
     {
-        this.PostActionEffectResult = effectResult;
+        if (this.PostActionEffectResult == null)
+        {
+            this.PostActionEffectResult = new ActionEffectResult();
+        }
+        this.PostActionEffectResult.AddEffectOnTarget(postActionEffectOnTarget);
     }
 
     public bool IsCharacterAffected(BattleCharacter character)
@@ -86,5 +99,20 @@ public class BattleActionResult
             }
         }
         return false;
+    }
+
+    public double GetTotalHpChangeOnTarget(BattleCharacter target)
+    {
+        var total = 0d;
+        foreach (var skillEffect in this.allSkillEffectResult)
+        {
+            total += skillEffect.GetTotalHpChangeOnTarget(target);
+        }
+
+        if (this.PostActionEffectResult != null)
+        {
+            total += this.PostActionEffectResult.GetTotalHpChangeOnTarget(target);
+        }
+        return total;
     }
 }

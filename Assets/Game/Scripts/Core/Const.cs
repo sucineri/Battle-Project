@@ -20,6 +20,7 @@ public class Const
 
     public enum SkillEffectType
     {
+        None,
         Attack,
         Heal,
         Buff,

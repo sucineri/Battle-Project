@@ -18,6 +18,7 @@ public class StatusEffectService
             var resistance = target.GetStatusEffectResistance(statusEffect.StatusEffectType);
             if (!this.IsResisted(resistance))
             {
+                // BUG: Should not apply here. just check!!!
                 if (target.ApplyStatusEffect(statusEffect))
                 {
                     landedEffects.Add(statusEffect);
@@ -39,22 +40,25 @@ public class StatusEffectService
         return result;
     }
 
-    public List<BattleActionResult.EffectOnTarget> GetPostActionEffectOnTarget(BattleCharacter target)
+    public void AddPostActionEffect(BattleActionResult actionResult, BattleCharacter target)
     {
-        var allEffects = new List<BattleActionResult.EffectOnTarget>();
         foreach (var specialStateEffect in target.SpecialStateModifiers)
         {
+            var totalHpChangeOnTarget = actionResult.GetTotalHpChangeOnTarget(target);
+            var isTargetAlive = (target.CurrentHp + totalHpChangeOnTarget) > 0;
             switch (specialStateEffect.Key)
             {
                 case StatusEffect.Type.Poison:
-                    allEffects.Add(this.GetPoisonEffect(target, specialStateEffect.Value.StatModifier.Magnitude));
+                    if (isTargetAlive)
+                    {
+                        actionResult.AddPostActionEffectResult(this.GetPoisonEffect(target, specialStateEffect.Value.StatModifier.Magnitude));
+                    }
                     break;
                 default:
                     break;
                         
             }
         }
-        return allEffects;
     }
 
     private BattleActionResult.EffectOnTarget GetPoisonEffect(BattleCharacter target, double magnitude)

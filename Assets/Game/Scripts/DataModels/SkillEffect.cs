@@ -27,6 +27,8 @@ public class SkillEffect
 
     public bool HasStatusEffect { get { return this.StatusEffects.Count > 0; } }
 
+    public bool IsEmptyEffect { get { return this.EffectType == Const.SkillEffectType.None; } }
+
     public SkillEffect()
     {
         StatsModifiers = new List<StatModifier>();
@@ -169,5 +171,20 @@ public class SkillEffect
         skillEffect.AddStatModifier(Const.Stats.Accuracy, 1d, Const.ModifierType.Absolute);
         skillEffect.AddStatModifier(Const.Stats.Mind, 3d, Const.ModifierType.Multiply);
         return skillEffect;
+    }
+
+    public static SkillEffect WaitEffect()
+    {
+        var skillEffect = new SkillEffect();
+
+        skillEffect.EffectTarget = Targeting.SingleTarget();
+        skillEffect.BaseEnmity = 0;
+        skillEffect.EnmityType = Const.EnmityTargetType.Target;
+
+        skillEffect.EffectType = Const.SkillEffectType.None;
+        skillEffect.AddStatModifier(Const.Stats.Accuracy, 1d, Const.ModifierType.Absolute);
+
+        return skillEffect;
+
     }
 }

@@ -151,6 +151,8 @@ public class SkillService
             case Const.SkillEffectType.Buff:
             case Const.SkillEffectType.Heal:
                 return actorTeam;
+            case Const.SkillEffectType.None:
+                return actorTeam;
             default:
                 return this.GetOpponentTeam(actorTeam);
         }
