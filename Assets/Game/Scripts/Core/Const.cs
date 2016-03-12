@@ -61,7 +61,8 @@ public class Const
         LightningResistance = 108,
         HolyResistance = 109,
         DarkResistance = 110,
-        BlindResistance = 201
+        BlindResistance = 201,
+        PoisonResistance = 401
     }
 
     public enum Affinities
@@ -116,6 +117,10 @@ public class Const
     public const double CriticalDamageMultiplier = 1.5d;
 
     public const string MissedText = "Missed";
+
+    public const string ResistedText = "Resisted";
+
+    public const string IneffectiveText = "No Effect";
 
     public const int PredictTurns = 5;
 

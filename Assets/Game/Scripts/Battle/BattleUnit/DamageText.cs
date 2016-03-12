@@ -15,9 +15,10 @@ public class DamageText : MonoBehaviour
     void Awake()
     {
         label = this.GetComponent<Text>();
+        label.enabled = false;
     }
 
-    public void ShowText(string text, bool negativeEffect, bool showCritical)
+    public void ShowText(string text, bool negativeEffect, bool showCritical, float delay)
     {
         label.text = text;
         label.color = negativeEffect ? this.negativeEffectColor : this.positiveEffectColor;
@@ -28,11 +29,13 @@ public class DamageText : MonoBehaviour
             label.fontSize = label.fontSize + 4;
         }                     
 
-        StartCoroutine(this.AnimateText());
+        StartCoroutine(this.AnimateText(delay));
     }
 
-    private IEnumerator AnimateText()
+    private IEnumerator AnimateText(float delay)
     {
+        yield return new WaitForSeconds(delay);
+        label.enabled = true;
         var startPosition = this.transform.position;
         var destination = startPosition + new Vector3(0f, moveDistance, 0f);
 

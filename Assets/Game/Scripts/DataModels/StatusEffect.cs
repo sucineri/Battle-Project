@@ -56,6 +56,19 @@ public class StatusEffect
         };
     }
 
+    public static StatusEffect PoisonResistanceUp()
+    {
+        return new StatusEffect() { 
+            StatusEffectCategory = Category.CharacterStatChange,
+            StatusEffectType = Type.Poison,
+            AffectedFieldId = (int)Const.Stats.PoisonResistance,
+            ModifierType = Const.ModifierType.Addition,
+            EffectMagnitude = 1d,
+            EffectRank = 1,
+            EffectDuration = 2
+        };
+    }
+
     public static StatusEffect Poison()
     {
         return new StatusEffect() { 

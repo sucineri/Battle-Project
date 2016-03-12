@@ -451,6 +451,14 @@ public class BattleModel
                 Debug.LogWarning(string.Format("{0}{1} takes {2} damage", shouldCritical ? "Critical! " : "", target.Name,  effectOnTarget.hpChange));
                 Debug.LogWarning(target.Name + " remaining hp " + target.CurrentHp);
 
+                if (effectOnTarget.statusEffectResult != null)
+                {
+                    foreach (var statusEffect in effectOnTarget.statusEffectResult.landedEffects)
+                    {
+                        target.ApplyStatusEffect(statusEffect);
+                    }
+                }
+
                 affectedCharacters.Add(target);
             }
         }

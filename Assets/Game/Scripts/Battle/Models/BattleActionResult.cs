@@ -46,7 +46,16 @@ public class BattleActionResult
         public bool isSuccess = true;
         public bool isCritical = false;
         public bool isEmptyEffect = false;
+        public bool hasDamageEffect = false;
         public StatusEffectResult statusEffectResult;
+
+        public bool HasStatusEffectResult
+        {
+            get
+            {
+                return statusEffectResult != null;
+            }
+        }
     }
 
     public class StatusEffectResult

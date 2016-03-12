@@ -18,8 +18,7 @@ public class StatusEffectService
             var resistance = target.GetStatusEffectResistance(statusEffect.StatusEffectType);
             if (!this.IsResisted(resistance))
             {
-                // BUG: Should not apply here. just check!!!
-                if (target.ApplyStatusEffect(statusEffect))
+                if (target.CanApplyStatusEffect(statusEffect))
                 {
                     landedEffects.Add(statusEffect);
                 }

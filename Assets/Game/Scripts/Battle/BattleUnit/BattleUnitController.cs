@@ -104,6 +104,57 @@ public class BattleUnitController : MonoBehaviour
 
     private void ShowEffectText(BattleActionResult.EffectOnTarget effectOnTarget)
     {
+        var delay = 0f;
+
+        if (effectOnTarget.hasDamageEffect)
+        {
+            var damageText = this.CreateDamageText();
+
+            var damageResultText = "";
+            var isNegativeEffect = true;
+            if (effectOnTarget.isSuccess)
+            {
+                var damage = effectOnTarget.hpChange;
+                if (damage > 0)
+                {
+                    isNegativeEffect = false;
+                }
+                damageResultText = damage.ToString("F0");
+            }
+            else
+            {
+                damageResultText = Const.MissedText;
+            }
+
+            damageText.ShowText(damageResultText, isNegativeEffect, effectOnTarget.isCritical, delay);
+
+            delay += 0.5f;
+        }
+
+
+        if (effectOnTarget.HasStatusEffectResult)
+        {
+            var resultType = effectOnTarget.statusEffectResult.resultType;
+            var statusEffectResultText = "";
+            switch (resultType)
+            {
+                case BattleActionResult.StatusEffectResultType.Resisted:
+                    statusEffectResultText = Const.ResistedText;
+                    break;
+                case BattleActionResult.StatusEffectResultType.Ineffetive:
+                    statusEffectResultText = Const.IneffectiveText;
+                    break;
+            }
+            if (!string.IsNullOrEmpty(statusEffectResultText))
+            {
+                var statusEffectText = this.CreateDamageText();
+                statusEffectText.ShowText(statusEffectResultText, true, false, delay);
+            }
+        }
+    }
+
+    private DamageText CreateDamageText()
+    {
         var go = Instantiate(this.damageTextPrefab) as GameObject;
         var damageText = go.GetComponent<DamageText>();
         go.transform.SetParent(this.transform);
@@ -111,23 +162,7 @@ public class BattleUnitController : MonoBehaviour
         go.transform.localScale = this.damageTextPrefab.transform.localScale;
         go.SetActive(true);
 
-        var effectText = "";
-        var isNegativeEffect = true;
-        if (effectOnTarget.isSuccess)
-        {
-            var damage = effectOnTarget.hpChange;
-            if (damage > 0)
-            {
-                isNegativeEffect = false;
-            }
-            effectText = damage.ToString("F0");
-        }
-        else
-        {
-            effectText = Const.MissedText;
-        }
-
-        damageText.ShowText(effectText, isNegativeEffect, effectOnTarget.isCritical);
+        return damageText;
     }
 
     private IEnumerator AnimateHpChange(float hpPercentage)

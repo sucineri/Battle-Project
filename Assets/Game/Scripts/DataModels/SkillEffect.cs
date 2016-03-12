@@ -170,6 +170,8 @@ public class SkillEffect
 
         skillEffect.AddStatModifier(Const.Stats.Accuracy, 1d, Const.ModifierType.Absolute);
         skillEffect.AddStatModifier(Const.Stats.Mind, 3d, Const.ModifierType.Multiply);
+
+        skillEffect.AddStatusEffect(StatusEffect.PoisonResistanceUp());
         return skillEffect;
     }
 

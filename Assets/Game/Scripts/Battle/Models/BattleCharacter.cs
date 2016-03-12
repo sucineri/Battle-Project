@@ -123,7 +123,27 @@ public class BattleCharacter
         this.ActionCooldown -= ticks;
     }
 
-    public bool ApplyStatusEffect(StatusEffect statusEffect)
+    public void ApplyStatusEffect(StatusEffect statusEffect)
+    {
+        if (this.CanApplyStatusEffect(statusEffect))
+        {
+            var type = statusEffect.StatusEffectType;
+            var newMod = new CharacterStatusEffectStatModifier(statusEffect);
+            var dictionary = statusEffect.StatusEffectCategory == StatusEffect.Category.CharacterStatChange ? this.StatusEffectStatModifiers : this.SpecialStateModifiers;
+
+            if (dictionary.ContainsKey(type))
+            {
+                dictionary[type] = newMod;
+            }
+            else
+            {
+                dictionary.Add(type, newMod);
+            }
+            this.RecalculateModifiedStats();
+        }
+    }
+
+    public bool CanApplyStatusEffect(StatusEffect statusEffect)
     {
         var type = statusEffect.StatusEffectType;
         var newMod = new CharacterStatusEffectStatModifier(statusEffect);
@@ -132,23 +152,10 @@ public class BattleCharacter
 
         if (dictionary.ContainsKey(type))
         {
-            if (newMod.Rank < dictionary[type].Rank)
-            {
-                return false;
-            }
-            else
-            {
-                dictionary[type] = newMod;
-                this.RecalculateModifiedStats();
-                return true;
-            }
+            return newMod.Rank >= dictionary[type].Rank;
         }
-        else
-        {
-            dictionary.Add(type, newMod);
-            this.RecalculateModifiedStats();
-            return true;
-        }
+
+        return true;
     }
 
     public void UpateStatusEffectTurns()
